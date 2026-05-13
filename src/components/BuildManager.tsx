@@ -7,6 +7,8 @@ import { characterBuildSchema } from "../lib/schema";
 import { getContentByType } from "../lib/contentIndex";
 import type { CharacterBuild, ContentEntry } from "../lib/types";
 
+const EQUIPMENT_PAGE_SIZE = 20;
+
 type BuildManagerProps = {
   builds: CharacterBuild[];
   entries: ContentEntry[];
@@ -46,6 +48,8 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
   const [selectedBuildId, setSelectedBuildId] = useState(builds[0]?.id);
   const [quickReference, setQuickReference] = useState(false);
   const [importError, setImportError] = useState("");
+  const [equipmentQuery, setEquipmentQuery] = useState("");
+  const [equipmentPage, setEquipmentPage] = useState(1);
 
   const selectedBuild = builds.find((build) => build.id === selectedBuildId) ?? builds[0];
   const selectedReferences = useMemo(
@@ -59,6 +63,25 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
   const availableAbilities = useMemo(
     () => (selectedBuild ? getAvailableAbilitiesForBuild(entries, selectedBuild) : []),
     [entries, selectedBuild],
+  );
+  const filteredEquipment = useMemo(() => {
+    const query = equipmentQuery.trim().toLowerCase();
+    return getContentByType(entries, "item").filter((item) => {
+      if (!query) {
+        return true;
+      }
+
+      return [item.name, item.text, item.tags.join(" "), item.source]
+        .join(" ")
+        .toLowerCase()
+        .includes(query);
+    });
+  }, [entries, equipmentQuery]);
+  const equipmentPageCount = Math.max(1, Math.ceil(filteredEquipment.length / EQUIPMENT_PAGE_SIZE));
+  const currentEquipmentPage = Math.min(equipmentPage, equipmentPageCount);
+  const visibleEquipment = filteredEquipment.slice(
+    (currentEquipmentPage - 1) * EQUIPMENT_PAGE_SIZE,
+    currentEquipmentPage * EQUIPMENT_PAGE_SIZE,
   );
 
   const updateBuild = (patch: Partial<CharacterBuild>) => {
@@ -325,9 +348,25 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
             </div>
 
             <div className="selection-section">
-              <h3>Equipment</h3>
+              <div className="selection-section__header">
+                <h3>Equipment</h3>
+                <span>
+                  {filteredEquipment.length} matches • page {currentEquipmentPage} of {equipmentPageCount}
+                </span>
+              </div>
+              <label className="search-box search-box--compact">
+                <span className="visually-hidden">Search equipment</span>
+                <input
+                  value={equipmentQuery}
+                  onChange={(event) => {
+                    setEquipmentQuery(event.target.value);
+                    setEquipmentPage(1);
+                  }}
+                  placeholder="Search equipment"
+                />
+              </label>
               <div className="checkbox-list">
-                {getContentByType(entries, "item").map((item) => (
+                {visibleEquipment.map((item) => (
                   <label key={item.id}>
                     <input
                       type="checkbox"
@@ -337,6 +376,19 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                     <span>{item.name}</span>
                   </label>
                 ))}
+              </div>
+              <div className="pager" aria-label="Equipment pagination">
+                <button type="button" className="button" onClick={() => setEquipmentPage((page) => Math.max(1, page - 1))} disabled={currentEquipmentPage <= 1}>
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  className="button"
+                  onClick={() => setEquipmentPage((page) => Math.min(equipmentPageCount, page + 1))}
+                  disabled={currentEquipmentPage >= equipmentPageCount}
+                >
+                  Next
+                </button>
               </div>
             </div>
           </>

@@ -92,6 +92,45 @@ describe("normalizeDaggerheartRelease", () => {
     });
   });
 
+  it("keeps ancestry and community feature text after their description", () => {
+    const entries = normalizeDaggerheartRelease({
+      source: "SRD Core",
+      files: {
+        "ancestries.json": [
+          {
+            id: "core_ancestry_clank",
+            name: { "en-US": "Clank" },
+            description: [{ paragraph: { "en-US": "Clanks are sentient mechanical beings." } }],
+            features: [
+              {
+                name: { "en-US": "Purposeful Design" },
+                description: [{ paragraph: { "en-US": "Choose one Experience and gain a permanent +1 bonus." } }],
+              },
+            ],
+          },
+        ],
+        "communities.json": [
+          {
+            id: "core_community_highborne",
+            name: { "en-US": "Highborne" },
+            description: [{ paragraph: { "en-US": "Highborne communities hold wealth and influence." } }],
+            features: [
+              {
+                name: { "en-US": "Privilege" },
+                description: [{ paragraph: { "en-US": "Gain advantage when consorting with nobles." } }],
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(entries.find((entry) => entry.id === "core_ancestry_clank")?.text).toContain("Purposeful Design");
+    expect(entries.find((entry) => entry.id === "core_ancestry_clank")?.text).toContain("permanent +1 bonus");
+    expect(entries.find((entry) => entry.id === "core_community_highborne")?.text).toContain("Privilege");
+    expect(entries.find((entry) => entry.id === "core_community_highborne")?.text).toContain("consorting with nobles");
+  });
+
   it("normalizes equipment files as item entries with equipment-specific tags", () => {
     const entries = normalizeDaggerheartRelease({
       source: "SRD Core",

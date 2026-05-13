@@ -98,13 +98,15 @@ function textFromFeatures(features: unknown): string {
 }
 
 function baseEntry(record: JsonRecord, type: ContentEntry["type"], source: string): ContentEntry {
+  const text = [textFromDescription(record.description), textFromFeatures(record.features)].filter(Boolean).join("\n\n");
+
   return {
     id: String(record.id),
     name: localize(record.name),
     type,
     source,
     tags: [type],
-    text: textFromDescription(record.description) || textFromFeatures(record.features),
+    text,
     system: {},
   };
 }

@@ -128,7 +128,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Clanks are sentient mechanical beings built from a variety of materials, including metal, wood, and stone. They can resemble humanoids, animals, or even inanimate objects. Like organic beings, their bodies come in a wide array of sizes. Because of their bespoke construction, many clanks have highly specialized physical configurations. Examples include clawed hands for grasping, wheels for movement, or built-in weaponry. Many clanks embrace body modifications for style as well as function, and members of other ancestries often turn to clank artisans to construct customized mobility aids and physical adornments. Other ancestries can create clanks, even using their own physical characteristics as inspiration, but it's also common for clanks to build one another. A clank's lifespan extends as long as they're able to acquire or craft new parts, making their physical form effectively immortal. That said, their minds are subject to the effects of time, and deteriorate as the magic that powers them loses potency.",
+    "text": "Clanks are sentient mechanical beings built from a variety of materials, including metal, wood, and stone. They can resemble humanoids, animals, or even inanimate objects. Like organic beings, their bodies come in a wide array of sizes. Because of their bespoke construction, many clanks have highly specialized physical configurations. Examples include clawed hands for grasping, wheels for movement, or built-in weaponry. Many clanks embrace body modifications for style as well as function, and members of other ancestries often turn to clank artisans to construct customized mobility aids and physical adornments. Other ancestries can create clanks, even using their own physical characteristics as inspiration, but it's also common for clanks to build one another. A clank's lifespan extends as long as they're able to acquire or craft new parts, making their physical form effectively immortal. That said, their minds are subject to the effects of time, and deteriorate as the magic that powers them loses potency.\n\nPurposeful Design: Decide who made you and for what purpose. At character creation, choose one of your Experiences that best aligns with this purpose and gain a permanent +1 bonus to it.\n\nEfficient: When you take a short rest, you can choose a long rest move instead of a short rest move.",
     "system": {}
   },
   {
@@ -139,7 +139,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Drakona resemble wingless dragons in humanoid form and possess a powerful elemental breath. All drakona have thick scales that provide excellent natural armor against both attacks and the forces of nature. They are large in size, ranging from 6 feet to 7 feet on average, with long sharp teeth. New teeth grow throughout a Drakona's approximately 600-year lifespan, so they are never in danger of permanently losing an incisor. Unlike their dragon ancestors, drakona don't have wings and can't fly without magical aid. Members of this ancestry pass down the element of their breath through generations, though in rare cases, a drakona's elemental power will differ from the rest of their family's.",
+    "text": "Drakona resemble wingless dragons in humanoid form and possess a powerful elemental breath. All drakona have thick scales that provide excellent natural armor against both attacks and the forces of nature. They are large in size, ranging from 6 feet to 7 feet on average, with long sharp teeth. New teeth grow throughout a Drakona's approximately 600-year lifespan, so they are never in danger of permanently losing an incisor. Unlike their dragon ancestors, drakona don't have wings and can't fly without magical aid. Members of this ancestry pass down the element of their breath through generations, though in rare cases, a drakona's elemental power will differ from the rest of their family's.\n\nScales: Your scales act as natural protection. When you would take Severe damage, you can mark a Stress to mark 1 fewer Hit Points.\n\nElemental Breath: Choose an element for your breath (such as electricity, fire, or ice). You can use this breath against a target or group of targets within Very Close range, treating it as an Instinct weapon that deals d8 magic damage using your Proficiency.",
     "system": {}
   },
   {
@@ -150,7 +150,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Dwarves are short, broad, and powerfully built, with dense musculature and thick hair. Their large hands and feet, prominent noses, and heavy brows are distinctive. Dwarves are renowned for their craftsmanship, resilience, and strong familial ties. They often dwell in mountainous regions or below ground, building elaborate halls and fortresses. Their culture emphasizes tradition and honor, and their communities are close-knit, often ruled by councils of elders. Dwarves can live for centuries, and their long lives are reflected in the depth of their knowledge and the durability of their creations.",
+    "text": "Dwarves are short, broad, and powerfully built, with dense musculature and thick hair. Their large hands and feet, prominent noses, and heavy brows are distinctive. Dwarves are renowned for their craftsmanship, resilience, and strong familial ties. They often dwell in mountainous regions or below ground, building elaborate halls and fortresses. Their culture emphasizes tradition and honor, and their communities are close-knit, often ruled by councils of elders. Dwarves can live for centuries, and their long lives are reflected in the depth of their knowledge and the durability of their creations.\n\nThick Skin: When you take Minor damage, you can mark 2 Stress instead of marking a Hit Point.\n\nIncreased Fortitude: Spend 3 Hope to halve incoming physical damage.",
     "system": {}
   },
   {
@@ -161,7 +161,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Elves are tall, slender humanoids with pointed ears and keen senses. Their features are angular and graceful, and they move with a natural elegance. Elves are deeply attuned to the natural and magical worlds, often living in harmony with forests, rivers, and other wild places. Their lifespans are exceptionally long, sometimes spanning many centuries, and their memories are equally enduring. Elven society values art, magic, and learning, and their homes are often works of beauty seamlessly integrated into the landscape.",
+    "text": "Elves are tall, slender humanoids with pointed ears and keen senses. Their features are angular and graceful, and they move with a natural elegance. Elves are deeply attuned to the natural and magical worlds, often living in harmony with forests, rivers, and other wild places. Their lifespans are exceptionally long, sometimes spanning many centuries, and their memories are equally enduring. Elven society values art, magic, and learning, and their homes are often works of beauty seamlessly integrated into the landscape.\n\nQuick Reactions: Mark a Stress to gain advantage on a reaction roll.\n\nCelestial Trance: During a rest, you can drop into a trance to choose an additional downtime move.",
     "system": {}
   },
   {
@@ -172,7 +172,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Faeries are diminutive, winged humanoids with delicate, insect-like features. Their translucent wings and vibrant coloration make them stand out in any environment. Faeries are closely tied to the forces of magic and fate, often acting as intermediaries between the spirit world and mortals. Their personalities are mercurial, ranging from mischievous to benevolent, and they delight in both tricks and acts of kindness. Faeries are curious and adventurous, and their presence is often accompanied by strange omens or bursts of wild magic.",
+    "text": "Faeries are diminutive, winged humanoids with delicate, insect-like features. Their translucent wings and vibrant coloration make them stand out in any environment. Faeries are closely tied to the forces of magic and fate, often acting as intermediaries between the spirit world and mortals. Their personalities are mercurial, ranging from mischievous to benevolent, and they delight in both tricks and acts of kindness. Faeries are curious and adventurous, and their presence is often accompanied by strange omens or bursts of wild magic.\n\nLuckbender: Once per session, after you or a willing ally within Close range makes an action roll, you can spend 3 Hope to reroll the Duality Dice.\n\nWings: You can fly. While flying, you can mark a Stress after an adversary makes an attack against you to gain a +2 bonus to your Evasion against that attack.",
     "system": {}
   },
   {
@@ -183,7 +183,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Fauns are humanoids with the lower bodies of goats, including cloven hooves and shaggy legs, and the upper bodies of humans. They are easily recognized by their curling horns, square pupils, and expressive ears. Fauns are known for their exuberance, musical talent, and love of revelry. Their communities are often found in woodlands and meadows, where they live in harmony with nature and celebrate the cycles of the seasons. Fauns value freedom, creativity, and the pursuit of pleasure, and their laughter is said to be contagious.",
+    "text": "Fauns are humanoids with the lower bodies of goats, including cloven hooves and shaggy legs, and the upper bodies of humans. They are easily recognized by their curling horns, square pupils, and expressive ears. Fauns are known for their exuberance, musical talent, and love of revelry. Their communities are often found in woodlands and meadows, where they live in harmony with nature and celebrate the cycles of the seasons. Fauns value freedom, creativity, and the pursuit of pleasure, and their laughter is said to be contagious.\n\nCaprine Leap: You can leap anywhere within Close range as though you were using normal movement, allowing you to vault obstacles, jump across gaps, or scale barriers with ease.\n\nKick: When you succeed on an attack against a target within Melee range, you can mark a Stress to kick yourself off them, dealing an extra 2d6 damage and knocking back either yourself or the target to Very Close range.",
     "system": {}
   },
   {
@@ -194,7 +194,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Firbolgs are large, gentle humanoids with bovine features, such as broad noses, long, drooping ears, and sometimes small horns. They are deeply connected to the natural world and often serve as guardians of ancient forests and sacred places. Firbolgs value peace, balance, and the quiet strength that comes from living in harmony with their surroundings. Their magic is subtle but powerful, allowing them to blend into their environment or communicate with animals and plants. Firbolgs are slow to anger but formidable when roused.",
+    "text": "Firbolgs are large, gentle humanoids with bovine features, such as broad noses, long, drooping ears, and sometimes small horns. They are deeply connected to the natural world and often serve as guardians of ancient forests and sacred places. Firbolgs value peace, balance, and the quiet strength that comes from living in harmony with their surroundings. Their magic is subtle but powerful, allowing them to blend into their environment or communicate with animals and plants. Firbolgs are slow to anger but formidable when roused.\n\nCharge: When you succeed on an Agility Roll to move from Far or Very Far range into Melee range with one or more targets, you can mark a Stress to deal 1d12 physical damage to all targets within Melee range.\n\nUnshakable: When you would mark a Stress, roll a d6. On a result of 6, don't mark it.",
     "system": {}
   },
   {
@@ -205,7 +205,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Fungril are humanoid fungi, with bodies formed from mycelium and caps of various shapes and colors. Their skin is often spongy or rubbery, and their features can be quite alien to other ancestries. Fungril thrive in damp, dark environments, and their communities are interconnected by vast underground networks. They communicate through spores and subtle chemical signals, sharing thoughts and memories across great distances. Fungril are patient, contemplative, and possess a unique perspective on life and death, viewing both as parts of a natural cycle.",
+    "text": "Fungril are humanoid fungi, with bodies formed from mycelium and caps of various shapes and colors. Their skin is often spongy or rubbery, and their features can be quite alien to other ancestries. Fungril thrive in damp, dark environments, and their communities are interconnected by vast underground networks. They communicate through spores and subtle chemical signals, sharing thoughts and memories across great distances. Fungril are patient, contemplative, and possess a unique perspective on life and death, viewing both as parts of a natural cycle.\n\nFungril Network: Make an Instinct Roll (12) to use your mycelial array to speak with others of your ancestry. On a success, you can communicate across any distance.\n\nDeath Connection: While touching a corpse that died recently, you can mark a Stress to extract one memory from the corpse related to a specific emotion or sensation of your choice.",
     "system": {}
   },
   {
@@ -216,7 +216,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Galapa are turtle-like humanoids with large, domed shells that provide natural protection. Their leathery skin, sturdy limbs, and slow, deliberate movements are hallmarks of their ancestry. Galapa are known for their wisdom, patience, and long lifespans, often living for centuries. Their societies are structured around tradition and communal responsibility, with elders holding positions of great respect. Galapa value stability and foresight, and their advice is sought by those facing difficult decisions.",
+    "text": "Galapa are turtle-like humanoids with large, domed shells that provide natural protection. Their leathery skin, sturdy limbs, and slow, deliberate movements are hallmarks of their ancestry. Galapa are known for their wisdom, patience, and long lifespans, often living for centuries. Their societies are structured around tradition and communal responsibility, with elders holding positions of great respect. Galapa value stability and foresight, and their advice is sought by those facing difficult decisions.\n\nShell: Gain a bonus to your damage thresholds equal to your Proficiency.\n\nRetract: Mark a Stress to retract into your shell. While in your shell, you have resistance to physical damage, you have disadvantage on action rolls, and you can't move.",
     "system": {}
   },
   {
@@ -227,7 +227,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Giants are enormous humanoids, often towering over other ancestries. They possess broad shoulders, long limbs, and may have one, two, or three eyes. Giants are renowned for their strength, endurance, and resilience. Their societies are often organized around clans or extended families, with a strong emphasis on honor and personal achievement. Giants are capable builders and storytellers, and their oral traditions preserve the history of their people across generations. Despite their size, many giants are gentle and protective of those they consider kin.",
+    "text": "Giants are enormous humanoids, often towering over other ancestries. They possess broad shoulders, long limbs, and may have one, two, or three eyes. Giants are renowned for their strength, endurance, and resilience. Their societies are often organized around clans or extended families, with a strong emphasis on honor and personal achievement. Giants are capable builders and storytellers, and their oral traditions preserve the history of their people across generations. Despite their size, many giants are gentle and protective of those they consider kin.\n\nEndurance: Gain an additional Hit Point slot at character creation.\n\nReach: Treat any weapon, ability, spell, or other feature that has a Melee range as though it has a Very Close range instead.",
     "system": {}
   },
   {
@@ -238,7 +238,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Goblins are small, wiry humanoids with oversized eyes and large, membranous ears. Their quick reflexes and sharp senses make them adept at navigating dark or cramped spaces. Goblins are resourceful and inventive, often repurposing discarded items into useful tools or weapons. Their communities are tight-knit and fiercely loyal, but goblins are also known for their cunning and willingness to bend rules to achieve their goals. They thrive in environments where adaptability and cleverness are prized.",
+    "text": "Goblins are small, wiry humanoids with oversized eyes and large, membranous ears. Their quick reflexes and sharp senses make them adept at navigating dark or cramped spaces. Goblins are resourceful and inventive, often repurposing discarded items into useful tools or weapons. Their communities are tight-knit and fiercely loyal, but goblins are also known for their cunning and willingness to bend rules to achieve their goals. They thrive in environments where adaptability and cleverness are prized.\n\nSurefooted: You ignore disadvantage on Agility Rolls.\n\nDanger Sense: Once per rest, mark a Stress to force an adversary to reroll an attack against you or an ally within Very Close range.",
     "system": {}
   },
   {
@@ -249,7 +249,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Halflings are small, cheerful humanoids with round faces, large hairy feet, and prominent ears. They are known for their hospitality, optimism, and strong sense of community. Halflings often dwell in rural areas, living in cozy homes built into hillsides or among fields and gardens. Their societies place a high value on tradition, family, and the enjoyment of simple pleasures. Halflings are remarkably resilient, able to find hope and humor even in the direst of circumstances.",
+    "text": "Halflings are small, cheerful humanoids with round faces, large hairy feet, and prominent ears. They are known for their hospitality, optimism, and strong sense of community. Halflings often dwell in rural areas, living in cozy homes built into hillsides or among fields and gardens. Their societies place a high value on tradition, family, and the enjoyment of simple pleasures. Halflings are remarkably resilient, able to find hope and humor even in the direst of circumstances.\n\nLuckbringer: At the start of each session, everyone in your party gains a Hope.\n\nInternal Compass: When you roll a 1 on your Hope Die, you can reroll it.",
     "system": {}
   },
   {
@@ -260,7 +260,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Humans are adaptable, inventive, and resilient, with a remarkable capacity for change. They are distinguished by their dexterous hands, rounded ears, and diverse appearances. Human societies are varied, ranging from nomadic tribes to sprawling cities, and their cultures are shaped by ambition, curiosity, and a drive to explore. Humans form deep bonds with other ancestries and are known for their capacity to learn new skills quickly. Their relatively short lifespans fuel a sense of urgency and determination.",
+    "text": "Humans are adaptable, inventive, and resilient, with a remarkable capacity for change. They are distinguished by their dexterous hands, rounded ears, and diverse appearances. Human societies are varied, ranging from nomadic tribes to sprawling cities, and their cultures are shaped by ambition, curiosity, and a drive to explore. Humans form deep bonds with other ancestries and are known for their capacity to learn new skills quickly. Their relatively short lifespans fuel a sense of urgency and determination.\n\nHigh Stamina: Gain an additional Stress slot at character creation.\n\nAdaptability: When you fail a roll that utilized one of your Experiences, you can mark a Stress to reroll.",
     "system": {}
   },
   {
@@ -271,7 +271,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Infernis are humanoids marked by sharp canine teeth, pointed ears, and horns of various shapes and sizes. Their ancestry traces back to the infernal realms, and they often possess an innate resistance to heat or fire. Infernis are passionate and ambitious, with a reputation for boldness and determination. Their societies are structured around personal achievement and strength of will, and many infernis seek to prove themselves through feats of courage or cunning. Despite their origins, infernis are not inherently evil and often strive to define their own destinies.",
+    "text": "Infernis are humanoids marked by sharp canine teeth, pointed ears, and horns of various shapes and sizes. Their ancestry traces back to the infernal realms, and they often possess an innate resistance to heat or fire. Infernis are passionate and ambitious, with a reputation for boldness and determination. Their societies are structured around personal achievement and strength of will, and many infernis seek to prove themselves through feats of courage or cunning. Despite their origins, infernis are not inherently evil and often strive to define their own destinies.\n\nFearless: When you roll with Fear, you can mark 2 Stress to change it into a roll with Hope instead.\n\nDread Visage: You have advantage on rolls to intimidate hostile creatures.",
     "system": {}
   },
   {
@@ -282,7 +282,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Katari are feline humanoids with sleek fur, retractable claws, and vertically slit pupils. Their high, triangular ears and agile bodies give them a distinctly catlike appearance. Katari are curious, independent, and quick-witted, often preferring to rely on their own skills and instincts. Their societies value personal freedom and adaptability, and katari are known for their ability to thrive in both wilderness and urban environments. Their senses are exceptionally keen, making them excellent hunters and scouts.",
+    "text": "Katari are feline humanoids with sleek fur, retractable claws, and vertically slit pupils. Their high, triangular ears and agile bodies give them a distinctly catlike appearance. Katari are curious, independent, and quick-witted, often preferring to rely on their own skills and instincts. Their societies value personal freedom and adaptability, and katari are known for their ability to thrive in both wilderness and urban environments. Their senses are exceptionally keen, making them excellent hunters and scouts.\n\nFeline Instincts: When you make an Agility Roll, you can spend 2 Hope to reroll your Hope Die.\n\nRetracting Claws: Make an Agility Roll to scratch a target within Melee range. On a success, they become temporarily Vulnerable.",
     "system": {}
   },
   {
@@ -293,7 +293,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Orcs are powerful humanoids with broad, square features and prominent tusks that jut from their lower jaws. Their skin tones range from deep green to gray, and their physiques are built for endurance and strength. Orc societies are organized around clans and emphasize honor, loyalty, and physical prowess. They are formidable warriors, but also skilled craftsmen and hunters. Orcs value bravery and directness, and their traditions are passed down through songs, stories, and rituals.",
+    "text": "Orcs are powerful humanoids with broad, square features and prominent tusks that jut from their lower jaws. Their skin tones range from deep green to gray, and their physiques are built for endurance and strength. Orc societies are organized around clans and emphasize honor, loyalty, and physical prowess. They are formidable warriors, but also skilled craftsmen and hunters. Orcs value bravery and directness, and their traditions are passed down through songs, stories, and rituals.\n\nSturdy: When you have 1 Hit Point remaining, attacks against you have disadvantage.\n\nTusks: When you succeed on an attack against a target within Melee range, you can spend a Hope to gore the target with your tusks, dealing an extra 1d6 damage.",
     "system": {}
   },
   {
@@ -304,7 +304,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Ribbets are frog-like humanoids with smooth, moist skin, protruding eyes, and webbed hands and feet. Their legs are strong and flexible, allowing them to leap great distances or swim with ease. Ribbets are at home in wetlands, rivers, and lakes, where their keen senses and adaptability serve them well. Their societies are communal and cooperative, often organized around extended families or villages. Ribbets are cheerful and resourceful, known for their quick thinking and ability to escape danger.",
+    "text": "Ribbets are frog-like humanoids with smooth, moist skin, protruding eyes, and webbed hands and feet. Their legs are strong and flexible, allowing them to leap great distances or swim with ease. Ribbets are at home in wetlands, rivers, and lakes, where their keen senses and adaptability serve them well. Their societies are communal and cooperative, often organized around extended families or villages. Ribbets are cheerful and resourceful, known for their quick thinking and ability to escape danger.\n\nAmphibious: You can breathe and move naturally underwater.\n\nLong Tongue: You can use your long tongue to grab onto things within Close range. Mark a Stress to use your tongue as a Finesse Close weapon that deals d12 physical damage using your Proficiency.",
     "system": {}
   },
   {
@@ -315,7 +315,7 @@ export const generatedSrdContent = [
     "tags": [
       "ancestry"
     ],
-    "text": "Simiah are monkey- and ape-like humanoids with long limbs, prehensile feet, and expressive faces. Their bodies are covered in soft fur, and their hands and feet are equally dexterous. Simiah are agile climbers and acrobats, able to navigate trees and urban environments with ease. Their societies are lively and social, with strong bonds formed through play, storytelling, and mutual support. Simiah value curiosity, creativity, and a sense of humor, and are quick to make friends with those who share their zest for life.",
+    "text": "Simiah are monkey- and ape-like humanoids with long limbs, prehensile feet, and expressive faces. Their bodies are covered in soft fur, and their hands and feet are equally dexterous. Simiah are agile climbers and acrobats, able to navigate trees and urban environments with ease. Their societies are lively and social, with strong bonds formed through play, storytelling, and mutual support. Simiah value curiosity, creativity, and a sense of humor, and are quick to make friends with those who share their zest for life.\n\nNatural Climber: You have advantage on Agility Rolls that involve balancing and climbing.\n\nNimble: Gain a permanent +1 bonus to your Evasion at character creation.",
     "system": {}
   },
   {
@@ -1717,7 +1717,7 @@ export const generatedSrdContent = [
     "tags": [
       "community"
     ],
-    "text": "Being part of a highborne community means you're accustomed to a life of elegance, opulence, and prestige within the upper echelons of society. Traditionally, members of a highborne community possess incredible material wealth. While this can take a variety of forms depending on the community—including gold and other minerals, land, or controlling the means of production—this status always comes with power and influence. Highborne place great value on titles and possessions, and there is little social mobility within their ranks. Members of a highborne community often control the political and economic status of the areas in which they live due to their ability to influence people and the economy with their substantial wealth. The health and safety of the less affluent people who live in these locations often hinges on the ability of this highborne ruling class to prioritize the well‑being of their subjects over profit.",
+    "text": "Being part of a highborne community means you're accustomed to a life of elegance, opulence, and prestige within the upper echelons of society. Traditionally, members of a highborne community possess incredible material wealth. While this can take a variety of forms depending on the community—including gold and other minerals, land, or controlling the means of production—this status always comes with power and influence. Highborne place great value on titles and possessions, and there is little social mobility within their ranks. Members of a highborne community often control the political and economic status of the areas in which they live due to their ability to influence people and the economy with their substantial wealth. The health and safety of the less affluent people who live in these locations often hinges on the ability of this highborne ruling class to prioritize the well‑being of their subjects over profit.\n\nPrivilege: You have advantage on rolls to consort with nobles, negotiate prices, or leverage your reputation to get what you want.",
     "system": {}
   },
   {
@@ -1728,7 +1728,7 @@ export const generatedSrdContent = [
     "tags": [
       "community"
     ],
-    "text": "Being part of a loreborne community means you're from a society that favors strong academic or political prowess. Loreborne communities highly value knowledge, frequently in the form of historical preservation, political advancement, scientific study, skill development, or lore and mythology compilation. Most members of these communities research in institutions built in bastions of civilization, while some eclectic few thrive in gathering information from the natural world. Some may be isolationists, operating in smaller enclaves, schools, or guilds and following their own unique ethos. Others still wield their knowledge on a larger scale, making deft political maneuvers across governmental landscapes.",
+    "text": "Being part of a loreborne community means you're from a society that favors strong academic or political prowess. Loreborne communities highly value knowledge, frequently in the form of historical preservation, political advancement, scientific study, skill development, or lore and mythology compilation. Most members of these communities research in institutions built in bastions of civilization, while some eclectic few thrive in gathering information from the natural world. Some may be isolationists, operating in smaller enclaves, schools, or guilds and following their own unique ethos. Others still wield their knowledge on a larger scale, making deft political maneuvers across governmental landscapes.\n\nWell-Read: You have advantage on rolls that involve the history, culture, or politics of a prominent person or place.",
     "system": {}
   },
   {
@@ -1739,7 +1739,7 @@ export const generatedSrdContent = [
     "tags": [
       "community"
     ],
-    "text": "Being part of an orderborne community means you're from a collective that focuses on discipline or faith, and you uphold a set of principles that reflect your experience there. Orderborne are frequently some of the most powerful among the surrounding communities. By aligning the members of their society around a common value or goal—such as a god, doctrine, ethos, or even a shared business or trade—the ruling bodies of these enclaves can mobilize larger populations with less effort. While orderborne communities take a variety of forms—some even profoundly pacifistic—perhaps the most feared are those that structure themselves around military prowess. In such a case, it's not uncommon for orderborne to provide soldiers for hire to other cities or countries.",
+    "text": "Being part of an orderborne community means you're from a collective that focuses on discipline or faith, and you uphold a set of principles that reflect your experience there. Orderborne are frequently some of the most powerful among the surrounding communities. By aligning the members of their society around a common value or goal—such as a god, doctrine, ethos, or even a shared business or trade—the ruling bodies of these enclaves can mobilize larger populations with less effort. While orderborne communities take a variety of forms—some even profoundly pacifistic—perhaps the most feared are those that structure themselves around military prowess. In such a case, it's not uncommon for orderborne to provide soldiers for hire to other cities or countries.\n\nDedicated: Record three sayings or values your upbringing instilled in you. Once per rest, when you describe how you're embodying one of these principles through your current action, you can roll a d20 as your Hope Die.",
     "system": {}
   },
   {
@@ -1750,7 +1750,7 @@ export const generatedSrdContent = [
     "tags": [
       "community"
     ],
-    "text": "Being part of a ridgeborne community means you've called the rocky peaks and sharp cliffs of the mountainside home. Those who've lived in the mountains often consider themselves hardier than most because they've thrived among the most dangerous terrain many continents have to offer. These groups are adept at adaptation, developing unique technologies and equipment to move both people and products across difficult terrain. As such, ridgeborne grow up scrambling and climbing, making them sturdy and strong‑willed. Ridgeborne localities appear in a variety of forms—some cities carve out entire cliff faces, others construct castles of stone, and still more live in small homes on windblown peaks. Outside forces often struggle to attack ridgeborne groups, as the small militias and large military forces of the mountains are adept at utilizing their high‑ground advantage.",
+    "text": "Being part of a ridgeborne community means you've called the rocky peaks and sharp cliffs of the mountainside home. Those who've lived in the mountains often consider themselves hardier than most because they've thrived among the most dangerous terrain many continents have to offer. These groups are adept at adaptation, developing unique technologies and equipment to move both people and products across difficult terrain. As such, ridgeborne grow up scrambling and climbing, making them sturdy and strong‑willed. Ridgeborne localities appear in a variety of forms—some cities carve out entire cliff faces, others construct castles of stone, and still more live in small homes on windblown peaks. Outside forces often struggle to attack ridgeborne groups, as the small militias and large military forces of the mountains are adept at utilizing their high‑ground advantage.\n\nSteady: You have advantage on rolls to traverse dangerous cliffs and ledges, navigate harsh environments, and use your survival knowledge.",
     "system": {}
   },
   {
@@ -1761,7 +1761,7 @@ export const generatedSrdContent = [
     "tags": [
       "community"
     ],
-    "text": "Being part of a seaborne community means you lived on or near a large body of water. Seaborne communities are built, both physically and culturally, around the specific waters they call home. Some of these groups live along the shore, constructing ports for locals and travelers alike. These harbors function as centers of commerce, tourist attractions, or even just a safe place to rest after weeks of travel. Other seaborne live on the water in small boats or large ships, with the idea of “home” comprising a ship and its crew rather than any one landmass. No matter their exact location, seaborne communities are closely tied to the ocean tides and the creatures who inhabit them. Individuals from these groups are highly sought after for their sailing skills, and many become captains of vessels, whether within their own community, working for another, or even at the helm of a powerful naval operation.",
+    "text": "Being part of a seaborne community means you lived on or near a large body of water. Seaborne communities are built, both physically and culturally, around the specific waters they call home. Some of these groups live along the shore, constructing ports for locals and travelers alike. These harbors function as centers of commerce, tourist attractions, or even just a safe place to rest after weeks of travel. Other seaborne live on the water in small boats or large ships, with the idea of “home” comprising a ship and its crew rather than any one landmass. No matter their exact location, seaborne communities are closely tied to the ocean tides and the creatures who inhabit them. Individuals from these groups are highly sought after for their sailing skills, and many become captains of vessels, whether within their own community, working for another, or even at the helm of a powerful naval operation.\n\nKnow the Tide: You can sense the ebb and flow of life. When you roll with Fear, place a token on this card. You can hold a number of tokens equal to your level. Before you make an action roll, you can spend any number of these tokens to gain a +1 bonus to the roll for each token spent. At the end of each session, clear all unspent tokens.",
     "system": {}
   },
   {
@@ -1772,7 +1772,7 @@ export const generatedSrdContent = [
     "tags": [
       "community"
     ],
-    "text": "Being part of a slyborne community means you come from a group that operates outside the law, including all manner of criminals, grifters, and con artists. Members of slyborne communities are brought together by their disreputable goals and their clever means of achieving them. Many people in these communities have an array of unscrupulous skills: forging, thievery, smuggling, and violence. People of any social class can be slyborne, from those who have garnered vast wealth and influence to those without a coin to their name. To the outside eye, slyborne might appear to be ruffians with no loyalty, but these communities possess some of the strictest codes of honor which, when broken, can result in a terrifying end for the transgressor.",
+    "text": "Being part of a slyborne community means you come from a group that operates outside the law, including all manner of criminals, grifters, and con artists. Members of slyborne communities are brought together by their disreputable goals and their clever means of achieving them. Many people in these communities have an array of unscrupulous skills: forging, thievery, smuggling, and violence. People of any social class can be slyborne, from those who have garnered vast wealth and influence to those without a coin to their name. To the outside eye, slyborne might appear to be ruffians with no loyalty, but these communities possess some of the strictest codes of honor which, when broken, can result in a terrifying end for the transgressor.\n\nScoundrel: You have advantage on rolls to negotiate with criminals, detect lies, or find a safe place to hide.",
     "system": {}
   },
   {
@@ -1783,7 +1783,7 @@ export const generatedSrdContent = [
     "tags": [
       "community"
     ],
-    "text": "Being part of an underborne community means you're from a subterranean society. Many underborne live right beneath the cities and villages of other collectives, while some live much deeper. These communities range from small family groups in burrows to massive metropolises in caverns of stone. In many locales, underborne are recognized for their incredible boldness and skill that enable great feats of architecture and engineering. Underborne are regularly hired for their bravery, as even the least daring among them has likely encountered formidable below‑ground beasts, and learning to dispatch such creatures is common practice amongst these societies. Because of the dangers of their environment, many underborne communities develop unique nonverbal languages that prove equally useful on the surface.",
+    "text": "Being part of an underborne community means you're from a subterranean society. Many underborne live right beneath the cities and villages of other collectives, while some live much deeper. These communities range from small family groups in burrows to massive metropolises in caverns of stone. In many locales, underborne are recognized for their incredible boldness and skill that enable great feats of architecture and engineering. Underborne are regularly hired for their bravery, as even the least daring among them has likely encountered formidable below‑ground beasts, and learning to dispatch such creatures is common practice amongst these societies. Because of the dangers of their environment, many underborne communities develop unique nonverbal languages that prove equally useful on the surface.\n\nLow-Light Living: When you're in an area with low light or heavy shadow, you have advantage on rolls to hide, investigate, or perceive details within that area.",
     "system": {}
   },
   {
@@ -1794,7 +1794,7 @@ export const generatedSrdContent = [
     "tags": [
       "community"
     ],
-    "text": "Being part of a wanderborne community means you've lived as a nomad, forgoing a permanent home and experiencing a wide variety of cultures. Unlike many communities that are defined by their locale, wanderborne are defined by their traveling lifestyle. Because of their frequent migration, wanderborne put less value on the accumulation of material possessions in favor of acquiring information, skills, and connections. While some wanderborne are allied by a common ethos, such as a religion or a set of political or economic values, others come together after shared tragedy, such as the loss of their home or land. No matter the reason, the dangers posed by life on the road and the choice to continue down that road together mean that wanderborne are known for their unwavering loyalty.",
+    "text": "Being part of a wanderborne community means you've lived as a nomad, forgoing a permanent home and experiencing a wide variety of cultures. Unlike many communities that are defined by their locale, wanderborne are defined by their traveling lifestyle. Because of their frequent migration, wanderborne put less value on the accumulation of material possessions in favor of acquiring information, skills, and connections. While some wanderborne are allied by a common ethos, such as a religion or a set of political or economic values, others come together after shared tragedy, such as the loss of their home or land. No matter the reason, the dangers posed by life on the road and the choice to continue down that road together mean that wanderborne are known for their unwavering loyalty.\n\nNomadic Pack: Add a Nomadic Pack to your inventory. Once per session, you can spend a Hope to reach into this pack and pull out a mundane item that's useful to your situation. Work with the GM to figure out what item you take out.",
     "system": {}
   },
   {
@@ -1805,7 +1805,7 @@ export const generatedSrdContent = [
     "tags": [
       "community"
     ],
-    "text": "Being part of a wildborne community means you lived deep within the forest. Wildborne communities are defined by their dedication to the conservation of their homelands, and many have strong religious or cultural ties to the fauna they live among. This results in unique architectural and technological advancements that favor sustainability over short‑term, high‑yield results. It is a hallmark of wildborne societies to integrate their villages and cities with the natural environment and avoid disturbing the lives of the plants and animals. While some construct their lodgings high in the branches of trees, others establish their homes on the ground beneath the forest canopy. It's not uncommon for wildborne to remain reclusive and hidden within their woodland homes.",
+    "text": "Being part of a wildborne community means you lived deep within the forest. Wildborne communities are defined by their dedication to the conservation of their homelands, and many have strong religious or cultural ties to the fauna they live among. This results in unique architectural and technological advancements that favor sustainability over short‑term, high‑yield results. It is a hallmark of wildborne societies to integrate their villages and cities with the natural environment and avoid disturbing the lives of the plants and animals. While some construct their lodgings high in the branches of trees, others establish their homes on the ground beneath the forest canopy. It's not uncommon for wildborne to remain reclusive and hidden within their woodland homes.\n\nLightfoot: Your movement is naturally silent. You have advantage on rolls to move without being heard.",
     "system": {}
   },
   {
