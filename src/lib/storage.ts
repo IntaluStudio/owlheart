@@ -2,7 +2,7 @@ import type { CharacterBuild, HomebrewPack } from "./types";
 import { characterBuildSchema, normalizeHomebrewPack } from "./schema";
 import { METADATA_KEYS } from "./types";
 
-const STORAGE_PREFIX = "com.fietrah.daggerheart-toolkit";
+const STORAGE_PREFIX = "com.intalu.daggerheart-toolkit";
 
 function storageKey(key: string) {
   return `${STORAGE_PREFIX}:${key}`;

@@ -1,4 +1,4 @@
-export const EXTENSION_ID = "com.fietrah.daggerheart-toolkit";
+export const EXTENSION_ID = "com.intalu.daggerheart-toolkit";
 
 export const METADATA_KEYS = {
   homebrewPacks: `${EXTENSION_ID}/homebrew-packs`,

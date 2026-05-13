@@ -122,7 +122,7 @@ The extension manifest is in `public/manifest.json`.
 Namespaced toolkit metadata keys use:
 
 ```text
-com.fietrah.daggerheart-toolkit/...
+com.intalu.daggerheart-toolkit/...
 ```
 
 Rumble integration uses its documented chat metadata key:
