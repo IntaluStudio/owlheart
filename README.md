@@ -38,6 +38,26 @@ Add this install URL as a custom Owlbear Rodeo extension:
 http://localhost:5173/manifest.json
 ```
 
+## Deploy on Render
+
+This repo includes `render.yaml` for Render Blueprints.
+
+Render Static Site settings:
+
+```text
+Service name: owlheart
+Build Command: npm install && npm run build
+Publish Directory: dist
+```
+
+After Render deploys the site, use the deployed manifest URL as the Owlbear custom extension URL:
+
+```text
+https://<your-render-service>.onrender.com/manifest.json
+```
+
+You can either create a Render Blueprint from this repo, or create a Render Static Site manually with the settings above.
+
 ## Testing
 
 ```bash
