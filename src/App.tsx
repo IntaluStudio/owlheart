@@ -4,8 +4,8 @@ import { BuildManager } from "./components/BuildManager";
 import { DualityHelper } from "./components/DualityHelper";
 import { HomebrewManager } from "./components/HomebrewManager";
 import { SrdBrowser } from "./components/SrdBrowser";
+import { generatedSrdContent } from "./data/generated/srdContent.generated";
 import { sampleCharacter } from "./data/sampleCharacter";
-import { srdContent } from "./data/srdContent";
 import { getActiveContent } from "./lib/contentIndex";
 import { loadCharacterBuilds, loadHomebrewPacks, saveCharacterBuilds, saveHomebrewPacks } from "./lib/storage";
 import type { CharacterBuild, HomebrewPack } from "./lib/types";
@@ -32,7 +32,7 @@ export function App() {
     saveCharacterBuilds(builds);
   }, [builds]);
 
-  const activeContent = useMemo(() => getActiveContent(srdContent, packs), [packs]);
+  const activeContent = useMemo(() => getActiveContent(generatedSrdContent, packs), [packs]);
 
   return (
     <main className="app-shell">

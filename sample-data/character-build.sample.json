@@ -1,15 +1,15 @@
 {
   "id": "character:kael-brightroad",
   "name": "Kael Brightroad",
-  "ancestryId": "srd:ancestry:human",
-  "communityId": "srd:community:wanderborne",
-  "classId": "srd:class:warrior",
-  "subclassId": "srd:subclass:warrior:call-of-the-brave",
+  "ancestryId": "core_ancestry_human",
+  "communityId": "core_community_wanderborne",
+  "classId": "core_class_warrior",
+  "subclassId": "core_subclass_call_of_the_brave",
   "level": 2,
   "selectedDomains": ["blade", "bone"],
-  "selectedDomainCards": ["srd:domain-card:blade:whirlwind", "srd:domain-card:bone:deft-maneuvers"],
-  "selectedAbilities": ["srd:ability:warrior:battle-strategist"],
-  "selectedEquipment": ["srd:item:spear"],
+  "selectedDomainCards": ["core_domain_card_whirlwind", "core_domain_card_deft_maneuvers"],
+  "selectedAbilities": ["core_class_warrior:feature:combat-training"],
+  "selectedEquipment": ["core_weapon_spear"],
   "notes": "Sample lightweight build. Content is referenced by ID; rules text stays in the content index.",
   "manualOverrides": {}
 }

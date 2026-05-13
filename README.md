@@ -76,10 +76,11 @@ The unit tests cover:
 ```text
 public/manifest.json              Owlbear Rodeo extension manifest
 sample-data/                      Importable example JSON files
-src/data/                         Seed SRD, sample homebrew, sample character
+src/data/                         Generated SRD, sample homebrew, sample character
 src/lib/                          Pure data, validation, filtering, SDK wrappers
 src/components/                   React popover views
 src/App.tsx                       App shell and tab routing
+scripts/generate-srd.ts           Imports daggersearch/daggerheart-data core JSON
 ```
 
 ## Data Model
@@ -109,7 +110,14 @@ Homebrew packs may use either normalized `entries` or daggerheart-data-style col
 - `sample-data/homebrew-pack.sample.json`
 - `sample-data/character-build.sample.json`
 
-The bundled SRD data is only a small sample. The code is structured so the full `daggersearch/daggerheart-data` release files can be mapped into normalized entries later without changing the UI.
+The bundled SRD browser uses generated normalized content from `daggersearch/daggerheart-data/core`.
+
+To refresh it:
+
+```bash
+git clone --depth 1 https://github.com/daggersearch/daggerheart-data.git vendor/daggerheart-data
+npm run generate:srd
+```
 
 ## Data and License Notes
 
