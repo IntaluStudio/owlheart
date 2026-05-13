@@ -4,10 +4,12 @@
   "manifest_version": 1,
   "author": "Intalu",
   "description": "Lightweight SRD lookup, homebrew packs, character build references, and duality result formatting for Daggerheart.",
+  "icon": "https://owlheart.onrender.com/icon.svg",
+  "homepage_url": "https://owlheart.onrender.com/",
   "action": {
     "title": "Daggerheart Toolkit",
-    "icon": "/icon.svg",
-    "popover": "/",
+    "icon": "https://owlheart.onrender.com/icon.svg",
+    "popover": "https://owlheart.onrender.com/",
     "height": 700,
     "width": 460
   }
