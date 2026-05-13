@@ -172,6 +172,36 @@ button:disabled {
   gap: 10px;
 }
 
+.segmented-tabs {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 2px 0 4px;
+  scrollbar-width: thin;
+}
+
+.segmented-tabs--compact {
+  padding-bottom: 0;
+}
+
+.segmented-tab {
+  flex: 0 0 auto;
+  min-height: 34px;
+  border: 1px solid #cbd4cf;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2d3136;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  font-weight: 760;
+}
+
+.segmented-tab--active {
+  border-color: #8d1d2c;
+  background: #8d1d2c;
+  color: #ffffff;
+}
+
 label {
   display: grid;
   gap: 5px;
@@ -291,6 +321,20 @@ textarea {
 .content-card__text {
   color: #2d3136 !important;
   font-size: 0.9rem !important;
+}
+
+.content-card__text strong {
+  color: #111318;
+}
+
+.text-button {
+  justify-self: start;
+  border: 0;
+  background: transparent;
+  color: #8d1d2c;
+  padding: 0;
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
 .badge,
@@ -439,6 +483,18 @@ textarea {
   padding: 8px;
 }
 
+.checkbox-list__group {
+  display: grid;
+  gap: 6px;
+}
+
+.checkbox-list__group h4 {
+  margin: 6px 0 0;
+  color: #50575d;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
 .checkbox-list input {
   width: 16px;
   height: 16px;
@@ -446,8 +502,15 @@ textarea {
 }
 
 .checkbox-list small {
+  display: block;
   color: #626a70;
   font-size: 0.76rem;
+}
+
+.choice-description {
+  margin-top: 4px;
+  color: #2d3136 !important;
+  line-height: 1.35;
 }
 
 .duality-panel {
@@ -514,6 +577,10 @@ textarea {
   .split-pane,
   .build-layout {
     grid-template-columns: 1fr;
+  }
+
+  .detail-pane {
+    order: -1;
   }
 
   .list-pane,

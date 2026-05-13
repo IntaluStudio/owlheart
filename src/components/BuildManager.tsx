@@ -7,7 +7,8 @@ import { characterBuildSchema } from "../lib/schema";
 import { getContentByType } from "../lib/contentIndex";
 import type { CharacterBuild, ContentEntry } from "../lib/types";
 
-const EQUIPMENT_PAGE_SIZE = 20;
+const EQUIPMENT_PAGE_SIZE = 10;
+const CARD_PAGE_SIZE = 8;
 
 type BuildManagerProps = {
   builds: CharacterBuild[];
@@ -50,6 +51,9 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
   const [importError, setImportError] = useState("");
   const [equipmentQuery, setEquipmentQuery] = useState("");
   const [equipmentPage, setEquipmentPage] = useState(1);
+  const [cardDomainFilter, setCardDomainFilter] = useState("");
+  const [cardLevelFilter, setCardLevelFilter] = useState("");
+  const [cardPage, setCardPage] = useState(1);
 
   const selectedBuild = builds.find((build) => build.id === selectedBuildId) ?? builds[0];
   const selectedReferences = useMemo(
@@ -60,6 +64,20 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
     () => (selectedBuild ? getAvailableDomainCardsForBuild(entries, selectedBuild) : []),
     [entries, selectedBuild],
   );
+  const cardDomains = useMemo(() => [...new Set(availableCards.flatMap((card) => card.domain ?? []))].sort(), [availableCards]);
+  const cardLevels = useMemo(
+    () => [...new Set(availableCards.flatMap((card) => (card.level !== undefined ? [card.level] : [])))].sort((a, b) => a - b),
+    [availableCards],
+  );
+  const filteredCards = useMemo(() => {
+    return availableCards
+      .filter((card) => !cardDomainFilter || card.domain === cardDomainFilter)
+      .filter((card) => !cardLevelFilter || card.level === Number(cardLevelFilter))
+      .sort((a, b) => (a.level ?? 0) - (b.level ?? 0) || (a.domain ?? "").localeCompare(b.domain ?? "") || a.name.localeCompare(b.name));
+  }, [availableCards, cardDomainFilter, cardLevelFilter]);
+  const cardPageCount = Math.max(1, Math.ceil(filteredCards.length / CARD_PAGE_SIZE));
+  const currentCardPage = Math.min(cardPage, cardPageCount);
+  const visibleCards = filteredCards.slice((currentCardPage - 1) * CARD_PAGE_SIZE, currentCardPage * CARD_PAGE_SIZE);
   const availableAbilities = useMemo(
     () => (selectedBuild ? getAvailableAbilitiesForBuild(entries, selectedBuild) : []),
     [entries, selectedBuild],
@@ -178,7 +196,7 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
             {[selectedReferences.ancestry, selectedReferences.community, selectedReferences.class, selectedReferences.subclass]
               .filter(Boolean)
               .map((entry) => (
-                <ContentCard key={entry!.id} entry={entry!} />
+                <ContentCard key={entry!.id} entry={entry!} collapsible featureFirst={entry!.type === "ancestry" || entry!.type === "community"} />
               ))}
             {selectedReferences.domainCards.map((entry) => (
               <ContentCard key={entry.id} entry={entry} />
@@ -314,9 +332,66 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
             </div>
 
             <div className="selection-section">
-              <h3>Available cards</h3>
+              <div className="selection-section__header">
+                <h3>Available cards</h3>
+                <span>
+                  {filteredCards.length} matches • page {currentCardPage} of {cardPageCount}
+                </span>
+              </div>
+              <div className="segmented-tabs segmented-tabs--compact" aria-label="Card domain filters">
+                <button
+                  type="button"
+                  className={!cardDomainFilter ? "segmented-tab segmented-tab--active" : "segmented-tab"}
+                  onClick={() => {
+                    setCardDomainFilter("");
+                    setCardPage(1);
+                  }}
+                >
+                  All domains
+                </button>
+                {cardDomains.map((domain) => (
+                  <button
+                    key={domain}
+                    type="button"
+                    className={cardDomainFilter === domain ? "segmented-tab segmented-tab--active" : "segmented-tab"}
+                    onClick={() => {
+                      setCardDomainFilter(domain);
+                      setCardPage(1);
+                    }}
+                  >
+                    {domain}
+                  </button>
+                ))}
+              </div>
+              <div className="segmented-tabs segmented-tabs--compact" aria-label="Card level filters">
+                <button
+                  type="button"
+                  className={!cardLevelFilter ? "segmented-tab segmented-tab--active" : "segmented-tab"}
+                  onClick={() => {
+                    setCardLevelFilter("");
+                    setCardPage(1);
+                  }}
+                >
+                  All levels
+                </button>
+                {cardLevels.map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    className={cardLevelFilter === String(level) ? "segmented-tab segmented-tab--active" : "segmented-tab"}
+                    onClick={() => {
+                      setCardLevelFilter(String(level));
+                      setCardPage(1);
+                    }}
+                  >
+                    L{level}
+                  </button>
+                ))}
+              </div>
               <div className="checkbox-list">
-                {availableCards.map((card) => (
+                {visibleCards.map((card, index) => (
+                  <div key={card.id} className="checkbox-list__group">
+                    {index === 0 || card.level !== visibleCards[index - 1]?.level ? <h4>Level {card.level ?? "Any"}</h4> : null}
                   <label key={card.id}>
                     <input
                       type="checkbox"
@@ -324,10 +399,20 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                       onChange={() => updateBuild({ selectedDomainCards: toggleId(selectedBuild.selectedDomainCards, card.id) })}
                     />
                     <span>
-                      {card.name} <small>{card.domain} {card.level !== undefined ? `L${card.level}` : ""}</small>
+                      {card.name} <small>{card.domain} {card.level !== undefined ? `L${card.level}` : ""} • {card.source}</small>
+                      <small className="choice-description">{card.text}</small>
                     </span>
                   </label>
+                  </div>
                 ))}
+              </div>
+              <div className="pager" aria-label="Card pagination">
+                <button type="button" className="button" onClick={() => setCardPage((page) => Math.max(1, page - 1))} disabled={currentCardPage <= 1}>
+                  Previous
+                </button>
+                <button type="button" className="button" onClick={() => setCardPage((page) => Math.min(cardPageCount, page + 1))} disabled={currentCardPage >= cardPageCount}>
+                  Next
+                </button>
               </div>
             </div>
 
@@ -341,7 +426,10 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                       checked={selectedBuild.selectedAbilities.includes(ability.id)}
                       onChange={() => updateBuild({ selectedAbilities: toggleId(selectedBuild.selectedAbilities, ability.id) })}
                     />
-                    <span>{ability.name}</span>
+                    <span>
+                      {ability.name}
+                      <small>{ability.source} • {ability.tags.join(", ")}</small>
+                    </span>
                   </label>
                 ))}
               </div>
