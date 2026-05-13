@@ -1,0 +1,52 @@
+import type { HomebrewPack } from "../lib/types";
+
+export const sampleHomebrewPack: HomebrewPack = {
+  schemaVersion: 1,
+  id: "homebrew:ash-and-iron",
+  name: "Ash and Iron",
+  source: "Ash and Iron Playtest",
+  description: "Small sample pack showing domain cards, abilities, an item, and an adversary.",
+  enabled: true,
+  entries: [
+    {
+      id: "homebrew:ashen-step",
+      name: "Ashen Step",
+      type: "domain-card",
+      source: "Ash and Iron Playtest",
+      tags: ["movement", "fire"],
+      text: "Spend a Hope to move through smoke, ash, or falling embers within Close range.",
+      level: 2,
+      domain: "midnight",
+      sourcePackId: "homebrew:ash-and-iron",
+      system: { cardType: "spell", recallCost: 1 },
+    },
+    {
+      id: "homebrew:ember-oath",
+      name: "Ember Oath",
+      type: "ability",
+      source: "Ash and Iron Playtest",
+      tags: ["class-feature", "guardian"],
+      text: "When you step between an ally and danger, describe the oath that burns bright enough to hold.",
+      sourcePackId: "homebrew:ash-and-iron",
+      system: { classIds: ["srd:class:guardian"] },
+    },
+    {
+      id: "homebrew:item:cinder-vial",
+      name: "Cinder Vial",
+      type: "item",
+      source: "Ash and Iron Playtest",
+      tags: ["consumable", "fire"],
+      text: "A sealed vial of living ash used as a prompt for improvised fire-themed equipment.",
+      sourcePackId: "homebrew:ash-and-iron",
+    },
+    {
+      id: "homebrew:adversary:ash-wight",
+      name: "Ash Wight",
+      type: "adversary",
+      source: "Ash and Iron Playtest",
+      tags: ["adversary", "undead"],
+      text: "A homebrew adversary reference entry for quick GM lookup.",
+      sourcePackId: "homebrew:ash-and-iron",
+    },
+  ],
+};

@@ -1,0 +1,92 @@
+export const EXTENSION_ID = "com.fietrah.daggerheart-toolkit";
+
+export const METADATA_KEYS = {
+  homebrewPacks: `${EXTENSION_ID}/homebrew-packs`,
+  characters: `${EXTENSION_ID}/characters`,
+  lastDualityResult: `${EXTENSION_ID}/last-duality-result`,
+} as const;
+
+export const CONTENT_TYPES = [
+  "domain",
+  "domain-card",
+  "ancestry",
+  "community",
+  "class",
+  "subclass",
+  "condition",
+  "item",
+  "adversary",
+  "rule",
+  "ability",
+] as const;
+
+export type ContentType = (typeof CONTENT_TYPES)[number];
+
+export type ContentEntry = {
+  id: string;
+  name: string;
+  type: ContentType;
+  source: string;
+  tags: string[];
+  text: string;
+  description?: string;
+  level?: number;
+  domain?: string;
+  domains?: string[];
+  sourcePackId?: string;
+  system?: Record<string, unknown>;
+};
+
+export type HomebrewPack = {
+  schemaVersion: 1;
+  id: string;
+  name: string;
+  source: string;
+  description?: string;
+  enabled?: boolean;
+  entries: ContentEntry[];
+};
+
+export type CharacterBuild = {
+  id: string;
+  name: string;
+  ancestryId?: string;
+  communityId?: string;
+  classId?: string;
+  subclassId?: string;
+  level: number;
+  selectedDomains: string[];
+  selectedDomainCards: string[];
+  selectedAbilities: string[];
+  selectedEquipment: string[];
+  notes: string;
+  manualOverrides: {
+    ignoreDomainRequirements?: boolean;
+    ignoreLevelRequirements?: boolean;
+    extraAvailableContentIds?: string[];
+  };
+};
+
+export type ContentFilters = {
+  query: string;
+  categories: ContentType[];
+  level?: number;
+  domains: string[];
+  tags: string[];
+  sources: string[];
+};
+
+export type DualityInput = {
+  hopeDie: number;
+  fearDie: number;
+  modifier: number;
+};
+
+export type DualityOutcome = "With Hope" | "With Fear" | "Critical Success";
+
+export type DualityResult = DualityInput & {
+  total: number;
+  outcome: DualityOutcome;
+  label: string;
+  copyText: string;
+};

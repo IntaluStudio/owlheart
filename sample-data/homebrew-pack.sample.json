@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "homebrew:ash-and-iron",
+  "name": "Ash and Iron",
+  "source": "Ash and Iron Playtest",
+  "description": "Small sample pack showing normalized and importable homebrew content.",
+  "entries": [
+    {
+      "id": "homebrew:ashen-step",
+      "name": "Ashen Step",
+      "type": "domain-card",
+      "source": "Ash and Iron Playtest",
+      "tags": ["movement", "fire"],
+      "text": "Spend a Hope to move through smoke, ash, or falling embers within Close range.",
+      "level": 2,
+      "domain": "midnight",
+      "system": {
+        "cardType": "spell",
+        "recallCost": 1
+      }
+    },
+    {
+      "id": "homebrew:ember-oath",
+      "name": "Ember Oath",
+      "type": "ability",
+      "source": "Ash and Iron Playtest",
+      "tags": ["class-feature", "guardian"],
+      "text": "When you step between an ally and danger, describe the oath that burns bright enough to hold.",
+      "system": {
+        "classIds": ["srd:class:guardian"]
+      }
+    }
+  ]
+}

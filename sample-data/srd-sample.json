@@ -1,0 +1,40 @@
+{
+  "source": "SRD Core sample",
+  "note": "Small normalized sample inspired by daggersearch/daggerheart-data release JSON structure. It is not a full SRD mirror.",
+  "entries": [
+    {
+      "id": "srd:domain:blade",
+      "name": "Blade",
+      "type": "domain",
+      "source": "SRD Core",
+      "tags": ["domain", "martial"],
+      "text": "Weapon mastery, decisive attacks, and disciplined violence."
+    },
+    {
+      "id": "srd:domain-card:blade:whirlwind",
+      "name": "Whirlwind",
+      "type": "domain-card",
+      "source": "SRD Core",
+      "tags": ["attack", "area"],
+      "text": "After a successful attack in Very Close range, spend Hope to extend the attack to other nearby targets for reduced damage.",
+      "level": 1,
+      "domain": "blade",
+      "system": {
+        "cardType": "ability",
+        "recallCost": 0
+      }
+    },
+    {
+      "id": "srd:class:warrior",
+      "name": "Warrior",
+      "type": "class",
+      "source": "SRD Core",
+      "tags": ["class", "martial"],
+      "text": "Warriors are frontline combatants with access to Blade and Bone domain cards.",
+      "domains": ["blade", "bone"],
+      "system": {
+        "domainIds": ["blade", "bone"]
+      }
+    }
+  ]
+}

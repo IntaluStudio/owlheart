@@ -1,0 +1,14 @@
+{
+  "name": "Daggerheart Toolkit",
+  "version": "0.1.0",
+  "manifest_version": 1,
+  "author": "Fietrah",
+  "description": "Lightweight SRD lookup, homebrew packs, character build references, and duality result formatting for Daggerheart.",
+  "action": {
+    "title": "Daggerheart Toolkit",
+    "icon": "/icon.svg",
+    "popover": "/",
+    "height": 700,
+    "width": 460
+  }
+}
