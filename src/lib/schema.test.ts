@@ -111,5 +111,17 @@ describe("character build validation", () => {
       knowledge: 0,
     });
     expect(build.experiences).toEqual([]);
+    expect(build.status).toEqual({
+      maxHp: 0,
+      markedHp: 0,
+      maxStress: 0,
+      markedStress: 0,
+      evasion: 0,
+      armorScore: 0,
+      armorSlots: 0,
+      markedArmor: 0,
+      majorThreshold: 0,
+      severeThreshold: 0,
+    });
   });
 });

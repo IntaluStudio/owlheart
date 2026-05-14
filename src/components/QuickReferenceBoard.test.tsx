@@ -20,6 +20,18 @@ const build: CharacterBuild = {
     knowledge: 0,
   },
   experiences: [{ id: "exp:scout", name: "Scout", modifier: 2 }],
+  status: {
+    maxHp: 6,
+    markedHp: 1,
+    maxStress: 7,
+    markedStress: 2,
+    evasion: 11,
+    armorScore: 3,
+    armorSlots: 3,
+    markedArmor: 1,
+    majorThreshold: 8,
+    severeThreshold: 15,
+  },
   notes: "",
   manualOverrides: {},
 };
@@ -39,6 +51,8 @@ describe("QuickReferenceBoard", () => {
     expect(html).toContain("Test Build");
     expect(html).toContain("Agility");
     expect(html).toContain("Scout");
+    expect(html).toContain("Thresholds");
+    expect(html).toContain("8/15");
     expect(html).toContain("Open card slot");
   });
 });

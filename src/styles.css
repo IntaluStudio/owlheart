@@ -570,6 +570,41 @@ textarea {
   gap: 8px;
 }
 
+.status-reference-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 8px;
+}
+
+.status-reference-grid div {
+  display: grid;
+  gap: 3px;
+  min-height: 68px;
+  border: 1px solid #cbd4cf;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 9px;
+}
+
+.status-reference-grid span {
+  color: #50575d;
+  font-size: 0.75rem;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.status-reference-grid strong {
+  color: #161616;
+  font-size: 1.28rem;
+  line-height: 1;
+}
+
+.status-reference-grid small {
+  color: #626a70;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 .trait-button,
 .experience-button {
   display: grid;

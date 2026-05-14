@@ -76,6 +76,32 @@ const characterExperienceSchema = z.object({
   modifier: z.number().int(),
 });
 
+const defaultStatus = {
+  maxHp: 0,
+  markedHp: 0,
+  maxStress: 0,
+  markedStress: 0,
+  evasion: 0,
+  armorScore: 0,
+  armorSlots: 0,
+  markedArmor: 0,
+  majorThreshold: 0,
+  severeThreshold: 0,
+};
+
+const characterStatusSchema = z.object({
+  maxHp: z.number().int().min(0).default(0),
+  markedHp: z.number().int().min(0).default(0),
+  maxStress: z.number().int().min(0).default(0),
+  markedStress: z.number().int().min(0).default(0),
+  evasion: z.number().int().min(0).default(0),
+  armorScore: z.number().int().min(0).default(0),
+  armorSlots: z.number().int().min(0).default(0),
+  markedArmor: z.number().int().min(0).default(0),
+  majorThreshold: z.number().int().min(0).default(0),
+  severeThreshold: z.number().int().min(0).default(0),
+});
+
 export const characterBuildSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -97,6 +123,7 @@ export const characterBuildSchema = z.object({
     knowledge: 0,
   }),
   experiences: z.array(characterExperienceSchema).default([]),
+  status: characterStatusSchema.default(defaultStatus),
   notes: z.string().default(""),
   manualOverrides: z
     .object({

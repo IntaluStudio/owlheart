@@ -84,6 +84,34 @@ export function QuickReferenceBoard({
       </section>
 
       <section className="quick-board__zone">
+        <h3>Manual Reference</h3>
+        <div className="status-reference-grid">
+          <div>
+            <span>HP</span>
+            <strong>{build.status.markedHp}/{build.status.maxHp}</strong>
+          </div>
+          <div>
+            <span>Stress</span>
+            <strong>{build.status.markedStress}/{build.status.maxStress}</strong>
+          </div>
+          <div>
+            <span>Evasion</span>
+            <strong>{build.status.evasion}</strong>
+          </div>
+          <div>
+            <span>Armor</span>
+            <strong>{build.status.markedArmor}/{build.status.armorSlots}</strong>
+            <small>Score {build.status.armorScore}</small>
+          </div>
+          <div>
+            <span>Thresholds</span>
+            <strong>{build.status.majorThreshold}/{build.status.severeThreshold}</strong>
+            <small>Major / Severe</small>
+          </div>
+        </div>
+      </section>
+
+      <section className="quick-board__zone">
         <h3>Experiences</h3>
         {build.experiences.length ? (
           <div className="experience-grid">

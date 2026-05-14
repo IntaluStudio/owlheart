@@ -21,6 +21,18 @@ export const sampleCharacter: CharacterBuild = {
     knowledge: -1,
   },
   experiences: [{ id: "experience:kael:pathfinder", name: "Pathfinder", modifier: 2 }],
+  status: {
+    maxHp: 6,
+    markedHp: 0,
+    maxStress: 7,
+    markedStress: 0,
+    evasion: 11,
+    armorScore: 3,
+    armorSlots: 3,
+    markedArmor: 0,
+    majorThreshold: 8,
+    severeThreshold: 15,
+  },
   notes: "Sample lightweight build. Content is referenced by ID; rules text stays in the content index.",
   manualOverrides: {},
 };

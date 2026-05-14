@@ -59,6 +59,19 @@ export type CharacterExperience = {
   modifier: number;
 };
 
+export type CharacterStatusReference = {
+  maxHp: number;
+  markedHp: number;
+  maxStress: number;
+  markedStress: number;
+  evasion: number;
+  armorScore: number;
+  armorSlots: number;
+  markedArmor: number;
+  majorThreshold: number;
+  severeThreshold: number;
+};
+
 export type CharacterBuild = {
   id: string;
   name: string;
@@ -73,6 +86,7 @@ export type CharacterBuild = {
   selectedEquipment: string[];
   traits: CharacterTraits;
   experiences: CharacterExperience[];
+  status: CharacterStatusReference;
   notes: string;
   manualOverrides: {
     ignoreDomainRequirements?: boolean;

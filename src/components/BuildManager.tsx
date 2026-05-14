@@ -58,6 +58,18 @@ function createBlankBuild(entries: ContentEntry[]): CharacterBuild {
       knowledge: 0,
     },
     experiences: [],
+    status: {
+      maxHp: 0,
+      markedHp: 0,
+      maxStress: 0,
+      markedStress: 0,
+      evasion: 0,
+      armorScore: 0,
+      armorSlots: 0,
+      markedArmor: 0,
+      majorThreshold: 0,
+      severeThreshold: 0,
+    },
     notes: "",
     manualOverrides: {},
   };
@@ -183,6 +195,19 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
 
     updateBuild({
       experiences: selectedBuild.experiences.filter((experience) => experience.id !== experienceId),
+    });
+  };
+
+  const updateStatus = (patch: Partial<CharacterBuild["status"]>) => {
+    if (!selectedBuild) {
+      return;
+    }
+
+    updateBuild({
+      status: {
+        ...selectedBuild.status,
+        ...patch,
+      },
     });
   };
 
@@ -381,6 +406,52 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                     />
                   </label>
                 ))}
+              </div>
+            </div>
+
+            <div className="selection-section">
+              <h3>Manual reference</h3>
+              <div className="form-grid">
+                <label>
+                  <span>HP slots</span>
+                  <input type="number" min={0} value={selectedBuild.status.maxHp} onChange={(event) => updateStatus({ maxHp: Number(event.target.value) })} />
+                </label>
+                <label>
+                  <span>Marked HP</span>
+                  <input type="number" min={0} value={selectedBuild.status.markedHp} onChange={(event) => updateStatus({ markedHp: Number(event.target.value) })} />
+                </label>
+                <label>
+                  <span>Stress slots</span>
+                  <input type="number" min={0} value={selectedBuild.status.maxStress} onChange={(event) => updateStatus({ maxStress: Number(event.target.value) })} />
+                </label>
+                <label>
+                  <span>Marked Stress</span>
+                  <input type="number" min={0} value={selectedBuild.status.markedStress} onChange={(event) => updateStatus({ markedStress: Number(event.target.value) })} />
+                </label>
+                <label>
+                  <span>Evasion</span>
+                  <input type="number" min={0} value={selectedBuild.status.evasion} onChange={(event) => updateStatus({ evasion: Number(event.target.value) })} />
+                </label>
+                <label>
+                  <span>Armor score</span>
+                  <input type="number" min={0} value={selectedBuild.status.armorScore} onChange={(event) => updateStatus({ armorScore: Number(event.target.value) })} />
+                </label>
+                <label>
+                  <span>Armor slots</span>
+                  <input type="number" min={0} value={selectedBuild.status.armorSlots} onChange={(event) => updateStatus({ armorSlots: Number(event.target.value) })} />
+                </label>
+                <label>
+                  <span>Marked Armor</span>
+                  <input type="number" min={0} value={selectedBuild.status.markedArmor} onChange={(event) => updateStatus({ markedArmor: Number(event.target.value) })} />
+                </label>
+                <label>
+                  <span>Major threshold</span>
+                  <input type="number" min={0} value={selectedBuild.status.majorThreshold} onChange={(event) => updateStatus({ majorThreshold: Number(event.target.value) })} />
+                </label>
+                <label>
+                  <span>Severe threshold</span>
+                  <input type="number" min={0} value={selectedBuild.status.severeThreshold} onChange={(event) => updateStatus({ severeThreshold: Number(event.target.value) })} />
+                </label>
               </div>
             </div>
 
