@@ -4,11 +4,11 @@ import { BuildManager } from "./components/BuildManager";
 import { DualityHelper } from "./components/DualityHelper";
 import { HomebrewManager } from "./components/HomebrewManager";
 import { SrdBrowser } from "./components/SrdBrowser";
-import { generatedSrdContent } from "./data/generated/srdContent.generated";
 import { sampleCharacter } from "./data/sampleCharacter";
 import { getActiveContent } from "./lib/contentIndex";
+import { loadSrdContent } from "./lib/srdDataLoader";
 import { loadCharacterBuilds, loadHomebrewPacks, saveCharacterBuilds, saveHomebrewPacks } from "./lib/storage";
-import type { CharacterBuild, HomebrewPack } from "./lib/types";
+import type { CharacterBuild, ContentEntry, HomebrewPack } from "./lib/types";
 
 type TabId = "srd" | "homebrew" | "builds" | "duality";
 
@@ -21,8 +21,34 @@ const tabs = [
 
 export function App() {
   const [activeTab, setActiveTab] = useState<TabId>("srd");
+  const [srdContent, setSrdContent] = useState<ContentEntry[]>([]);
+  const [isSrdLoading, setIsSrdLoading] = useState(true);
+  const [srdLoadError, setSrdLoadError] = useState<string | null>(null);
   const [packs, setPacks] = useState<HomebrewPack[]>(() => loadHomebrewPacks());
   const [builds, setBuilds] = useState<CharacterBuild[]>(() => loadCharacterBuilds([sampleCharacter]));
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    loadSrdContent()
+      .then((entries) => {
+        if (isCurrent) {
+          setSrdContent(entries);
+          setSrdLoadError(null);
+          setIsSrdLoading(false);
+        }
+      })
+      .catch((error: unknown) => {
+        if (isCurrent) {
+          setSrdLoadError(error instanceof Error ? error.message : "Unable to load SRD data");
+          setIsSrdLoading(false);
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
 
   useEffect(() => {
     saveHomebrewPacks(packs);
@@ -32,7 +58,7 @@ export function App() {
     saveCharacterBuilds(builds);
   }, [builds]);
 
-  const activeContent = useMemo(() => getActiveContent(generatedSrdContent, packs), [packs]);
+  const activeContent = useMemo(() => getActiveContent(srdContent, packs), [packs, srdContent]);
 
   return (
     <main className="app-shell">
@@ -59,6 +85,9 @@ export function App() {
           );
         })}
       </nav>
+
+      {isSrdLoading ? <p className="status-line">Loading SRD data...</p> : null}
+      {srdLoadError ? <p className="inline-error">{srdLoadError}</p> : null}
 
       {activeTab === "srd" ? <SrdBrowser entries={activeContent} /> : null}
       {activeTab === "homebrew" ? <HomebrewManager packs={packs} onChange={setPacks} /> : null}

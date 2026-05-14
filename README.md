@@ -70,13 +70,15 @@ The unit tests cover:
 - Duality result parsing and formatting.
 - Homebrew validation and collection-key normalization.
 - Character build filtering and ID reference resolution.
+- Static SRD asset loading and validation.
 
 ## Project Structure
 
 ```text
 public/manifest.json              Owlbear Rodeo extension manifest
+public/data/srd-core.json         Generated SRD runtime data asset
 sample-data/                      Importable example JSON files
-src/data/                         Generated SRD, sample homebrew, sample character
+src/data/                         Sample homebrew and sample character
 src/lib/                          Pure data, validation, filtering, SDK wrappers
 src/components/                   React popover views
 src/App.tsx                       App shell and tab routing
@@ -110,7 +112,7 @@ Homebrew packs may use either normalized `entries` or daggerheart-data-style col
 - `sample-data/homebrew-pack.sample.json`
 - `sample-data/character-build.sample.json`
 
-The bundled SRD browser uses generated normalized content from `daggersearch/daggerheart-data/core`.
+The bundled SRD browser loads generated normalized content from `public/data/srd-core.json`, which is served as a static asset instead of being bundled into the main app JavaScript. The source data comes from `daggersearch/daggerheart-data/core`.
 
 To refresh it:
 

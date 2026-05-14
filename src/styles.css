@@ -371,6 +371,17 @@ textarea {
   line-height: 1.4;
 }
 
+.inline-error {
+  margin: 0;
+  border: 1px solid #d79a9a;
+  border-radius: 8px;
+  background: #fff7f7;
+  color: #7d2020;
+  padding: 9px 10px;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
 .error-box {
   display: grid;
   gap: 4px;
