@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeHomebrewPack, validateHomebrewPack } from "./schema";
+import { normalizeHomebrewPack, validateCharacterBuild, validateHomebrewPack } from "./schema";
 
 describe("homebrew pack validation", () => {
   it("accepts a normalized homebrew pack with domain cards and abilities", () => {
@@ -85,5 +85,31 @@ describe("homebrew pack validation", () => {
     if (!result.success) {
       expect(result.error.issues.map((issue) => issue.path.join("."))).toContain("entries.0.type");
     }
+  });
+});
+
+describe("character build validation", () => {
+  it("accepts old builds and defaults lightweight roll data", () => {
+    const build = validateCharacterBuild({
+      id: "character:old",
+      name: "Old Build",
+      level: 1,
+      selectedDomains: [],
+      selectedDomainCards: [],
+      selectedAbilities: [],
+      selectedEquipment: [],
+      notes: "",
+      manualOverrides: {},
+    });
+
+    expect(build.traits).toEqual({
+      agility: 0,
+      strength: 0,
+      finesse: 0,
+      instinct: 0,
+      presence: 0,
+      knowledge: 0,
+    });
+    expect(build.experiences).toEqual([]);
   });
 });

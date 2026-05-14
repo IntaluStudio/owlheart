@@ -1,14 +1,27 @@
-import { Download, Plus, Save, Upload } from "lucide-react";
-import { ChangeEvent, useMemo, useState } from "react";
+import { Download, Plus, Save, Trash2, Upload } from "lucide-react";
+import { ChangeEvent, lazy, Suspense, useMemo, useState } from "react";
 import { ContentCard } from "./ContentCard";
+import { QuickReferenceBoard } from "./QuickReferenceBoard";
 import { createLocalId, downloadJson, readJsonFile } from "../lib/importExport";
 import { getAvailableAbilitiesForBuild, getAvailableDomainCardsForBuild, getSelectedReferences } from "../lib/buildFiltering";
 import { characterBuildSchema } from "../lib/schema";
 import { getContentByType } from "../lib/contentIndex";
-import type { CharacterBuild, ContentEntry } from "../lib/types";
+import { TRAIT_KEYS, type CharacterBuild, type CharacterExperience, type ContentEntry, type TraitKey } from "../lib/types";
+import type { RollTarget } from "../lib/quickReference";
 
 const EQUIPMENT_PAGE_SIZE = 10;
 const CARD_PAGE_SIZE = 8;
+
+const DualityDiceRoller = lazy(() => import("./DualityDiceRoller").then((module) => ({ default: module.DualityDiceRoller })));
+
+const TRAIT_LABELS: Record<TraitKey, string> = {
+  agility: "Agility",
+  strength: "Strength",
+  finesse: "Finesse",
+  instinct: "Instinct",
+  presence: "Presence",
+  knowledge: "Knowledge",
+};
 
 type BuildManagerProps = {
   builds: CharacterBuild[];
@@ -36,6 +49,15 @@ function createBlankBuild(entries: ContentEntry[]): CharacterBuild {
     selectedDomainCards: [],
     selectedAbilities: [],
     selectedEquipment: [],
+    traits: {
+      agility: 0,
+      strength: 0,
+      finesse: 0,
+      instinct: 0,
+      presence: 0,
+      knowledge: 0,
+    },
+    experiences: [],
     notes: "",
     manualOverrides: {},
   };
@@ -54,6 +76,7 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
   const [cardDomainFilter, setCardDomainFilter] = useState("");
   const [cardLevelFilter, setCardLevelFilter] = useState("");
   const [cardPage, setCardPage] = useState(1);
+  const [activeRollTarget, setActiveRollTarget] = useState<RollTarget | null>(null);
 
   const selectedBuild = builds.find((build) => build.id === selectedBuildId) ?? builds[0];
   const selectedReferences = useMemo(
@@ -109,6 +132,58 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
 
     const next = { ...selectedBuild, ...patch };
     onChange(builds.map((build) => (build.id === selectedBuild.id ? next : build)));
+  };
+
+  const updateTrait = (trait: TraitKey, value: number) => {
+    if (!selectedBuild) {
+      return;
+    }
+
+    updateBuild({
+      traits: {
+        ...selectedBuild.traits,
+        [trait]: value,
+      },
+    });
+  };
+
+  const updateExperience = (experienceId: string, patch: Partial<CharacterExperience>) => {
+    if (!selectedBuild) {
+      return;
+    }
+
+    updateBuild({
+      experiences: selectedBuild.experiences.map((experience) =>
+        experience.id === experienceId ? { ...experience, ...patch } : experience,
+      ),
+    });
+  };
+
+  const addExperience = () => {
+    if (!selectedBuild) {
+      return;
+    }
+
+    updateBuild({
+      experiences: [
+        ...selectedBuild.experiences,
+        {
+          id: createLocalId("experience", `${selectedBuild.name}-experience`),
+          name: "New Experience",
+          modifier: 2,
+        },
+      ],
+    });
+  };
+
+  const removeExperience = (experienceId: string) => {
+    if (!selectedBuild) {
+      return;
+    }
+
+    updateBuild({
+      experiences: selectedBuild.experiences.filter((experience) => experience.id !== experienceId),
+    });
   };
 
   const addBuild = () => {
@@ -192,22 +267,17 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
         </div>
 
         {quickReference && selectedReferences ? (
-          <div className="reference-grid">
-            {[selectedReferences.ancestry, selectedReferences.community, selectedReferences.class, selectedReferences.subclass]
-              .filter(Boolean)
-              .map((entry) => (
-                <ContentCard key={entry!.id} entry={entry!} collapsible featureFirst={entry!.type === "ancestry" || entry!.type === "community"} />
-              ))}
-            {selectedReferences.domainCards.map((entry) => (
-              <ContentCard key={entry.id} entry={entry} />
-            ))}
-            {selectedReferences.abilities.map((entry) => (
-              <ContentCard key={entry.id} entry={entry} />
-            ))}
-            {selectedReferences.equipment.map((entry) => (
-              <ContentCard key={entry.id} entry={entry} />
-            ))}
-          </div>
+          <QuickReferenceBoard
+            build={selectedBuild}
+            ancestry={selectedReferences.ancestry}
+            community={selectedReferences.community}
+            classEntry={selectedReferences.class}
+            subclass={selectedReferences.subclass}
+            domainCards={selectedReferences.domainCards}
+            abilities={selectedReferences.abilities}
+            equipment={selectedReferences.equipment}
+            onRoll={setActiveRollTarget}
+          />
         ) : (
           <>
             <div className="form-grid">
@@ -296,6 +366,57 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                 <span>Notes</span>
                 <textarea value={selectedBuild.notes} onChange={(event) => updateBuild({ notes: event.target.value })} rows={3} />
               </label>
+            </div>
+
+            <div className="selection-section">
+              <h3>Traits</h3>
+              <div className="form-grid">
+                {TRAIT_KEYS.map((trait) => (
+                  <label key={trait}>
+                    <span>{TRAIT_LABELS[trait]}</span>
+                    <input
+                      type="number"
+                      value={selectedBuild.traits[trait]}
+                      onChange={(event) => updateTrait(trait, Number(event.target.value))}
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="selection-section">
+              <div className="selection-section__header">
+                <h3>Experiences</h3>
+                <button type="button" className="button" onClick={addExperience}>
+                  <Plus size={16} aria-hidden="true" />
+                  Add
+                </button>
+              </div>
+              {selectedBuild.experiences.length ? (
+                <div className="experience-editor">
+                  {selectedBuild.experiences.map((experience) => (
+                    <div key={experience.id} className="experience-editor__row">
+                      <label>
+                        <span>Name</span>
+                        <input value={experience.name} onChange={(event) => updateExperience(experience.id, { name: event.target.value })} />
+                      </label>
+                      <label>
+                        <span>Modifier</span>
+                        <input
+                          type="number"
+                          value={experience.modifier}
+                          onChange={(event) => updateExperience(experience.id, { modifier: Number(event.target.value) })}
+                        />
+                      </label>
+                      <button type="button" className="icon-button icon-button--danger" onClick={() => removeExperience(experience.id)} aria-label={`Remove ${experience.name}`}>
+                        <Trash2 size={16} aria-hidden="true" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="empty-state">No experiences added.</p>
+              )}
             </div>
 
             <div className="toggle-grid">
@@ -482,6 +603,16 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
           </>
         )}
       </div>
+
+      {activeRollTarget ? (
+        <Suspense fallback={<div className="roller-backdrop"><div className="roller-panel"><p className="status-line">Loading dice roller...</p></div></div>}>
+          <DualityDiceRoller
+            label={activeRollTarget.label}
+            modifier={activeRollTarget.modifier}
+            onClose={() => setActiveRollTarget(null)}
+          />
+        </Suspense>
+      ) : null}
     </section>
   );
 }

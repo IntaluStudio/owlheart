@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CONTENT_TYPES, type ContentEntry, type HomebrewPack } from "./types";
+import { CONTENT_TYPES, TRAIT_KEYS, type ContentEntry, type HomebrewPack } from "./types";
 
 export const contentEntrySchema = z.object({
   id: z.string().min(1),
@@ -63,6 +63,19 @@ const homebrewPackInputSchema = z
     };
   });
 
+const characterTraitsSchema = z.object(
+  Object.fromEntries(TRAIT_KEYS.map((trait) => [trait, z.number().int().default(0)])) as Record<
+    (typeof TRAIT_KEYS)[number],
+    z.ZodDefault<z.ZodNumber>
+  >,
+);
+
+const characterExperienceSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  modifier: z.number().int(),
+});
+
 export const characterBuildSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -75,6 +88,15 @@ export const characterBuildSchema = z.object({
   selectedDomainCards: z.array(z.string()).default([]),
   selectedAbilities: z.array(z.string()).default([]),
   selectedEquipment: z.array(z.string()).default([]),
+  traits: characterTraitsSchema.default({
+    agility: 0,
+    strength: 0,
+    finesse: 0,
+    instinct: 0,
+    presence: 0,
+    knowledge: 0,
+  }),
+  experiences: z.array(characterExperienceSchema).default([]),
   notes: z.string().default(""),
   manualOverrides: z
     .object({

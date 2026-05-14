@@ -47,6 +47,18 @@ export type HomebrewPack = {
   entries: ContentEntry[];
 };
 
+export const TRAIT_KEYS = ["agility", "strength", "finesse", "instinct", "presence", "knowledge"] as const;
+
+export type TraitKey = (typeof TRAIT_KEYS)[number];
+
+export type CharacterTraits = Record<TraitKey, number>;
+
+export type CharacterExperience = {
+  id: string;
+  name: string;
+  modifier: number;
+};
+
 export type CharacterBuild = {
   id: string;
   name: string;
@@ -59,6 +71,8 @@ export type CharacterBuild = {
   selectedDomainCards: string[];
   selectedAbilities: string[];
   selectedEquipment: string[];
+  traits: CharacterTraits;
+  experiences: CharacterExperience[];
   notes: string;
   manualOverrides: {
     ignoreDomainRequirements?: boolean;

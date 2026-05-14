@@ -1,0 +1,41 @@
+import type { CharacterExperience, ContentEntry, TraitKey } from "./types";
+
+export const VISIBLE_DOMAIN_CARD_SLOTS = 5;
+
+const TRAIT_LABELS: Record<TraitKey, string> = {
+  agility: "Agility",
+  strength: "Strength",
+  finesse: "Finesse",
+  instinct: "Instinct",
+  presence: "Presence",
+  knowledge: "Knowledge",
+};
+
+export type RollTarget = {
+  id: string;
+  label: string;
+  modifier: number;
+};
+
+export function createTraitRollTarget(trait: TraitKey, modifier: number): RollTarget {
+  return {
+    id: `trait:${trait}`,
+    label: TRAIT_LABELS[trait],
+    modifier,
+  };
+}
+
+export function createExperienceRollTarget(experience: CharacterExperience): RollTarget {
+  return {
+    id: experience.id,
+    label: experience.name,
+    modifier: experience.modifier,
+  };
+}
+
+export function splitCardVault(cards: ContentEntry[], visibleSlots = VISIBLE_DOMAIN_CARD_SLOTS) {
+  return {
+    visible: cards.slice(0, visibleSlots),
+    vault: cards.slice(visibleSlots),
+  };
+}

@@ -68,6 +68,15 @@ const warrior: CharacterBuild = {
   selectedDomainCards: ["srd:domain-card:blade:whirlwind"],
   selectedAbilities: ["srd:ability:warrior:battle-strategist"],
   selectedEquipment: ["srd:item:spear"],
+  traits: {
+    agility: 0,
+    strength: 0,
+    finesse: 0,
+    instinct: 0,
+    presence: 0,
+    knowledge: 0,
+  },
+  experiences: [],
   notes: "",
   manualOverrides: {},
 };
