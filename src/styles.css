@@ -296,6 +296,15 @@ textarea {
   margin-top: 0;
 }
 
+.result-entry {
+  display: grid;
+  gap: 7px;
+}
+
+.srd-inline-detail {
+  display: none;
+}
+
 .stat-strip {
   flex-wrap: wrap;
 }
@@ -621,8 +630,16 @@ textarea {
     grid-template-columns: 1fr;
   }
 
-  .detail-pane {
+  .detail-pane:not(.srd-detail-pane) {
     order: -1;
+  }
+
+  .srd-detail-pane {
+    display: none;
+  }
+
+  .srd-inline-detail {
+    display: grid;
   }
 
   .list-pane,

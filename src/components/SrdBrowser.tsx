@@ -157,7 +157,14 @@ export function SrdBrowser({ entries }: SrdBrowserProps) {
                 <span>{group.entries.length}</span>
               </div>
               {group.entries.map((entry) => (
-                <ContentCard key={entry.id} entry={entry} compact selected={entry.id === selected?.id} onClick={() => setSelectedId(entry.id)} />
+                <div key={entry.id} className="result-entry">
+                  <ContentCard entry={entry} compact selected={entry.id === selected?.id} onClick={() => setSelectedId(entry.id)} />
+                  {entry.id === selected?.id ? (
+                    <div className="srd-inline-detail">
+                      <ContentCard entry={entry} collapsible={selectedIsFeatureEntry} featureFirst={selectedIsFeatureEntry} />
+                    </div>
+                  ) : null}
+                </div>
               ))}
             </section>
           ))}
@@ -170,7 +177,7 @@ export function SrdBrowser({ entries }: SrdBrowserProps) {
             </button>
           </div>
         </div>
-        <div className="detail-pane" aria-live="polite">
+        <div className="detail-pane srd-detail-pane" aria-live="polite">
           {selected ? <ContentCard entry={selected} collapsible={selectedIsFeatureEntry} featureFirst={selectedIsFeatureEntry} /> : <p className="empty-state">No matching entries.</p>}
         </div>
       </div>
