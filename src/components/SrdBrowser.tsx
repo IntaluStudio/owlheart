@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { ContentCard } from "./ContentCard";
 import { CONTENT_TYPES, type ContentEntry, type ContentFilters, type ContentType } from "../lib/types";
 import { filterContent, getFilterOptions } from "../lib/contentIndex";
+import { groupSrdResults } from "../lib/srdResultGrouping";
 
 type SrdBrowserProps = {
   entries: ContentEntry[];
@@ -41,8 +42,13 @@ export function SrdBrowser({ entries }: SrdBrowserProps) {
   const results = useMemo(() => filterContent(entries, filters), [entries, filters]);
   const pageCount = Math.max(1, Math.ceil(results.length / SRD_PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
-  const visibleResults = results.slice((currentPage - 1) * SRD_PAGE_SIZE, currentPage * SRD_PAGE_SIZE);
+  const visibleResults = useMemo(
+    () => results.slice((currentPage - 1) * SRD_PAGE_SIZE, currentPage * SRD_PAGE_SIZE),
+    [currentPage, results],
+  );
+  const visibleGroups = useMemo(() => groupSrdResults(visibleResults), [visibleResults]);
   const selected = results.find((entry) => entry.id === selectedId) ?? results[0];
+  const selectedIsFeatureEntry = selected ? ["ancestry", "community", "class", "subclass"].includes(selected.type) : false;
 
   const updateFilters = (patch: Partial<ContentFilters>) => {
     setFilters((current) => ({ ...current, ...patch }));
@@ -144,8 +150,16 @@ export function SrdBrowser({ entries }: SrdBrowserProps) {
             <BookOpen size={16} aria-hidden="true" />
             {results.length} entries • page {currentPage} of {pageCount}
           </div>
-          {visibleResults.map((entry) => (
-            <ContentCard key={entry.id} entry={entry} compact selected={entry.id === selected?.id} onClick={() => setSelectedId(entry.id)} />
+          {visibleGroups.map((group) => (
+            <section key={group.key} className="result-group">
+              <div className="result-group__header">
+                <span>{group.label}</span>
+                <span>{group.entries.length}</span>
+              </div>
+              {group.entries.map((entry) => (
+                <ContentCard key={entry.id} entry={entry} compact selected={entry.id === selected?.id} onClick={() => setSelectedId(entry.id)} />
+              ))}
+            </section>
           ))}
           <div className="pager" aria-label="SRD result pagination">
             <button type="button" className="button" onClick={() => setPage((value) => Math.max(1, value - 1))} disabled={currentPage <= 1}>
@@ -157,7 +171,7 @@ export function SrdBrowser({ entries }: SrdBrowserProps) {
           </div>
         </div>
         <div className="detail-pane" aria-live="polite">
-          {selected ? <ContentCard entry={selected} /> : <p className="empty-state">No matching entries.</p>}
+          {selected ? <ContentCard entry={selected} collapsible={selectedIsFeatureEntry} featureFirst={selectedIsFeatureEntry} /> : <p className="empty-state">No matching entries.</p>}
         </div>
       </div>
     </section>

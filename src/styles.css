@@ -265,6 +265,37 @@ textarea {
   font-weight: 700;
 }
 
+.result-group {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.result-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid #d7ddd8;
+  color: #50575d;
+  padding: 2px 1px 5px;
+  font-size: 0.78rem;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.result-group__header span:last-child {
+  border-radius: 999px;
+  background: #e8f0ed;
+  color: #1f5a55;
+  padding: 2px 7px;
+  text-transform: none;
+}
+
+.result-group .content-card {
+  margin-top: 0;
+}
+
 .stat-strip {
   flex-wrap: wrap;
 }
