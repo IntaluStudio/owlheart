@@ -420,7 +420,7 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                   <input type="number" min={0} value={selectedBuild.status.maxHp} onChange={(event) => updateStatus({ maxHp: Number(event.target.value) })} />
                 </label>
                 <label>
-                  <span>Marked HP</span>
+                  <span>Current HP</span>
                   <input type="number" min={0} value={selectedBuild.status.markedHp} onChange={(event) => updateStatus({ markedHp: Number(event.target.value) })} />
                 </label>
                 <label>
@@ -428,7 +428,7 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                   <input type="number" min={0} value={selectedBuild.status.maxStress} onChange={(event) => updateStatus({ maxStress: Number(event.target.value) })} />
                 </label>
                 <label>
-                  <span>Marked Stress</span>
+                  <span>Current Stress</span>
                   <input type="number" min={0} value={selectedBuild.status.markedStress} onChange={(event) => updateStatus({ markedStress: Number(event.target.value) })} />
                 </label>
                 <label>
@@ -444,7 +444,7 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                   <input type="number" min={0} value={selectedBuild.status.armorSlots} onChange={(event) => updateStatus({ armorSlots: Number(event.target.value) })} />
                 </label>
                 <label>
-                  <span>Marked Armor</span>
+                  <span>Current Armor</span>
                   <input type="number" min={0} value={selectedBuild.status.markedArmor} onChange={(event) => updateStatus({ markedArmor: Number(event.target.value) })} />
                 </label>
                 <label>
