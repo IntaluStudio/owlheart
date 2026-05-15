@@ -1,4 +1,4 @@
-import { Download, Plus, Save, Trash2, Upload } from "lucide-react";
+import { Download, Plus, Save, Sparkles, Trash2, Upload } from "lucide-react";
 import { ChangeEvent, lazy, Suspense, useMemo, useState } from "react";
 import { ContentCard } from "./ContentCard";
 import { QuickReferenceBoard } from "./QuickReferenceBoard";
@@ -8,6 +8,7 @@ import { characterBuildSchema } from "../lib/schema";
 import { getContentByType } from "../lib/contentIndex";
 import { TRAIT_KEYS, type CharacterBuild, type CharacterExperience, type ContentEntry, type TraitKey } from "../lib/types";
 import { filterContentChoices, type RollTarget } from "../lib/quickReference";
+import { applySuggestedClassReference, findSuggestedClassReference } from "../lib/suggestedBuilds";
 
 const EQUIPMENT_PAGE_SIZE = 10;
 const CARD_PAGE_SIZE = 8;
@@ -94,6 +95,7 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
   const [activeRollTarget, setActiveRollTarget] = useState<RollTarget | null>(null);
 
   const selectedBuild = builds.find((build) => build.id === selectedBuildId) ?? builds[0];
+  const selectedSuggestion = findSuggestedClassReference(selectedBuild?.classId);
   const selectedReferences = useMemo(
     () => (selectedBuild ? getSelectedReferences(entries, selectedBuild) : undefined),
     [entries, selectedBuild],
@@ -214,6 +216,15 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
     });
   };
 
+  const applyClassSuggestions = () => {
+    if (!selectedBuild || !selectedSuggestion) {
+      return;
+    }
+
+    const next = applySuggestedClassReference(selectedBuild, entries);
+    onChange(builds.map((build) => (build.id === selectedBuild.id ? next : build)));
+  };
+
   const addBuild = () => {
     const build = createBlankBuild(entries);
     onChange([build, ...builds]);
@@ -292,6 +303,12 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
             <Download size={16} aria-hidden="true" />
             Export
           </button>
+          {!quickReference ? (
+            <button type="button" className="button" disabled={!selectedSuggestion} onClick={applyClassSuggestions}>
+              <Sparkles size={16} aria-hidden="true" />
+              Apply class suggestions
+            </button>
+          ) : null}
         </div>
 
         {quickReference && selectedReferences ? (
