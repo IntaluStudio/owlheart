@@ -1,6 +1,6 @@
-import classes from "../../vendor/daggerheart-data/the_void/classes.json";
-import domainCards from "../../vendor/daggerheart-data/the_void/domain-cards.json";
-import subclasses from "../../vendor/daggerheart-data/the_void/subclasses.json";
+import classes from "./voidPlaytest/classes.json";
+import domainCards from "./voidPlaytest/domain-cards.json";
+import subclasses from "./voidPlaytest/subclasses.json";
 import { normalizeDaggerheartRelease } from "../lib/daggerheartData";
 
 const VOID_SOURCE = "Void Playtest";
