@@ -39,3 +39,17 @@ export function splitCardVault(cards: ContentEntry[], visibleSlots = VISIBLE_DOM
     vault: cards.slice(visibleSlots),
   };
 }
+
+export function filterContentChoices(entries: ContentEntry[], query: string) {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (!normalizedQuery) {
+    return entries;
+  }
+
+  return entries.filter((entry) =>
+    [entry.name, entry.text, entry.source, entry.tags.join(" ")]
+      .join(" ")
+      .toLowerCase()
+      .includes(normalizedQuery),
+  );
+}

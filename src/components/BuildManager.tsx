@@ -7,10 +7,11 @@ import { getAvailableAbilitiesForBuild, getAvailableDomainCardsForBuild, getSele
 import { characterBuildSchema } from "../lib/schema";
 import { getContentByType } from "../lib/contentIndex";
 import { TRAIT_KEYS, type CharacterBuild, type CharacterExperience, type ContentEntry, type TraitKey } from "../lib/types";
-import type { RollTarget } from "../lib/quickReference";
+import { filterContentChoices, type RollTarget } from "../lib/quickReference";
 
 const EQUIPMENT_PAGE_SIZE = 10;
 const CARD_PAGE_SIZE = 8;
+const ABILITY_PAGE_SIZE = 8;
 
 const DualityDiceRoller = lazy(() => import("./DualityDiceRoller").then((module) => ({ default: module.DualityDiceRoller })));
 
@@ -88,6 +89,8 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
   const [cardDomainFilter, setCardDomainFilter] = useState("");
   const [cardLevelFilter, setCardLevelFilter] = useState("");
   const [cardPage, setCardPage] = useState(1);
+  const [abilityQuery, setAbilityQuery] = useState("");
+  const [abilityPage, setAbilityPage] = useState(1);
   const [activeRollTarget, setActiveRollTarget] = useState<RollTarget | null>(null);
 
   const selectedBuild = builds.find((build) => build.id === selectedBuildId) ?? builds[0];
@@ -117,18 +120,18 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
     () => (selectedBuild ? getAvailableAbilitiesForBuild(entries, selectedBuild) : []),
     [entries, selectedBuild],
   );
+  const filteredAbilities = useMemo(
+    () => filterContentChoices(availableAbilities, abilityQuery).sort((a, b) => a.name.localeCompare(b.name)),
+    [abilityQuery, availableAbilities],
+  );
+  const abilityPageCount = Math.max(1, Math.ceil(filteredAbilities.length / ABILITY_PAGE_SIZE));
+  const currentAbilityPage = Math.min(abilityPage, abilityPageCount);
+  const visibleAbilities = filteredAbilities.slice(
+    (currentAbilityPage - 1) * ABILITY_PAGE_SIZE,
+    currentAbilityPage * ABILITY_PAGE_SIZE,
+  );
   const filteredEquipment = useMemo(() => {
-    const query = equipmentQuery.trim().toLowerCase();
-    return getContentByType(entries, "item").filter((item) => {
-      if (!query) {
-        return true;
-      }
-
-      return [item.name, item.text, item.tags.join(" "), item.source]
-        .join(" ")
-        .toLowerCase()
-        .includes(query);
-    });
+    return filterContentChoices(getContentByType(entries, "item"), equipmentQuery);
   }, [entries, equipmentQuery]);
   const equipmentPageCount = Math.max(1, Math.ceil(filteredEquipment.length / EQUIPMENT_PAGE_SIZE));
   const currentEquipmentPage = Math.min(equipmentPage, equipmentPageCount);
@@ -523,6 +526,29 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
               </label>
             </div>
 
+            {selectedReferences ? (
+              <div className="selection-section">
+                <h3>Selected references</h3>
+                <div className="selected-summary-grid">
+                  <div>
+                    <span>Cards</span>
+                    <strong>{selectedReferences.domainCards.length}</strong>
+                    <small>{selectedReferences.domainCards.map((entry) => entry.name).join(", ") || "None selected"}</small>
+                  </div>
+                  <div>
+                    <span>Abilities</span>
+                    <strong>{selectedReferences.abilities.length}</strong>
+                    <small>{selectedReferences.abilities.map((entry) => entry.name).join(", ") || "None selected"}</small>
+                  </div>
+                  <div>
+                    <span>Equipment</span>
+                    <strong>{selectedReferences.equipment.length}</strong>
+                    <small>{selectedReferences.equipment.map((entry) => entry.name).join(", ") || "None selected"}</small>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             <div className="selection-section">
               <div className="selection-section__header">
                 <h3>Available cards</h3>
@@ -609,9 +635,25 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
             </div>
 
             <div className="selection-section">
-              <h3>Available abilities</h3>
+              <div className="selection-section__header">
+                <h3>Available abilities</h3>
+                <span>
+                  {filteredAbilities.length} matches • page {currentAbilityPage} of {abilityPageCount}
+                </span>
+              </div>
+              <label className="search-box search-box--compact">
+                <span className="visually-hidden">Search abilities</span>
+                <input
+                  value={abilityQuery}
+                  onChange={(event) => {
+                    setAbilityQuery(event.target.value);
+                    setAbilityPage(1);
+                  }}
+                  placeholder="Search abilities"
+                />
+              </label>
               <div className="checkbox-list">
-                {availableAbilities.map((ability) => (
+                {visibleAbilities.map((ability) => (
                   <label key={ability.id}>
                     <input
                       type="checkbox"
@@ -624,6 +666,19 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                     </span>
                   </label>
                 ))}
+              </div>
+              <div className="pager" aria-label="Ability pagination">
+                <button type="button" className="button" onClick={() => setAbilityPage((page) => Math.max(1, page - 1))} disabled={currentAbilityPage <= 1}>
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  className="button"
+                  onClick={() => setAbilityPage((page) => Math.min(abilityPageCount, page + 1))}
+                  disabled={currentAbilityPage >= abilityPageCount}
+                >
+                  Next
+                </button>
               </div>
             </div>
 

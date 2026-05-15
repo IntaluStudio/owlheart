@@ -605,6 +605,41 @@ textarea {
   font-weight: 700;
 }
 
+.selected-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.selected-summary-grid div {
+  display: grid;
+  gap: 4px;
+  min-height: 82px;
+  border: 1px solid #d7ddd8;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 9px;
+}
+
+.selected-summary-grid span {
+  color: #50575d;
+  font-size: 0.75rem;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.selected-summary-grid strong {
+  color: #161616;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.selected-summary-grid small {
+  color: #626a70;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
 .trait-button,
 .experience-button {
   display: grid;

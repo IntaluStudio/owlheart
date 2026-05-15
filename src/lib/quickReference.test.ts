@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { createExperienceRollTarget, createTraitRollTarget, splitCardVault } from "./quickReference";
+import { createExperienceRollTarget, createTraitRollTarget, filterContentChoices, splitCardVault } from "./quickReference";
 import type { ContentEntry } from "./types";
 
 function card(id: string): ContentEntry {
@@ -37,5 +37,15 @@ describe("quick reference helpers", () => {
       visible: cards.slice(0, 5),
       vault: cards.slice(5),
     });
+  });
+
+  test("filters content choices by name, text, tags, and source", () => {
+    const choices: ContentEntry[] = [
+      { id: "1", name: "Combat Training", type: "ability", source: "Warrior", tags: ["class"], text: "Strike hard." },
+      { id: "2", name: "Courage", type: "ability", source: "Guardian", tags: ["hope"], text: "Hold fast." },
+    ];
+
+    expect(filterContentChoices(choices, "hope").map((choice) => choice.id)).toEqual(["2"]);
+    expect(filterContentChoices(choices, "strike").map((choice) => choice.id)).toEqual(["1"]);
   });
 });
