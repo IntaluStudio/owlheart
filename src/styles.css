@@ -730,7 +730,7 @@ textarea {
 
 .card-slot-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -1046,5 +1046,11 @@ textarea {
   .build-list,
   .build-editor {
     max-height: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .card-slot-grid {
+    grid-template-columns: 1fr;
   }
 }
