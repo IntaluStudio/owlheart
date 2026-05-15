@@ -24,4 +24,17 @@ describe("BuildManager", () => {
 
     expect(html).toContain("Apply class suggestions");
   });
+
+  test("shows feature token editor", () => {
+    const html = renderToStaticMarkup(<BuildManager builds={[sampleCharacter]} entries={srdEntries} onChange={() => undefined} />);
+
+    expect(html).toContain("Feature tokens");
+    expect(html).toContain("Add token");
+  });
+
+  test("shows delete character action", () => {
+    const html = renderToStaticMarkup(<BuildManager builds={[sampleCharacter]} entries={srdEntries} onChange={() => undefined} />);
+
+    expect(html).toContain("Delete character");
+  });
 });

@@ -120,8 +120,10 @@ describe("character build validation", () => {
       armorScore: 0,
       armorSlots: 0,
       markedArmor: 0,
+      hope: 0,
       majorThreshold: 0,
       severeThreshold: 0,
     });
+    expect(build.featureTokens).toEqual([]);
   });
 });

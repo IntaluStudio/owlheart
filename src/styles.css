@@ -71,6 +71,47 @@ button:disabled {
   line-height: 1.4;
 }
 
+.switch--header {
+  flex: 0 0 auto;
+  border: 1px solid #cbd4cf;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 8px 10px;
+}
+
+.tracker-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 8px;
+}
+
+.tracker-control {
+  display: grid;
+  gap: 6px;
+  border: 1px solid #d7ddd8;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 8px;
+}
+
+.tracker-control > span {
+  color: #50575d;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.tracker-control > div {
+  display: grid;
+  grid-template-columns: 32px 1fr 32px;
+  align-items: center;
+  gap: 6px;
+}
+
+.tracker-control strong {
+  text-align: center;
+}
+
 .tab-bar {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -109,6 +150,15 @@ button:disabled {
   border-color: #8d1d2c;
   background: #8d1d2c;
   color: #ffffff;
+}
+
+.button--danger {
+  border-color: #a83434;
+  color: #a83434;
+}
+
+.button--danger:hover {
+  background: #fff5f5;
 }
 
 .icon-button {

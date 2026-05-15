@@ -5,9 +5,17 @@ import { DualityHelper } from "./components/DualityHelper";
 import { HomebrewManager } from "./components/HomebrewManager";
 import { SrdBrowser } from "./components/SrdBrowser";
 import { sampleCharacter } from "./data/sampleCharacter";
+import { voidPlaytestContent } from "./data/voidPlaytestContent";
 import { getActiveContent } from "./lib/contentIndex";
 import { loadSrdContent } from "./lib/srdDataLoader";
-import { loadCharacterBuilds, loadHomebrewPacks, saveCharacterBuilds, saveHomebrewPacks } from "./lib/storage";
+import {
+  loadCharacterBuilds,
+  loadHomebrewPacks,
+  loadVoidContentEnabled,
+  saveCharacterBuilds,
+  saveHomebrewPacks,
+  saveVoidContentEnabled,
+} from "./lib/storage";
 import type { CharacterBuild, ContentEntry, HomebrewPack } from "./lib/types";
 
 type TabId = "srd" | "homebrew" | "builds" | "duality";
@@ -26,6 +34,7 @@ export function App() {
   const [srdLoadError, setSrdLoadError] = useState<string | null>(null);
   const [packs, setPacks] = useState<HomebrewPack[]>(() => loadHomebrewPacks());
   const [builds, setBuilds] = useState<CharacterBuild[]>(() => loadCharacterBuilds([sampleCharacter]));
+  const [voidContentEnabled, setVoidContentEnabled] = useState(() => loadVoidContentEnabled());
 
   useEffect(() => {
     let isCurrent = true;
@@ -58,7 +67,15 @@ export function App() {
     saveCharacterBuilds(builds);
   }, [builds]);
 
-  const activeContent = useMemo(() => getActiveContent(srdContent, packs), [packs, srdContent]);
+  useEffect(() => {
+    saveVoidContentEnabled(voidContentEnabled);
+  }, [voidContentEnabled]);
+
+  const baseContent = useMemo(
+    () => (voidContentEnabled ? [...srdContent, ...voidPlaytestContent] : srdContent),
+    [srdContent, voidContentEnabled],
+  );
+  const activeContent = useMemo(() => getActiveContent(baseContent, packs), [baseContent, packs]);
 
   return (
     <main className="app-shell">
@@ -67,6 +84,14 @@ export function App() {
           <h1>Daggerheart Toolkit</h1>
           <p>SRD lookup, homebrew packs, build references, and duality results.</p>
         </div>
+        <label className="switch switch--header">
+          <input
+            type="checkbox"
+            checked={voidContentEnabled}
+            onChange={(event) => setVoidContentEnabled(event.target.checked)}
+          />
+          <span>Void content</span>
+        </label>
       </header>
 
       <nav className="tab-bar" aria-label="Daggerheart Toolkit views">

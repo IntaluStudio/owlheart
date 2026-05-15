@@ -4,6 +4,7 @@ export const METADATA_KEYS = {
   homebrewPacks: `${EXTENSION_ID}/homebrew-packs`,
   characters: `${EXTENSION_ID}/characters`,
   lastDualityResult: `${EXTENSION_ID}/last-duality-result`,
+  voidContentEnabled: `${EXTENSION_ID}/void-content-enabled`,
 } as const;
 
 export const CONTENT_TYPES = [
@@ -59,6 +60,14 @@ export type CharacterExperience = {
   modifier: number;
 };
 
+export type CharacterFeatureToken = {
+  id: string;
+  label: string;
+  current: number;
+  max?: number;
+  sourceContentId?: string;
+};
+
 export type CharacterStatusReference = {
   maxHp: number;
   markedHp: number;
@@ -68,6 +77,7 @@ export type CharacterStatusReference = {
   armorScore: number;
   armorSlots: number;
   markedArmor: number;
+  hope: number;
   majorThreshold: number;
   severeThreshold: number;
 };
@@ -86,6 +96,7 @@ export type CharacterBuild = {
   selectedEquipment: string[];
   traits: CharacterTraits;
   experiences: CharacterExperience[];
+  featureTokens: CharacterFeatureToken[];
   status: CharacterStatusReference;
   notes: string;
   manualOverrides: {
@@ -116,5 +127,28 @@ export type DualityResult = DualityInput & {
   total: number;
   outcome: DualityOutcome;
   label: string;
+  copyText: string;
+};
+
+export type DaggerheartRollKind = "action" | "trait" | "reaction";
+export type DaggerheartRollMode = "normal" | "advantage" | "disadvantage";
+
+export type DaggerheartRollInput = {
+  kind: DaggerheartRollKind;
+  label: string;
+  hopeDie: number;
+  fearDie: number;
+  modifier: number;
+  mode: DaggerheartRollMode;
+  advantageDie?: number;
+  difficulty?: number;
+};
+
+export type DaggerheartRollResult = DaggerheartRollInput & {
+  adjustment: number;
+  total: number;
+  success?: boolean;
+  outcome: DualityOutcome;
+  labelText: string;
   copyText: string;
 };

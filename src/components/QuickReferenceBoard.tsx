@@ -1,4 +1,5 @@
 import { ContentCard } from "./ContentCard";
+import { TrackerStrip } from "./TrackerStrip";
 import {
   createExperienceRollTarget,
   createTraitRollTarget,
@@ -6,6 +7,7 @@ import {
   type RollTarget,
 } from "../lib/quickReference";
 import { TRAIT_KEYS, type CharacterBuild, type ContentEntry, type TraitKey } from "../lib/types";
+import type { CharacterFeatureToken } from "../lib/types";
 
 type QuickReferenceBoardProps = {
   build: CharacterBuild;
@@ -17,6 +19,8 @@ type QuickReferenceBoardProps = {
   abilities: ContentEntry[];
   equipment: ContentEntry[];
   onRoll: (target: RollTarget) => void;
+  onStatusChange: (patch: Partial<CharacterBuild["status"]>) => void;
+  onTokenChange: (tokens: CharacterFeatureToken[]) => void;
 };
 
 const TRAIT_LABELS: Record<TraitKey, string> = {
@@ -65,6 +69,8 @@ export function QuickReferenceBoard({
   abilities,
   equipment,
   onRoll,
+  onStatusChange,
+  onTokenChange,
 }: QuickReferenceBoardProps) {
   const cardSplit = splitCardVault(domainCards);
   const classSlug = classEntry ? slug(classEntry.name) : "";
@@ -101,6 +107,8 @@ export function QuickReferenceBoard({
           <strong>Level {build.level}</strong>
         </div>
       </header>
+
+      <TrackerStrip build={build} onStatusChange={onStatusChange} onTokenChange={onTokenChange} />
 
       <section className="quick-board__zone">
         <h3>Traits</h3>

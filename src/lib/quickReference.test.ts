@@ -19,6 +19,8 @@ describe("quick reference helpers", () => {
       id: "trait:agility",
       label: "Agility",
       modifier: 2,
+      kind: "trait",
+      mode: "normal",
     });
   });
 
@@ -27,6 +29,8 @@ describe("quick reference helpers", () => {
       id: "exp:scout",
       label: "Scout",
       modifier: 3,
+      kind: "trait",
+      mode: "normal",
     });
   });
 

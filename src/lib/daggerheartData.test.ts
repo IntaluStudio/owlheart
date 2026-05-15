@@ -92,6 +92,48 @@ describe("normalizeDaggerheartRelease", () => {
     });
   });
 
+  it("links Void subclasses to Void class ids", () => {
+    const entries = normalizeDaggerheartRelease({
+      source: "Void Playtest",
+      files: {
+        "classes.json": [
+          {
+            id: "the_void_class_assassin",
+            name: "ASSASSIN",
+            description: [{ paragraph: { "en-US": "Assassins strike from shadow." } }],
+            domains: ["BLADE", "MIDNIGHT"],
+          },
+        ],
+        "subclasses.json": [
+          {
+            id: "the_void_subclass_executioners_guild",
+            name: { "en-US": "Executioners Guild" },
+            class: "ASSASSIN",
+            domains: ["BLADE", "MIDNIGHT"],
+            foundation: {
+              features: [
+                {
+                  name: { "en-US": "First Strike" },
+                  description: [{ paragraph: { "en-US": "Double the first successful attack damage." } }],
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+
+    expect(entries.find((entry) => entry.id === "the_void_subclass_executioners_guild")).toMatchObject({
+      system: { classIds: ["the_void_class_assassin"] },
+    });
+    expect(entries.find((entry) => entry.id === "the_void_subclass_executioners_guild:foundation:first-strike")).toMatchObject({
+      system: {
+        classIds: ["the_void_class_assassin"],
+        subclassIds: ["the_void_subclass_executioners_guild"],
+      },
+    });
+  });
+
   it("keeps ancestry and community feature text after their description", () => {
     const entries = normalizeDaggerheartRelease({
       source: "SRD Core",

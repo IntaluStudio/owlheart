@@ -20,6 +20,7 @@ const build: CharacterBuild = {
     knowledge: 0,
   },
   experiences: [{ id: "exp:scout", name: "Scout", modifier: 2 }],
+  featureTokens: [],
   status: {
     maxHp: 6,
     markedHp: 1,
@@ -29,6 +30,7 @@ const build: CharacterBuild = {
     armorScore: 3,
     armorSlots: 3,
     markedArmor: 1,
+    hope: 0,
     majorThreshold: 8,
     severeThreshold: 15,
   },
@@ -45,10 +47,14 @@ describe("QuickReferenceBoard", () => {
         abilities={[]}
         equipment={[]}
         onRoll={() => undefined}
+        onStatusChange={() => undefined}
+        onTokenChange={() => undefined}
       />,
     );
 
     expect(html).toContain("Test Build");
+    expect(html).toContain("Local character trackers");
+    expect(html).toContain("Hope");
     expect(html).toContain("Agility");
     expect(html).toContain("Scout");
     expect(html).toContain("Thresholds");
@@ -82,6 +88,8 @@ describe("QuickReferenceBoard", () => {
         abilities={[ability]}
         equipment={[]}
         onRoll={() => undefined}
+        onStatusChange={() => undefined}
+        onTokenChange={() => undefined}
       />,
     );
 

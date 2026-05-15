@@ -27,5 +27,6 @@ describe("App navigation", () => {
     expect(nav.indexOf("tab-button tab-button--active")).toBeLessThan(srdIndex);
     expect(nav).toContain('disabled=""');
     expect(nav).toContain("Packs disabled for now");
+    expect(html).toContain("Void content");
   });
 });

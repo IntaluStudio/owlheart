@@ -77,6 +77,7 @@ const warrior: CharacterBuild = {
     knowledge: 0,
   },
   experiences: [],
+  featureTokens: [],
   status: {
     maxHp: 0,
     markedHp: 0,
@@ -86,6 +87,7 @@ const warrior: CharacterBuild = {
     armorScore: 0,
     armorSlots: 0,
     markedArmor: 0,
+    hope: 0,
     majorThreshold: 0,
     severeThreshold: 0,
   },

@@ -27,6 +27,7 @@ describe("suggested build helpers", () => {
         armorScore: 0,
         armorSlots: 4,
         markedArmor: 1,
+        hope: 0,
         majorThreshold: 0,
         severeThreshold: 0,
       },

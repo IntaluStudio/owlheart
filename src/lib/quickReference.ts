@@ -1,4 +1,4 @@
-import type { CharacterExperience, ContentEntry, TraitKey } from "./types";
+import type { CharacterExperience, ContentEntry, DaggerheartRollKind, DaggerheartRollMode, TraitKey } from "./types";
 
 export const VISIBLE_DOMAIN_CARD_SLOTS = 5;
 
@@ -15,6 +15,8 @@ export type RollTarget = {
   id: string;
   label: string;
   modifier: number;
+  kind: DaggerheartRollKind;
+  mode: DaggerheartRollMode;
 };
 
 export function createTraitRollTarget(trait: TraitKey, modifier: number): RollTarget {
@@ -22,6 +24,8 @@ export function createTraitRollTarget(trait: TraitKey, modifier: number): RollTa
     id: `trait:${trait}`,
     label: TRAIT_LABELS[trait],
     modifier,
+    kind: "trait",
+    mode: "normal",
   };
 }
 
@@ -30,6 +34,8 @@ export function createExperienceRollTarget(experience: CharacterExperience): Rol
     id: experience.id,
     label: experience.name,
     modifier: experience.modifier,
+    kind: "trait",
+    mode: "normal",
   };
 }
 

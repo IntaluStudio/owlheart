@@ -70,3 +70,11 @@ export function loadCharacterBuilds(fallback: CharacterBuild[] = []) {
 export function saveCharacterBuilds(builds: CharacterBuild[]) {
   writeJson(METADATA_KEYS.characters, builds);
 }
+
+export function loadVoidContentEnabled() {
+  return readJson<boolean>(METADATA_KEYS.voidContentEnabled, false, (value) => value === true);
+}
+
+export function saveVoidContentEnabled(enabled: boolean) {
+  writeJson(METADATA_KEYS.voidContentEnabled, enabled);
+}

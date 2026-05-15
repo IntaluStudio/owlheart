@@ -76,6 +76,14 @@ const characterExperienceSchema = z.object({
   modifier: z.number().int(),
 });
 
+const characterFeatureTokenSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+  current: z.number().int().min(0).default(0),
+  max: z.number().int().min(0).optional(),
+  sourceContentId: z.string().optional(),
+});
+
 const defaultStatus = {
   maxHp: 0,
   markedHp: 0,
@@ -85,6 +93,7 @@ const defaultStatus = {
   armorScore: 0,
   armorSlots: 0,
   markedArmor: 0,
+  hope: 0,
   majorThreshold: 0,
   severeThreshold: 0,
 };
@@ -98,6 +107,7 @@ const characterStatusSchema = z.object({
   armorScore: z.number().int().min(0).default(0),
   armorSlots: z.number().int().min(0).default(0),
   markedArmor: z.number().int().min(0).default(0),
+  hope: z.number().int().min(0).default(0),
   majorThreshold: z.number().int().min(0).default(0),
   severeThreshold: z.number().int().min(0).default(0),
 });
@@ -123,6 +133,7 @@ export const characterBuildSchema = z.object({
     knowledge: 0,
   }),
   experiences: z.array(characterExperienceSchema).default([]),
+  featureTokens: z.array(characterFeatureTokenSchema).default([]),
   status: characterStatusSchema.default(defaultStatus),
   notes: z.string().default(""),
   manualOverrides: z

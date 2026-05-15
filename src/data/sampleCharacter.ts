@@ -21,6 +21,7 @@ export const sampleCharacter: CharacterBuild = {
     knowledge: -1,
   },
   experiences: [{ id: "experience:kael:pathfinder", name: "Pathfinder", modifier: 2 }],
+  featureTokens: [],
   status: {
     maxHp: 6,
     markedHp: 0,
@@ -30,6 +31,7 @@ export const sampleCharacter: CharacterBuild = {
     armorScore: 3,
     armorSlots: 3,
     markedArmor: 0,
+    hope: 2,
     majorThreshold: 8,
     severeThreshold: 15,
   },

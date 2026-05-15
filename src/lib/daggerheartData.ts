@@ -172,13 +172,14 @@ function normalizeClass(record: JsonRecord, source: string): ContentEntry[] {
 function normalizeSubclass(record: JsonRecord, source: string): ContentEntry[] {
   const subclassId = String(record.id);
   const classSlug = normalizeEnum(record.class);
+  const classId = classIdForReleaseClass(source, classSlug);
   const domains = Array.isArray(record.domains) ? record.domains.map(normalizeEnum) : [];
   const subclassEntry: ContentEntry = {
     ...baseEntry(record, "subclass", source),
     tags: ["subclass", classSlug, ...domains].filter(Boolean),
     domains,
     system: {
-      classIds: classSlug ? [`core_class_${classSlug}`] : [],
+      classIds: classId ? [classId] : [],
       domainIds: domains,
       spellcastTrait: normalizeEnum(record.spellcastTrait),
     },
@@ -197,7 +198,7 @@ function normalizeSubclass(record: JsonRecord, source: string): ContentEntry[] {
       prefix: `${subclassId}:${tier}`,
       tags: ["subclass-feature", tier, classSlug].filter(Boolean),
       systemKey: "subclassIds",
-      extraSystem: { classIds: classSlug ? [`core_class_${classSlug}`] : [] },
+      extraSystem: { classIds: classId ? [classId] : [] },
     });
   });
 
@@ -257,6 +258,14 @@ function normalizeEquipment(record: JsonRecord, source: string, fileName: string
       baseScore: record.baseScore,
     },
   };
+}
+
+function classIdForReleaseClass(source: string, classSlug: string) {
+  if (!classSlug) {
+    return "";
+  }
+
+  return source === "Void Playtest" ? `the_void_class_${classSlug}` : `core_class_${classSlug}`;
 }
 
 function normalizeGeneric(fileName: string, record: JsonRecord, source: string): ContentEntry[] {

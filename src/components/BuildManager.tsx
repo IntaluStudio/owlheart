@@ -6,13 +6,19 @@ import { createLocalId, downloadJson, readJsonFile } from "../lib/importExport";
 import { getAvailableAbilitiesForBuild, getAvailableDomainCardsForBuild, getSelectedReferences } from "../lib/buildFiltering";
 import { characterBuildSchema } from "../lib/schema";
 import { getContentByType } from "../lib/contentIndex";
-import { TRAIT_KEYS, type CharacterBuild, type CharacterExperience, type ContentEntry, type TraitKey } from "../lib/types";
+import { TRAIT_KEYS, type CharacterBuild, type CharacterExperience, type CharacterFeatureToken, type ContentEntry, type TraitKey } from "../lib/types";
 import { filterContentChoices, type RollTarget } from "../lib/quickReference";
 import { applySuggestedClassReference, findSuggestedClassReference } from "../lib/suggestedBuilds";
+import { getAutoSelectedAbilityIds, resetBuildForClassChange, resetBuildForSubclassChange } from "../lib/classChange";
 
 const EQUIPMENT_PAGE_SIZE = 10;
 const CARD_PAGE_SIZE = 8;
 const ABILITY_PAGE_SIZE = 8;
+const CLASS_CHANGE_WARNING =
+  "Changing class will clear selected subclass, domain cards, and class or subclass feature picks. You will need to repick subclass features and domain cards. Continue?";
+const SUBCLASS_CHANGE_WARNING =
+  "Changing subclass will replace selected subclass feature picks. Your class features will stay selected. Continue?";
+const PLAYTEST_CLASS_WARNING = "This class is from playtest material and may change. Continue?";
 
 const DualityDiceRoller = lazy(() => import("./DualityDiceRoller").then((module) => ({ default: module.DualityDiceRoller })));
 
@@ -38,6 +44,9 @@ function getStringArray(value: unknown) {
 function createBlankBuild(entries: ContentEntry[]): CharacterBuild {
   const firstClass = getContentByType(entries, "class")[0];
   const selectedDomains = getStringArray(firstClass?.system?.domainIds ?? firstClass?.domains).slice(0, 2);
+  const firstSubclass = getContentByType(entries, "subclass").find((entry) =>
+    getStringArray(entry.system?.classIds).includes(firstClass?.id ?? ""),
+  );
 
   return {
     id: createLocalId("character", "new-build"),
@@ -45,11 +54,11 @@ function createBlankBuild(entries: ContentEntry[]): CharacterBuild {
     ancestryId: getContentByType(entries, "ancestry")[0]?.id,
     communityId: getContentByType(entries, "community")[0]?.id,
     classId: firstClass?.id,
-    subclassId: getContentByType(entries, "subclass").find((entry) => getStringArray(entry.system?.classIds).includes(firstClass?.id ?? ""))?.id,
+    subclassId: firstSubclass?.id,
     level: 1,
     selectedDomains,
     selectedDomainCards: [],
-    selectedAbilities: [],
+    selectedAbilities: getAutoSelectedAbilityIds(entries, firstClass?.id, firstSubclass?.id),
     selectedEquipment: [],
     traits: {
       agility: 0,
@@ -60,6 +69,7 @@ function createBlankBuild(entries: ContentEntry[]): CharacterBuild {
       knowledge: 0,
     },
     experiences: [],
+    featureTokens: [],
     status: {
       maxHp: 0,
       markedHp: 0,
@@ -69,6 +79,7 @@ function createBlankBuild(entries: ContentEntry[]): CharacterBuild {
       armorScore: 0,
       armorSlots: 0,
       markedArmor: 0,
+      hope: 0,
       majorThreshold: 0,
       severeThreshold: 0,
     },
@@ -203,6 +214,45 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
     });
   };
 
+  const addFeatureToken = () => {
+    if (!selectedBuild) {
+      return;
+    }
+
+    updateBuild({
+      featureTokens: [
+        ...selectedBuild.featureTokens,
+        {
+          id: createLocalId("token", `${selectedBuild.name}-token`),
+          label: "New Token",
+          current: 0,
+        },
+      ],
+    });
+  };
+
+  const updateFeatureToken = (tokenId: string, patch: Partial<CharacterFeatureToken>) => {
+    if (!selectedBuild) {
+      return;
+    }
+
+    updateBuild({
+      featureTokens: selectedBuild.featureTokens.map((token) =>
+        token.id === tokenId ? { ...token, ...patch } : token,
+      ),
+    });
+  };
+
+  const removeFeatureToken = (tokenId: string) => {
+    if (!selectedBuild) {
+      return;
+    }
+
+    updateBuild({
+      featureTokens: selectedBuild.featureTokens.filter((token) => token.id !== tokenId),
+    });
+  };
+
   const updateStatus = (patch: Partial<CharacterBuild["status"]>) => {
     if (!selectedBuild) {
       return;
@@ -225,10 +275,65 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
     onChange(builds.map((build) => (build.id === selectedBuild.id ? next : build)));
   };
 
+  const handleClassChange = (classId: string) => {
+    if (!selectedBuild || (selectedBuild.classId ?? "") === classId) {
+      return;
+    }
+
+    const selectedClass = classes.find((entry) => entry.id === classId);
+    const warning = [
+      selectedBuild.classId ? CLASS_CHANGE_WARNING : undefined,
+      selectedClass?.system?.playtest ? PLAYTEST_CLASS_WARNING : undefined,
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+
+    if (warning && !window.confirm(warning)) {
+      return;
+    }
+
+    const next = resetBuildForClassChange(selectedBuild, entries, classId);
+    onChange(builds.map((build) => (build.id === selectedBuild.id ? next : build)));
+    setCardDomainFilter("");
+    setCardLevelFilter("");
+    setCardPage(1);
+    setAbilityQuery("");
+    setAbilityPage(1);
+  };
+
+  const handleSubclassChange = (subclassId: string) => {
+    if (!selectedBuild || (selectedBuild.subclassId ?? "") === subclassId) {
+      return;
+    }
+
+    if (selectedBuild.subclassId && !window.confirm(SUBCLASS_CHANGE_WARNING)) {
+      return;
+    }
+
+    const next = resetBuildForSubclassChange(selectedBuild, entries, subclassId);
+    onChange(builds.map((build) => (build.id === selectedBuild.id ? next : build)));
+    setAbilityQuery("");
+    setAbilityPage(1);
+  };
+
   const addBuild = () => {
     const build = createBlankBuild(entries);
     onChange([build, ...builds]);
     setSelectedBuildId(build.id);
+  };
+
+  const deleteSelectedBuild = () => {
+    if (!selectedBuild) {
+      return;
+    }
+
+    if (!window.confirm(`Delete ${selectedBuild.name}? This cannot be undone.`)) {
+      return;
+    }
+
+    const remaining = builds.filter((build) => build.id !== selectedBuild.id);
+    onChange(remaining);
+    setSelectedBuildId(remaining[0]?.id);
   };
 
   const importBuild = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -309,6 +414,10 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
               Apply class suggestions
             </button>
           ) : null}
+          <button type="button" className="button button--danger" onClick={deleteSelectedBuild}>
+            <Trash2 size={16} aria-hidden="true" />
+            Delete character
+          </button>
         </div>
 
         {quickReference && selectedReferences ? (
@@ -322,6 +431,8 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
             abilities={selectedReferences.abilities}
             equipment={selectedReferences.equipment}
             onRoll={setActiveRollTarget}
+            onStatusChange={updateStatus}
+            onTokenChange={(featureTokens) => updateBuild({ featureTokens })}
           />
         ) : (
           <>
@@ -366,13 +477,7 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                 <span>Class</span>
                 <select
                   value={selectedBuild.classId ?? ""}
-                  onChange={(event) => {
-                    const selectedClass = classes.find((entry) => entry.id === event.target.value);
-                    updateBuild({
-                      classId: event.target.value,
-                      selectedDomains: getStringArray(selectedClass?.system?.domainIds ?? selectedClass?.domains),
-                    });
-                  }}
+                  onChange={(event) => handleClassChange(event.target.value)}
                 >
                   <option value="">None</option>
                   {classes.map((entry) => (
@@ -384,7 +489,7 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
               </label>
               <label>
                 <span>Subclass</span>
-                <select value={selectedBuild.subclassId ?? ""} onChange={(event) => updateBuild({ subclassId: event.target.value })}>
+                <select value={selectedBuild.subclassId ?? ""} onChange={(event) => handleSubclassChange(event.target.value)}>
                   <option value="">None</option>
                   {subclasses.map((entry) => (
                     <option key={entry.id} value={entry.id}>
@@ -507,6 +612,60 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                 </div>
               ) : (
                 <p className="empty-state">No experiences added.</p>
+              )}
+            </div>
+
+            <div className="selection-section">
+              <div className="selection-section__header">
+                <h3>Feature tokens</h3>
+                <button type="button" className="button" onClick={addFeatureToken}>
+                  <Plus size={16} aria-hidden="true" />
+                  Add token
+                </button>
+              </div>
+              {selectedBuild.featureTokens.length ? (
+                <div className="experience-editor">
+                  {selectedBuild.featureTokens.map((token) => (
+                    <div key={token.id} className="experience-editor__row">
+                      <label>
+                        <span>Label</span>
+                        <input value={token.label} onChange={(event) => updateFeatureToken(token.id, { label: event.target.value })} />
+                      </label>
+                      <label>
+                        <span>Current</span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={token.current}
+                          onChange={(event) => updateFeatureToken(token.id, { current: Number(event.target.value) })}
+                        />
+                      </label>
+                      <label>
+                        <span>Max</span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={token.max ?? ""}
+                          onChange={(event) =>
+                            updateFeatureToken(token.id, {
+                              max: event.target.value ? Number(event.target.value) : undefined,
+                            })
+                          }
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        className="icon-button icon-button--danger"
+                        onClick={() => removeFeatureToken(token.id)}
+                        aria-label={`Remove ${token.label}`}
+                      >
+                        <Trash2 size={16} aria-hidden="true" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="empty-state">No feature tokens added.</p>
               )}
             </div>
 
@@ -752,6 +911,8 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
           <DualityDiceRoller
             label={activeRollTarget.label}
             modifier={activeRollTarget.modifier}
+            kind={activeRollTarget.kind}
+            initialMode={activeRollTarget.mode}
             onClose={() => setActiveRollTarget(null)}
           />
         </Suspense>
