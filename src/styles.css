@@ -386,6 +386,36 @@ textarea {
   color: #111318;
 }
 
+.content-card__metadata {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 6px;
+  margin: 0;
+}
+
+.content-card__metadata div {
+  min-width: 0;
+  border: 1px solid #d7ddd8;
+  border-radius: 7px;
+  background: #f8faf8;
+  padding: 6px 7px;
+}
+
+.content-card__metadata dt {
+  color: #626a70;
+  font-size: 0.66rem;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.content-card__metadata dd {
+  margin: 1px 0 0;
+  color: #22242a;
+  font-size: 0.78rem;
+  font-weight: 760;
+  overflow-wrap: anywhere;
+}
+
 .text-button {
   justify-self: start;
   border: 0;

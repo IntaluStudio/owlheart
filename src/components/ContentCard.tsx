@@ -87,6 +87,28 @@ function equipmentText(entry: ContentEntry): string {
   return fields.join("\n\n");
 }
 
+function metadataRows(entry: ContentEntry) {
+  const cardType = typeof entry.system?.cardType === "string" ? entry.system.cardType : undefined;
+  const recallCost =
+    typeof entry.system?.recallCost === "string" || typeof entry.system?.recallCost === "number"
+      ? String(entry.system.recallCost)
+      : undefined;
+  const equipmentType = typeof entry.system?.equipmentType === "string" ? entry.system.equipmentType : undefined;
+  const trait = typeof entry.system?.trait === "string" ? entry.system.trait : undefined;
+  const tier =
+    typeof entry.system?.tier === "string" || typeof entry.system?.tier === "number" ? String(entry.system.tier) : undefined;
+
+  return [
+    { label: cardType ? "Type" : "Kind", value: cardType ?? equipmentType ?? entry.type },
+    entry.domain ? { label: "Domain", value: entry.domain } : undefined,
+    entry.level !== undefined ? { label: "Level", value: String(entry.level) } : undefined,
+    recallCost ? { label: "Cost", value: recallCost } : undefined,
+    trait ? { label: "Trait", value: trait } : undefined,
+    tier ? { label: "Tier", value: tier } : undefined,
+    { label: "Source", value: entry.source },
+  ].filter((row): row is { label: string; value: string } => Boolean(row));
+}
+
 export function ContentCard({
   entry,
   selected = false,
@@ -98,12 +120,8 @@ export function ContentCard({
   onClick,
 }: ContentCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const detailBits = [
-    entry.type,
-    entry.domain ? `Domain: ${entry.domain}` : undefined,
-    entry.level !== undefined ? `Level ${entry.level}` : undefined,
-    entry.source,
-  ].filter(Boolean);
+  const summaryBits = [entry.type, entry.source].filter(Boolean);
+  const rows = metadataRows(entry);
   const text = entry.text || entry.description || equipmentText(entry);
   const splitText = useMemo(() => splitFeatureText(text), [text]);
   const primaryText = featureFirst ? splitText.features : text;
@@ -123,10 +141,20 @@ export function ContentCard({
       <div className="content-card__header">
         <div>
           <h3>{entry.name}</h3>
-          <p>{detailBits.join(" • ")}</p>
+          <p>{summaryBits.join(" - ")}</p>
         </div>
         {entry.system?.cardType ? <span className="badge">{String(entry.system.cardType)}</span> : null}
       </div>
+      {!compact && rows.length ? (
+        <dl className="content-card__metadata" aria-label={`${entry.name} metadata`}>
+          {rows.map((row) => (
+            <div key={`${row.label}:${row.value}`}>
+              <dt>{row.label}</dt>
+              <dd>{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
       {!compact && visibleText ? <FormattedText text={visibleText} /> : null}
       {!compact && canToggle ? (
         <button type="button" className="text-button" onClick={() => setExpanded((value) => !value)}>

@@ -19,4 +19,33 @@ describe("ContentCard", () => {
     expect(html).toContain("Show description");
     expect(html).not.toContain("Long class description");
   });
+
+  test("renders domain-card metadata separately from rules text", () => {
+    const entry: ContentEntry = {
+      id: "card:blink-out",
+      name: "Blink Out",
+      type: "domain-card",
+      source: "SRD Core",
+      tags: ["arcana", "spell", "level-4"],
+      text: "Make a Spellcast Roll (12).",
+      domain: "arcana",
+      level: 4,
+      system: {
+        cardType: "spell",
+        recallCost: 1,
+      },
+    };
+
+    const html = renderToStaticMarkup(<ContentCard entry={entry} />);
+
+    expect(html).toContain("Domain");
+    expect(html).toContain("arcana");
+    expect(html).toContain("Level");
+    expect(html).toContain("4");
+    expect(html).toContain("Type");
+    expect(html).toContain("spell");
+    expect(html).toContain("Cost");
+    expect(html).toContain("1");
+    expect(html).toContain("Make a Spellcast Roll");
+  });
 });
