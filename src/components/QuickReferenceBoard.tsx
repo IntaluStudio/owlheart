@@ -36,6 +36,25 @@ function EmptySlot({ label }: { label: string }) {
   return <div className="reference-slot reference-slot--empty">{label}</div>;
 }
 
+function slug(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function abilitySection(entry: ContentEntry) {
+  return `${entry.name}: ${entry.text || entry.description || ""}`.trim();
+}
+
+function enrichFeatureCard(entry: ContentEntry | undefined, linkedAbilities: ContentEntry[]) {
+  if (!entry || linkedAbilities.length === 0) {
+    return entry;
+  }
+
+  return {
+    ...entry,
+    text: [entry.text, ...linkedAbilities.map(abilitySection)].filter(Boolean).join("\n\n"),
+  };
+}
+
 export function QuickReferenceBoard({
   build,
   ancestry,
@@ -48,7 +67,24 @@ export function QuickReferenceBoard({
   onRoll,
 }: QuickReferenceBoardProps) {
   const cardSplit = splitCardVault(domainCards);
-  const featureCards = [ancestry, community, classEntry, subclass].filter(Boolean) as ContentEntry[];
+  const classSlug = classEntry ? slug(classEntry.name) : "";
+  const classAbilities = abilities.filter(
+    (entry) =>
+      classSlug &&
+      entry.tags.includes(classSlug) &&
+      (entry.tags.includes("class-feature") || entry.tags.includes("hope-feature")),
+  );
+  const subclassAbilities = abilities.filter(
+    (entry) => classSlug && entry.tags.includes(classSlug) && entry.tags.includes("subclass-feature"),
+  );
+  const linkedAbilityIds = new Set([...classAbilities, ...subclassAbilities].map((entry) => entry.id));
+  const looseAbilities = abilities.filter((entry) => !linkedAbilityIds.has(entry.id));
+  const featureCards = [
+    ancestry,
+    community,
+    enrichFeatureCard(classEntry, classAbilities),
+    enrichFeatureCard(subclass, subclassAbilities),
+  ].filter(Boolean) as ContentEntry[];
   const primaryEquipment = equipment.slice(0, 4);
   const extraEquipment = equipment.slice(4);
 
@@ -141,10 +177,19 @@ export function QuickReferenceBoard({
                 key={entry.id}
                 entry={entry}
                 collapsible
+                dense
                 featureFirst={entry.type === "ancestry" || entry.type === "community" || entry.type === "class" || entry.type === "subclass"}
+                hideTags={entry.type === "class" || entry.type === "subclass"}
               />
             ))}
           </div>
+          {looseAbilities.length ? (
+            <div className="feature-ability-grid">
+              {looseAbilities.map((entry) => (
+                <ContentCard key={entry.id} entry={entry} dense />
+              ))}
+            </div>
+          ) : null}
         </section>
 
         <section className="quick-board__zone">
@@ -152,7 +197,7 @@ export function QuickReferenceBoard({
           <div className="card-slot-grid">
             {cardSplit.visible.map((entry) => (
               <div key={entry.id} className="reference-slot">
-                <ContentCard entry={entry} />
+                <ContentCard entry={entry} dense />
               </div>
             ))}
             {Array.from({ length: Math.max(0, 5 - cardSplit.visible.length) }, (_, index) => (
@@ -177,7 +222,7 @@ export function QuickReferenceBoard({
         <div className="equipment-slot-row">
           {primaryEquipment.map((entry) => (
             <div key={entry.id} className="reference-slot reference-slot--equipment">
-              <ContentCard entry={entry} compact />
+              <ContentCard entry={entry} dense />
             </div>
           ))}
           {primaryEquipment.length === 0 ? <EmptySlot label="No equipment selected" /> : null}
@@ -186,17 +231,6 @@ export function QuickReferenceBoard({
           <p className="status-line">Additional equipment: {extraEquipment.map((entry) => entry.name).join(", ")}</p>
         ) : null}
       </section>
-
-      {abilities.length ? (
-        <section className="quick-board__zone">
-          <h3>Selected Abilities</h3>
-          <div className="reference-grid reference-grid--board">
-            {abilities.map((entry) => (
-              <ContentCard key={entry.id} entry={entry} />
-            ))}
-          </div>
-        </section>
-      ) : null}
 
       {build.notes ? (
         <section className="quick-board__zone">

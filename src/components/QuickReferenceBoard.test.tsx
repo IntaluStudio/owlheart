@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import { QuickReferenceBoard } from "./QuickReferenceBoard";
-import type { CharacterBuild } from "../lib/types";
+import type { CharacterBuild, ContentEntry } from "../lib/types";
 
 const build: CharacterBuild = {
   id: "character:test",
@@ -54,5 +54,40 @@ describe("QuickReferenceBoard", () => {
     expect(html).toContain("Thresholds");
     expect(html).toContain("8/15");
     expect(html).toContain("Open card slot");
+  });
+
+  test("places selected abilities in the features zone without a duplicate section", () => {
+    const classEntry: ContentEntry = {
+      id: "class:warrior",
+      name: "Warrior",
+      type: "class",
+      source: "SRD Core",
+      tags: ["class", "warrior"],
+      text: "Warrior description should stay behind the description toggle.",
+    };
+    const ability: ContentEntry = {
+      id: "ability:combat-training",
+      name: "Combat Training",
+      type: "ability",
+      source: "SRD Core",
+      tags: ["class-feature", "warrior"],
+      text: "You ignore burden when equipping weapons.",
+    };
+
+    const html = renderToStaticMarkup(
+      <QuickReferenceBoard
+        build={build}
+        classEntry={classEntry}
+        domainCards={[]}
+        abilities={[ability]}
+        equipment={[]}
+        onRoll={() => undefined}
+      />,
+    );
+
+    expect(html).toContain("Combat Training");
+    expect(html).toContain("Show description");
+    expect(html).not.toContain("Warrior description");
+    expect(html).not.toContain("Selected Abilities");
   });
 });

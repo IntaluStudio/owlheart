@@ -336,6 +336,25 @@ textarea {
   box-shadow: inset 3px 0 0 #1f6d6d;
 }
 
+.content-card--dense {
+  gap: 7px;
+  padding: 10px;
+}
+
+.content-card--dense h3 {
+  font-size: 0.88rem;
+}
+
+.content-card--dense p {
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+
+.content-card--dense .content-card__text {
+  font-size: 0.82rem !important;
+  line-height: 1.35;
+}
+
 .content-card__header {
   display: flex;
   align-items: flex-start;
@@ -496,6 +515,14 @@ textarea {
 
 .reference-grid--board {
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.feature-ability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+  border-top: 1px solid #d7ddd8;
+  padding-top: 8px;
 }
 
 .quick-board {
