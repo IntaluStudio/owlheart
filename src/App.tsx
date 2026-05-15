@@ -13,14 +13,14 @@ import type { CharacterBuild, ContentEntry, HomebrewPack } from "./lib/types";
 type TabId = "srd" | "homebrew" | "builds" | "duality";
 
 const tabs = [
-  { id: "srd", label: "SRD", icon: BookOpen },
-  { id: "homebrew", label: "Packs", icon: Boxes },
   { id: "builds", label: "Builds", icon: UserRound },
+  { id: "srd", label: "SRD", icon: BookOpen },
+  { id: "homebrew", label: "Packs", icon: Boxes, disabled: true },
   { id: "duality", label: "Duality", icon: Dice5 },
-] satisfies Array<{ id: TabId; label: string; icon: typeof BookOpen }>;
+] satisfies Array<{ id: TabId; label: string; icon: typeof BookOpen; disabled?: boolean }>;
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<TabId>("srd");
+  const [activeTab, setActiveTab] = useState<TabId>("builds");
   const [srdContent, setSrdContent] = useState<ContentEntry[]>([]);
   const [isSrdLoading, setIsSrdLoading] = useState(true);
   const [srdLoadError, setSrdLoadError] = useState<string | null>(null);
@@ -77,7 +77,13 @@ export function App() {
               key={tab.id}
               type="button"
               className={activeTab === tab.id ? "tab-button tab-button--active" : "tab-button"}
-              onClick={() => setActiveTab(tab.id)}
+              disabled={tab.disabled}
+              title={tab.disabled ? `${tab.label} disabled for now` : undefined}
+              onClick={() => {
+                if (!tab.disabled) {
+                  setActiveTab(tab.id);
+                }
+              }}
             >
               <Icon size={17} aria-hidden="true" />
               <span>{tab.label}</span>
