@@ -84,10 +84,34 @@ const characterFeatureTokenSchema = z.object({
   sourceContentId: z.string().optional(),
 });
 
+const characterDescriptionSchema = z.object({
+  clothes: z.string().optional(),
+  eyes: z.string().optional(),
+  body: z.string().optional(),
+  skin: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+const characterPromptAnswerSchema = z.object({
+  id: z.string().min(1),
+  prompt: z.string().min(1),
+  answer: z.string().default(""),
+});
+
+const characterConnectionSchema = z.object({
+  id: z.string().min(1),
+  prompt: z.string().min(1),
+  name: z.string().default(""),
+  answer: z.string().default(""),
+});
+
+// Per Daggerheart SRD p.5: every PC starts with 6 Stress slots, universal constant.
+export const DEFAULT_MAX_STRESS = 6;
+
 const defaultStatus = {
   maxHp: 0,
   markedHp: 0,
-  maxStress: 0,
+  maxStress: DEFAULT_MAX_STRESS,
   markedStress: 0,
   evasion: 0,
   armorScore: 0,
@@ -101,7 +125,7 @@ const defaultStatus = {
 const characterStatusSchema = z.object({
   maxHp: z.number().int().min(0).default(0),
   markedHp: z.number().int().min(0).default(0),
-  maxStress: z.number().int().min(0).default(0),
+  maxStress: z.number().int().min(0).default(DEFAULT_MAX_STRESS),
   markedStress: z.number().int().min(0).default(0),
   evasion: z.number().int().min(0).default(0),
   armorScore: z.number().int().min(0).default(0),
@@ -136,6 +160,10 @@ export const characterBuildSchema = z.object({
   featureTokens: z.array(characterFeatureTokenSchema).default([]),
   status: characterStatusSchema.default(defaultStatus),
   notes: z.string().default(""),
+  pronouns: z.string().optional(),
+  description: characterDescriptionSchema.optional(),
+  backgroundAnswers: z.array(characterPromptAnswerSchema).optional(),
+  connections: z.array(characterConnectionSchema).optional(),
   manualOverrides: z
     .object({
       ignoreDomainRequirements: z.boolean().optional(),

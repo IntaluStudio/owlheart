@@ -17,25 +17,34 @@ export type RollTarget = {
   modifier: number;
   kind: DaggerheartRollKind;
   mode: DaggerheartRollMode;
+  difficulty?: number;
 };
 
-export function createTraitRollTarget(trait: TraitKey, modifier: number): RollTarget {
+export type RollTargetOptions = {
+  kind?: DaggerheartRollKind;
+  mode?: DaggerheartRollMode;
+  difficulty?: number;
+};
+
+export function createTraitRollTarget(trait: TraitKey, modifier: number, options: RollTargetOptions = {}): RollTarget {
   return {
     id: `trait:${trait}`,
     label: TRAIT_LABELS[trait],
     modifier,
-    kind: "trait",
-    mode: "normal",
+    kind: options.kind ?? "trait",
+    mode: options.mode ?? "normal",
+    difficulty: options.difficulty,
   };
 }
 
-export function createExperienceRollTarget(experience: CharacterExperience): RollTarget {
+export function createExperienceRollTarget(experience: CharacterExperience, options: RollTargetOptions = {}): RollTarget {
   return {
     id: experience.id,
     label: experience.name,
     modifier: experience.modifier,
-    kind: "trait",
-    mode: "normal",
+    kind: options.kind ?? "trait",
+    mode: options.mode ?? "normal",
+    difficulty: options.difficulty,
   };
 }
 

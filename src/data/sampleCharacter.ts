@@ -25,7 +25,8 @@ export const sampleCharacter: CharacterBuild = {
   status: {
     maxHp: 6,
     markedHp: 0,
-    maxStress: 7,
+    // Per Daggerheart SRD p.5: every PC starts with 6 Stress slots, universal constant.
+    maxStress: 6,
     markedStress: 0,
     evasion: 11,
     armorScore: 3,

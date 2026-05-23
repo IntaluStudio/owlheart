@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { ContentCard } from "./ContentCard";
 import { TrackerStrip } from "./TrackerStrip";
 import {
@@ -6,7 +7,7 @@ import {
   splitCardVault,
   type RollTarget,
 } from "../lib/quickReference";
-import { TRAIT_KEYS, type CharacterBuild, type ContentEntry, type TraitKey } from "../lib/types";
+import { TRAIT_KEYS, type CharacterBuild, type ContentEntry, type DaggerheartRollKind, type DaggerheartRollMode, type TraitKey } from "../lib/types";
 import type { CharacterFeatureToken } from "../lib/types";
 
 type QuickReferenceBoardProps = {
@@ -18,6 +19,7 @@ type QuickReferenceBoardProps = {
   domainCards: ContentEntry[];
   abilities: ContentEntry[];
   equipment: ContentEntry[];
+  entries?: ContentEntry[];
   onRoll: (target: RollTarget) => void;
   onStatusChange: (patch: Partial<CharacterBuild["status"]>) => void;
   onTokenChange: (tokens: CharacterFeatureToken[]) => void;
@@ -30,6 +32,15 @@ const TRAIT_LABELS: Record<TraitKey, string> = {
   instinct: "Instinct",
   presence: "Presence",
   knowledge: "Knowledge",
+};
+
+const TRAIT_HELP: Record<TraitKey, string> = {
+  agility: "Sprint, leap, maneuver",
+  strength: "Lift, smash, grapple",
+  finesse: "Control, hide, tinker",
+  instinct: "Perceive, sense, navigate",
+  presence: "Charm, perform, deceive",
+  knowledge: "Recall, analyze, comprehend",
 };
 
 function modifierLabel(modifier: number) {
@@ -46,6 +57,26 @@ function slug(value: string) {
 
 function abilitySection(entry: ContentEntry) {
   return `${entry.name}: ${entry.text || entry.description || ""}`.trim();
+}
+
+function stringArray(value: unknown) {
+  return Array.isArray(value) ? value.map(String) : [];
+}
+
+function isFeatureAvailableForLevel(entry: ContentEntry, level: number) {
+  if (entry.tags.includes("mastery")) {
+    return level >= 8;
+  }
+
+  if (entry.tags.includes("specialization")) {
+    return level >= 5;
+  }
+
+  return true;
+}
+
+function uniqueById(entries: ContentEntry[]) {
+  return [...new Map(entries.map((entry) => [entry.id, entry])).values()];
 }
 
 function enrichFeatureCard(entry: ContentEntry | undefined, linkedAbilities: ContentEntry[]) {
@@ -68,10 +99,14 @@ export function QuickReferenceBoard({
   domainCards,
   abilities,
   equipment,
+  entries = [],
   onRoll,
   onStatusChange,
   onTokenChange,
 }: QuickReferenceBoardProps) {
+  const [rollKind, setRollKind] = useState<DaggerheartRollKind>("action");
+  const [rollMode, setRollMode] = useState<DaggerheartRollMode>("normal");
+  const [rollDifficulty, setRollDifficulty] = useState("");
   const cardSplit = splitCardVault(domainCards);
   const classSlug = classEntry ? slug(classEntry.name) : "";
   const classAbilities = abilities.filter(
@@ -83,16 +118,34 @@ export function QuickReferenceBoard({
   const subclassAbilities = abilities.filter(
     (entry) => classSlug && entry.tags.includes(classSlug) && entry.tags.includes("subclass-feature"),
   );
+  const subclassLinkedAbilities = subclass
+    ? entries.filter(
+        (entry) =>
+          entry.type === "ability" &&
+          entry.tags.includes("subclass-feature") &&
+          stringArray(entry.system?.subclassIds).includes(subclass.id) &&
+          isFeatureAvailableForLevel(entry, build.level),
+      )
+    : [];
+  const enrichedSubclassAbilities = uniqueById([...subclassAbilities, ...subclassLinkedAbilities]);
   const linkedAbilityIds = new Set([...classAbilities, ...subclassAbilities].map((entry) => entry.id));
   const looseAbilities = abilities.filter((entry) => !linkedAbilityIds.has(entry.id));
   const featureCards = [
     ancestry,
     community,
     enrichFeatureCard(classEntry, classAbilities),
-    enrichFeatureCard(subclass, subclassAbilities),
+    enrichFeatureCard(subclass, enrichedSubclassAbilities),
   ].filter(Boolean) as ContentEntry[];
   const primaryEquipment = equipment.slice(0, 4);
   const extraEquipment = equipment.slice(4);
+  const rollOptions = useMemo(
+    () => ({
+      kind: rollKind,
+      mode: rollMode,
+      difficulty: rollDifficulty ? Number(rollDifficulty) : undefined,
+    }),
+    [rollDifficulty, rollKind, rollMode],
+  );
 
   return (
     <section className="quick-board" aria-label={`${build.name} quick reference board`}>
@@ -112,16 +165,59 @@ export function QuickReferenceBoard({
 
       <section className="quick-board__zone">
         <h3>Traits</h3>
+        <div className="roll-toolbar" aria-label="Direct roll controls">
+          <div>
+            <span>Roll kind</span>
+            <div className="segmented-tabs segmented-tabs--compact">
+              {(["action", "reaction"] satisfies DaggerheartRollKind[]).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={rollKind === option ? "segmented-tab segmented-tab--active" : "segmented-tab"}
+                  onClick={() => setRollKind(option)}
+                >
+                  {option === "action" ? "Action" : "Reaction"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <span>Roll mode</span>
+            <div className="segmented-tabs segmented-tabs--compact">
+              {(["normal", "advantage", "disadvantage"] satisfies DaggerheartRollMode[]).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={rollMode === option ? "segmented-tab segmented-tab--active" : "segmented-tab"}
+                  onClick={() => setRollMode(option)}
+                >
+                  {option === "normal" ? "Normal" : option === "advantage" ? "Advantage" : "Disadvantage"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <label>
+            <span>Difficulty</span>
+            <input
+              type="number"
+              min={0}
+              value={rollDifficulty}
+              onChange={(event) => setRollDifficulty(event.target.value)}
+              placeholder="Optional"
+            />
+          </label>
+        </div>
         <div className="trait-grid">
           {TRAIT_KEYS.map((trait) => (
             <button
               key={trait}
               type="button"
               className="trait-button"
-              onClick={() => onRoll(createTraitRollTarget(trait, build.traits[trait]))}
+              onClick={() => onRoll(createTraitRollTarget(trait, build.traits[trait], rollOptions))}
             >
               <span>{TRAIT_LABELS[trait]}</span>
               <strong>{modifierLabel(build.traits[trait])}</strong>
+              <small>{TRAIT_HELP[trait]}</small>
             </button>
           ))}
         </div>
@@ -164,7 +260,7 @@ export function QuickReferenceBoard({
                 key={experience.id}
                 type="button"
                 className="experience-button"
-                onClick={() => onRoll(createExperienceRollTarget(experience))}
+                onClick={() => onRoll(createExperienceRollTarget(experience, rollOptions))}
               >
                 <span>{experience.name}</span>
                 <strong>{modifierLabel(experience.modifier)}</strong>

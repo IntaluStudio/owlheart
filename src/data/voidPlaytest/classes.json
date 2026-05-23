@@ -220,5 +220,55 @@
       { "en-US": "Hand wraps from a mentor" },
       { "en-US": "A book about your secret hobby" }
     ]
+  },
+  {
+    "id": "the_void_class_bloodhunter",
+    "name": "BLOOD HUNTER",
+    "description": [
+      {
+        "paragraph": {
+          "en-US": "As a blood hunter, you harness the power of hemocraft - that is, blood magic - in your relentless pursuit of evil creatures."
+        }
+      }
+    ],
+    "domains": ["BLADE", "BLOOD"],
+    "startingEvasion": 9,
+    "startingHitPoints": 6,
+    "hopeFeature": {
+      "name": { "en-US": "Blood Maledict" },
+      "description": [
+        {
+          "paragraph": {
+            "en-US": "Spend 3 Hope to target a creature within Far range or in a vision from your Grim Psychometry. Until you finish a rest, take Severe damage, or use this feature again, you have advantage on all action rolls against the target."
+          }
+        }
+      ]
+    },
+    "classFeatures": [
+      {
+        "name": { "en-US": "Crimson Rite" },
+        "description": [
+          {
+            "paragraph": {
+              "en-US": "You can enchant your strikes with bloodthirsty power at the cost of your vitality. Mark a Hit Point to enchant one of your active weapons. Until you finish your next rest, that weapon deals physical or magic damage (choose when you use this feature) and an extra 1d6 damage when you hit with it. This extra damage increases to 2d6 at level 5 and 3d6 at level 8."
+            }
+          }
+        ]
+      },
+      {
+        "name": { "en-US": "Grim Psychometry" },
+        "description": [
+          {
+            "paragraph": {
+              "en-US": "While inspecting a creature, a location, or an object within Very Close range, make a Spellcast Roll (12). On a success, mark a Stress to have a vision of the most recent violence involving the target, and until you finish a rest, you have advantage on any action roll to recall lore about things in the vision."
+            }
+          }
+        ]
+      }
+    ],
+    "classItems": [
+      { "en-US": "A steel needle" },
+      { "en-US": "A vial holding a foe's blood" }
+    ]
   }
 ]

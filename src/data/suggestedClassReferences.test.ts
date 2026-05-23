@@ -1,13 +1,16 @@
 import { describe, expect, test } from "vitest";
 import { suggestedClassReferences } from "./suggestedClassReferences";
 import { TRAIT_KEYS } from "../lib/types";
+import { voidPlaytestContent } from "./voidPlaytestContent";
 import srdContent from "../../public/data/srd-core.json";
 
 describe("suggestedClassReferences", () => {
   test("covers every SRD class with traits, equipment, and inventory choices", () => {
-    expect(suggestedClassReferences).toHaveLength(9);
+    const coreReferences = suggestedClassReferences.filter((reference) => reference.classId.startsWith("core_class_"));
 
-    for (const reference of suggestedClassReferences) {
+    expect(coreReferences).toHaveLength(9);
+
+    for (const reference of coreReferences) {
       expect(reference.classId).toMatch(/^core_class_/);
       expect(Object.keys(reference.traits).sort()).toEqual([...TRAIT_KEYS].sort());
       expect(reference.equipment.primaryWeaponId).toMatch(/^core_weapon_/);
@@ -42,10 +45,11 @@ describe("suggestedClassReferences", () => {
     ]);
   });
 
-  test("references existing SRD content ids", () => {
-    const ids = new Set(srdContent.map((entry) => entry.id));
+  test("references existing active content ids for shipped core and Void classes", () => {
+    const ids = new Set([...srdContent, ...voidPlaytestContent].map((entry) => entry.id));
+    const shippedReferences = suggestedClassReferences.filter((reference) => ids.has(reference.classId));
 
-    for (const reference of suggestedClassReferences) {
+    for (const reference of shippedReferences) {
       expect(ids.has(reference.classId), reference.classId).toBe(true);
       expect(ids.has(reference.equipment.primaryWeaponId), reference.equipment.primaryWeaponId).toBe(true);
       expect(ids.has(reference.equipment.armorId), reference.equipment.armorId).toBe(true);

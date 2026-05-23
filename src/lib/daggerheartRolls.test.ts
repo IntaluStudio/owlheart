@@ -51,6 +51,33 @@ describe("formatDaggerheartRoll", () => {
     expect(result.copyText).toContain("Disadvantage d6: -4");
   });
 
+  it("throws a meaningful error when advantage mode has no advantage die", () => {
+    expect(() =>
+      formatDaggerheartRoll({
+        kind: "action",
+        label: "Attack",
+        hopeDie: 7,
+        fearDie: 8,
+        modifier: 2,
+        mode: "advantage",
+      }),
+    ).toThrow(/required/);
+  });
+
+  it("validates advantage die range", () => {
+    expect(() =>
+      formatDaggerheartRoll({
+        kind: "action",
+        label: "Attack",
+        hopeDie: 7,
+        fearDie: 8,
+        modifier: 2,
+        mode: "advantage",
+        advantageDie: 0,
+      }),
+    ).toThrow(/between 1 and 6/);
+  });
+
   it("does not claim Hope or Fear generation for reaction rolls", () => {
     const result = formatDaggerheartRoll({
       kind: "reaction",

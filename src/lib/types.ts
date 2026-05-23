@@ -68,6 +68,27 @@ export type CharacterFeatureToken = {
   sourceContentId?: string;
 };
 
+export type CharacterDescription = {
+  clothes?: string;
+  eyes?: string;
+  body?: string;
+  skin?: string;
+  notes?: string;
+};
+
+export type CharacterPromptAnswer = {
+  id: string;
+  prompt: string;
+  answer: string;
+};
+
+export type CharacterConnection = {
+  id: string;
+  prompt: string;
+  name: string;
+  answer: string;
+};
+
 export type CharacterStatusReference = {
   maxHp: number;
   markedHp: number;
@@ -80,6 +101,23 @@ export type CharacterStatusReference = {
   hope: number;
   majorThreshold: number;
   severeThreshold: number;
+};
+
+export type DerivedStatusField =
+  | "maxHp"
+  | "maxStress"
+  | "evasion"
+  | "armorScore"
+  | "majorThreshold"
+  | "severeThreshold";
+
+export type StatusBonusHint = {
+  type: "statusBonus";
+  sourceContentId: string;
+  label: string;
+  field: DerivedStatusField;
+  amount: number;
+  note: string;
 };
 
 export type CharacterBuild = {
@@ -99,6 +137,10 @@ export type CharacterBuild = {
   featureTokens: CharacterFeatureToken[];
   status: CharacterStatusReference;
   notes: string;
+  pronouns?: string;
+  description?: CharacterDescription;
+  backgroundAnswers?: CharacterPromptAnswer[];
+  connections?: CharacterConnection[];
   manualOverrides: {
     ignoreDomainRequirements?: boolean;
     ignoreLevelRequirements?: boolean;

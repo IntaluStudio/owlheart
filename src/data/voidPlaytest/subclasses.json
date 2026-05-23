@@ -642,5 +642,225 @@
       ]
     },
     "spellcastTrait": "INSTINCT"
+  },
+  {
+    "id": "the_void_subclass_order_of_the_ghost_slayer",
+    "name": { "en-US": "Order of the Ghost Slayer" },
+    "class": "BLOODHUNTER",
+    "domains": ["BLADE", "BLOOD"],
+    "foundation": {
+      "features": [
+        {
+          "name": { "en-US": "Chasing Death" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "While you have 1-3 unmarked Hit Points, you can use your Crimson Rite feature without paying the Hit Point cost. If you have only 1 unmarked Hit Point, you roll d8s instead of d6s for the extra damage of your Crimson Rite."
+              }
+            }
+          ]
+        },
+        {
+          "name": { "en-US": "Shadowed Grit" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "When the GM gains a Fear from a Duality Dice roll, you can mark a Stress to gain a Hope."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "specialization": {
+      "features": [
+        {
+          "name": { "en-US": "Veilwalker" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "You can briefly slip into the realm between the living and the dead. Spend 2 Hope to disappear and then reappear next to a creature or a corpse within Far range. You then have advantage on the next attack roll you make in this scene."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "mastery": {
+      "features": [
+        {
+          "name": { "en-US": "Spectral Form" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "You have another death move option: Spectral Form. When you choose this option, you clear a Hit Point, your body becomes spectral, you have resistance to physical damage, and you can pass through objects. This form ends if you clear any more Hit Points. It also ends if you mark your last Hit Point, which forces you to take a different death move. You're shunted to the nearest open space if you're inside an object when the form ends."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "spellcastTrait": "AGILITY"
+  },
+  {
+    "id": "the_void_subclass_order_of_the_mutant",
+    "name": { "en-US": "Order of the Mutant" },
+    "class": "BLOODHUNTER",
+    "domains": ["BLADE", "BLOOD"],
+    "foundation": {
+      "features": [
+        {
+          "name": { "en-US": "Mutagens" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "You employ mutagenic toxins created to enhance your abilities. When you finish a rest, you can drink one such toxin to gain its effects, which last until you finish your next rest. These effects include a +1 bonus to one trait of your choice, a -1 penalty to a different trait of your choice, and your choice of one benefit."
+              }
+            },
+            {
+              "list": [
+                {
+                  "en-US": "Celerity: If you are Restrained or Vulnerable, you can mark a Stress to end the condition on yourself."
+                },
+                { "en-US": "Durable: Your Armor Score increases by 2." },
+                {
+                  "en-US": "Hunter's Senses: You have advantage on any action roll you make to track a creature, and you can see in complete darkness."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "specialization": {
+      "features": [
+        {
+          "name": { "en-US": "Improved Mutagens" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "When you choose a mutagen benefit, your options also include Nerves of Steel, Rapidity, and Ironskin."
+              }
+            },
+            {
+              "list": [
+                { "en-US": "Nerves of Steel: Whenever you must mark a Stress, you can spend 2 Hope instead." },
+                { "en-US": "Rapidity: Your Evasion increases by 1." },
+                {
+                  "en-US": "Ironskin: Your Severe damage threshold increases by a number equal to your Proficiency."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": { "en-US": "Volatile Toxins" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "You can choose two mutagen benefits instead of one. If you do, mark a Hit Point that can't be cleared until you finish your next rest."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "mastery": {
+      "features": [
+        {
+          "name": { "en-US": "Mastered Mutagens" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "The trait bonus and penalty you get from your Mutagens feature changes to +2 and -2, respectively. When you choose a mutagen benefit, your options also include Aetherblood, Fury, and Steelflesh."
+              }
+            },
+            {
+              "list": [
+                {
+                  "en-US": "Aetherblood: Within your line of sight, you can see creatures and objects that are invisible, and visual illusions appear transparent to you. If a creature or an object within your line of sight has been transformed by magic, you can see its true form."
+                },
+                {
+                  "en-US": "Fury: When you make an attack roll, you can mark a Stress to gain a bonus to the roll equal to your Proficiency."
+                },
+                {
+                  "en-US": "Steelflesh: Your Major damage threshold increases by a number equal to your Proficiency."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "spellcastTrait": "AGILITY"
+  },
+  {
+    "id": "the_void_subclass_order_of_the_lycan",
+    "name": { "en-US": "Order of the Lycan" },
+    "class": "BLOODHUNTER",
+    "domains": ["BLADE", "BLOOD"],
+    "foundation": {
+      "features": [
+        {
+          "name": { "en-US": "Werewolf" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "You gain the Werewolf Transformation card. Your rolls to perceive via hearing and scent have advantage."
+              }
+            }
+          ]
+        },
+        {
+          "name": { "en-US": "Control the Beast" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "While in your Wolf Form, you can apply that form's bonus die to your Agility and Strength Action Rolls."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "specialization": {
+      "features": [
+        {
+          "name": { "en-US": "Feral Hide" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "While in your Wolf Form, you gain a bonus to your Damage Thresholds equal to your Tier."
+              }
+            }
+          ]
+        },
+        {
+          "name": { "en-US": "Lycan Regeneration" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "While in your Wolf Form with all your Hit Points marked, you can mark a Stress to clear a Hit Point. You can do this while unconscious."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "mastery": {
+      "features": [
+        {
+          "name": { "en-US": "Master the Beast" },
+          "description": [
+            {
+              "paragraph": {
+                "en-US": "When you are in your Wolf Form and would mark your last Stress, you can instead put one of your Domain cards from your Loadout into your Vault; you can't Recall that Domain card until you finish a long rest. When you Frenzy from marking your last Stress while in Wolf Form, you gain 2 Hope."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "spellcastTrait": "STRENGTH"
   }
 ]

@@ -1,15 +1,18 @@
 import { Download, Plus, Save, Sparkles, Trash2, Upload } from "lucide-react";
 import { ChangeEvent, lazy, Suspense, useMemo, useState } from "react";
+import { CharacterWizard } from "./CharacterWizard";
 import { ContentCard } from "./ContentCard";
 import { QuickReferenceBoard } from "./QuickReferenceBoard";
 import { createLocalId, downloadJson, readJsonFile } from "../lib/importExport";
 import { getAvailableAbilitiesForBuild, getAvailableDomainCardsForBuild, getSelectedReferences } from "../lib/buildFiltering";
-import { characterBuildSchema } from "../lib/schema";
+import { characterBuildSchema, DEFAULT_MAX_STRESS } from "../lib/schema";
 import { getContentByType } from "../lib/contentIndex";
 import { TRAIT_KEYS, type CharacterBuild, type CharacterExperience, type CharacterFeatureToken, type ContentEntry, type TraitKey } from "../lib/types";
 import { filterContentChoices, type RollTarget } from "../lib/quickReference";
 import { applySuggestedClassReference, findSuggestedClassReference } from "../lib/suggestedBuilds";
 import { getAutoSelectedAbilityIds, resetBuildForClassChange, resetBuildForSubclassChange } from "../lib/classChange";
+import { applyDerivedStatus, buildDerivations } from "../lib/buildDerivations";
+import { applySuggestedFeatureTokens, getCalculationHintsForBuild, getSuggestedFeatureTokens } from "../lib/calculationHints";
 
 const EQUIPMENT_PAGE_SIZE = 10;
 const CARD_PAGE_SIZE = 8;
@@ -73,7 +76,8 @@ function createBlankBuild(entries: ContentEntry[]): CharacterBuild {
     status: {
       maxHp: 0,
       markedHp: 0,
-      maxStress: 0,
+      // Per Daggerheart SRD p.5: every PC starts with 6 Stress slots, universal constant.
+      maxStress: DEFAULT_MAX_STRESS,
       markedStress: 0,
       evasion: 0,
       armorScore: 0,
@@ -94,6 +98,7 @@ function toggleId(list: string[], id: string) {
 
 export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
   const [selectedBuildId, setSelectedBuildId] = useState(builds[0]?.id);
+  const [builderMode, setBuilderMode] = useState<"quick" | "wizard">("quick");
   const [quickReference, setQuickReference] = useState(false);
   const [importError, setImportError] = useState("");
   const [equipmentQuery, setEquipmentQuery] = useState("");
@@ -109,6 +114,18 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
   const selectedSuggestion = findSuggestedClassReference(selectedBuild?.classId);
   const selectedReferences = useMemo(
     () => (selectedBuild ? getSelectedReferences(entries, selectedBuild) : undefined),
+    [entries, selectedBuild],
+  );
+  const derivationPreview = useMemo(
+    () => (selectedBuild ? buildDerivations(selectedBuild, entries) : undefined),
+    [entries, selectedBuild],
+  );
+  const calculationHints = useMemo(
+    () => (selectedBuild ? getCalculationHintsForBuild(selectedBuild, entries) : []),
+    [entries, selectedBuild],
+  );
+  const suggestedFeatureTokens = useMemo(
+    () => (selectedBuild ? getSuggestedFeatureTokens(selectedBuild, entries) : []),
     [entries, selectedBuild],
   );
   const availableCards = useMemo(
@@ -275,6 +292,24 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
     onChange(builds.map((build) => (build.id === selectedBuild.id ? next : build)));
   };
 
+  const applyDerivedStats = () => {
+    if (!selectedBuild || !derivationPreview) {
+      return;
+    }
+
+    const next = applyDerivedStatus(selectedBuild, derivationPreview);
+    onChange(builds.map((build) => (build.id === selectedBuild.id ? next : build)));
+  };
+
+  const applySuggestedTokens = () => {
+    if (!selectedBuild) {
+      return;
+    }
+
+    const next = applySuggestedFeatureTokens(selectedBuild, entries);
+    onChange(builds.map((build) => (build.id === selectedBuild.id ? next : build)));
+  };
+
   const handleClassChange = (classId: string) => {
     if (!selectedBuild || (selectedBuild.classId ?? "") === classId) {
       return;
@@ -320,6 +355,15 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
     const build = createBlankBuild(entries);
     onChange([build, ...builds]);
     setSelectedBuildId(build.id);
+    setBuilderMode("quick");
+    setQuickReference(false);
+  };
+
+  const finishWizardBuild = (build: CharacterBuild) => {
+    onChange([build, ...builds.filter((existing) => existing.id !== build.id)]);
+    setSelectedBuildId(build.id);
+    setBuilderMode("quick");
+    setQuickReference(true);
   };
 
   const deleteSelectedBuild = () => {
@@ -362,6 +406,23 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
   if (!selectedBuild) {
     return (
       <section className="view-grid">
+        <div className="builder-mode-toggle" role="group" aria-label="Build creation mode">
+          <button
+            type="button"
+            className={builderMode === "quick" ? "segmented-tab segmented-tab--active" : "segmented-tab"}
+            onClick={() => setBuilderMode("quick")}
+          >
+            Quick Build
+          </button>
+          <button
+            type="button"
+            className={builderMode === "wizard" ? "segmented-tab segmented-tab--active" : "segmented-tab"}
+            onClick={() => setBuilderMode("wizard")}
+          >
+            Wizard Builder
+          </button>
+        </div>
+        {builderMode === "wizard" ? <CharacterWizard entries={entries} onFinish={finishWizardBuild} /> : null}
         <button type="button" className="button button--primary" onClick={addBuild}>
           <Plus size={16} aria-hidden="true" />
           Create build
@@ -399,6 +460,26 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
       </aside>
 
       <div className="build-editor">
+        <div className="builder-mode-toggle" role="group" aria-label="Build creation mode">
+          <button
+            type="button"
+            className={builderMode === "quick" ? "segmented-tab segmented-tab--active" : "segmented-tab"}
+            onClick={() => setBuilderMode("quick")}
+          >
+            Quick Build
+          </button>
+          <button
+            type="button"
+            className={builderMode === "wizard" ? "segmented-tab segmented-tab--active" : "segmented-tab"}
+            onClick={() => setBuilderMode("wizard")}
+          >
+            Wizard Builder
+          </button>
+        </div>
+        {builderMode === "wizard" ? (
+          <CharacterWizard entries={entries} onFinish={finishWizardBuild} onCancel={() => setBuilderMode("quick")} />
+        ) : (
+          <>
         <div className="toolbar toolbar--wrap">
           <button type="button" className="button" onClick={() => setQuickReference((value) => !value)}>
             <Save size={16} aria-hidden="true" />
@@ -430,6 +511,7 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
             domainCards={selectedReferences.domainCards}
             abilities={selectedReferences.abilities}
             equipment={selectedReferences.equipment}
+            entries={entries}
             onRoll={setActiveRollTarget}
             onStatusChange={updateStatus}
             onTokenChange={(featureTokens) => updateBuild({ featureTokens })}
@@ -534,49 +616,140 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
               </div>
             </div>
 
+            {derivationPreview ? (
+              <div className="selection-section">
+                <div className="selection-section__header">
+                  <h3>Derived stats</h3>
+                  <button type="button" className="button" onClick={applyDerivedStats}>
+                    <Sparkles size={16} aria-hidden="true" />
+                    Apply derived stats
+                  </button>
+                </div>
+                <div className="derived-grid">
+                  {derivationPreview.status.map((preview) => (
+                    <div key={preview.field} className="derived-card">
+                      <span>{preview.label}</span>
+                      <strong>
+                        {preview.current} {preview.derived !== undefined ? `-> ${preview.derived}` : "-> no source"}
+                      </strong>
+                      <small>{preview.sourceName ?? "No structured source selected"}</small>
+                    </div>
+                  ))}
+                </div>
+                <div className="selected-summary-grid">
+                  <div>
+                    <span>Armor reference</span>
+                    <strong>{derivationPreview.armor?.name ?? "None"}</strong>
+                    <small>Armor score and thresholds use selected armor only.</small>
+                  </div>
+                  <div>
+                    <span>Primary weapon</span>
+                    <strong>{derivationPreview.primaryWeapons.map((entry) => entry.name).join(", ") || "None"}</strong>
+                    <small>Selected equipment tagged as primary weapon.</small>
+                  </div>
+                  <div>
+                    <span>Secondary weapon</span>
+                    <strong>{derivationPreview.secondaryWeapons.map((entry) => entry.name).join(", ") || "None"}</strong>
+                    <small>Selected equipment tagged as secondary weapon.</small>
+                  </div>
+                  <div>
+                    <span>Spellcast trait</span>
+                    <strong>{derivationPreview.spellcastTrait ?? "None"}</strong>
+                    <small>From selected subclass structured data.</small>
+                  </div>
+                </div>
+                <div className="derived-suggestions">
+                  <div className="selection-section__header">
+                    <h4>Feature suggestions</h4>
+                    <button type="button" className="button" onClick={applySuggestedTokens} disabled={suggestedFeatureTokens.length === 0}>
+                      <Sparkles size={16} aria-hidden="true" />
+                      Apply suggested tokens
+                    </button>
+                  </div>
+                  {calculationHints.length ? (
+                    <div className="checkbox-list checkbox-list--compact">
+                      {calculationHints.map((hint) => (
+                        <div key={`${hint.sourceContentId}:${hint.type}:${hint.label}`} className="hint-row">
+                          <strong>{hint.label}</strong>
+                          <span>{hint.type === "featureToken" ? "Feature token" : hint.type === "statusBonus" ? "Status reminder" : "Roll reminder"}</span>
+                          <small>{hint.note}</small>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="empty-state">No curated feature suggestions for the current selections.</p>
+                  )}
+                </div>
+              </div>
+            ) : null}
+
             <div className="selection-section">
               <h3>Manual reference</h3>
-              <div className="form-grid">
-                <label>
-                  <span>HP slots</span>
-                  <input type="number" min={0} value={selectedBuild.status.maxHp} onChange={(event) => updateStatus({ maxHp: Number(event.target.value) })} />
-                </label>
-                <label>
-                  <span>Current HP</span>
-                  <input type="number" min={0} value={selectedBuild.status.markedHp} onChange={(event) => updateStatus({ markedHp: Number(event.target.value) })} />
-                </label>
-                <label>
-                  <span>Stress slots</span>
-                  <input type="number" min={0} value={selectedBuild.status.maxStress} onChange={(event) => updateStatus({ maxStress: Number(event.target.value) })} />
-                </label>
-                <label>
-                  <span>Current Stress</span>
-                  <input type="number" min={0} value={selectedBuild.status.markedStress} onChange={(event) => updateStatus({ markedStress: Number(event.target.value) })} />
-                </label>
-                <label>
-                  <span>Evasion</span>
-                  <input type="number" min={0} value={selectedBuild.status.evasion} onChange={(event) => updateStatus({ evasion: Number(event.target.value) })} />
-                </label>
-                <label>
-                  <span>Armor score</span>
-                  <input type="number" min={0} value={selectedBuild.status.armorScore} onChange={(event) => updateStatus({ armorScore: Number(event.target.value) })} />
-                </label>
-                <label>
-                  <span>Armor slots</span>
-                  <input type="number" min={0} value={selectedBuild.status.armorSlots} onChange={(event) => updateStatus({ armorSlots: Number(event.target.value) })} />
-                </label>
-                <label>
-                  <span>Current Armor</span>
-                  <input type="number" min={0} value={selectedBuild.status.markedArmor} onChange={(event) => updateStatus({ markedArmor: Number(event.target.value) })} />
-                </label>
-                <label>
-                  <span>Major threshold</span>
-                  <input type="number" min={0} value={selectedBuild.status.majorThreshold} onChange={(event) => updateStatus({ majorThreshold: Number(event.target.value) })} />
-                </label>
-                <label>
-                  <span>Severe threshold</span>
-                  <input type="number" min={0} value={selectedBuild.status.severeThreshold} onChange={(event) => updateStatus({ severeThreshold: Number(event.target.value) })} />
-                </label>
+              <div className="manual-reference-grid">
+                <div className="manual-reference-group">
+                  <h4>Health</h4>
+                  <div className="manual-reference-subgrid manual-reference-subgrid--pair">
+                    <label>
+                      <span>HP slots</span>
+                      <input type="number" min={0} value={selectedBuild.status.maxHp} onChange={(event) => updateStatus({ maxHp: Number(event.target.value) })} />
+                    </label>
+                    <label>
+                      <span>Current HP</span>
+                      <input type="number" min={0} value={selectedBuild.status.markedHp} onChange={(event) => updateStatus({ markedHp: Number(event.target.value) })} />
+                    </label>
+                  </div>
+                </div>
+                <div className="manual-reference-group">
+                  <h4>Stress</h4>
+                  <div className="manual-reference-subgrid manual-reference-subgrid--pair">
+                    <label>
+                      <span>Stress slots</span>
+                      <input type="number" min={0} value={selectedBuild.status.maxStress} onChange={(event) => updateStatus({ maxStress: Number(event.target.value) })} />
+                    </label>
+                    <label>
+                      <span>Current Stress</span>
+                      <input type="number" min={0} value={selectedBuild.status.markedStress} onChange={(event) => updateStatus({ markedStress: Number(event.target.value) })} />
+                    </label>
+                  </div>
+                </div>
+                <div className="manual-reference-group">
+                  <h4>Defense</h4>
+                  <div className="manual-reference-subgrid">
+                    <label>
+                      <span>Evasion</span>
+                      <input type="number" min={0} value={selectedBuild.status.evasion} onChange={(event) => updateStatus({ evasion: Number(event.target.value) })} />
+                    </label>
+                    <label>
+                      <span>Major threshold</span>
+                      <input type="number" min={0} value={selectedBuild.status.majorThreshold} onChange={(event) => updateStatus({ majorThreshold: Number(event.target.value) })} />
+                    </label>
+                    <label>
+                      <span>Severe threshold</span>
+                      <input type="number" min={0} value={selectedBuild.status.severeThreshold} onChange={(event) => updateStatus({ severeThreshold: Number(event.target.value) })} />
+                    </label>
+                  </div>
+                </div>
+                <div className="manual-reference-group">
+                  <h4>Armor</h4>
+                  <div className="manual-reference-subgrid manual-reference-subgrid--pair">
+                    <label>
+                      <span>Armor score / slots</span>
+                      <input
+                        type="number"
+                        min={0}
+                        value={selectedBuild.status.armorScore}
+                        onChange={(event) => {
+                          const armorScore = Number(event.target.value);
+                          updateStatus({ armorScore, armorSlots: armorScore });
+                        }}
+                      />
+                    </label>
+                    <label>
+                      <span>Marked armor</span>
+                      <input type="number" min={0} value={selectedBuild.status.markedArmor} onChange={(event) => updateStatus({ markedArmor: Number(event.target.value) })} />
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -786,17 +959,18 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                 {visibleCards.map((card, index) => (
                   <div key={card.id} className="checkbox-list__group">
                     {index === 0 || card.level !== visibleCards[index - 1]?.level ? <h4>Level {card.level ?? "Any"}</h4> : null}
-                  <label key={card.id}>
+                    <label key={card.id} className="domain-card-choice">
                     <input
                       type="checkbox"
                       checked={selectedBuild.selectedDomainCards.includes(card.id)}
                       onChange={() => updateBuild({ selectedDomainCards: toggleId(selectedBuild.selectedDomainCards, card.id) })}
                     />
-                    <span>
-                      {card.name} <small>{card.domain} {card.level !== undefined ? `L${card.level}` : ""} • {card.source}</small>
+                      <strong>{card.name}</strong>
+                      <small className="domain-card-choice__meta">
+                        {card.domain} {card.level !== undefined ? `L${card.level}` : ""} • {card.source}
+                      </small>
                       <small className="choice-description">{card.text}</small>
-                    </span>
-                  </label>
+                    </label>
                   </div>
                 ))}
               </div>
@@ -810,7 +984,11 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
               </div>
             </div>
 
-            <div className="selection-section">
+            <details className="selection-section advanced-section">
+              <summary>
+                <span>Advanced ability overrides</span>
+                <small>{selectedBuild.selectedAbilities.length} selected • auto-picked from class and subclass</small>
+              </summary>
               <div className="selection-section__header">
                 <h3>Available abilities</h3>
                 <span>
@@ -856,9 +1034,13 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                   Next
                 </button>
               </div>
-            </div>
+            </details>
 
-            <div className="selection-section">
+            <details className="selection-section advanced-section">
+              <summary>
+                <span>Advanced equipment overrides</span>
+                <small>{selectedBuild.selectedEquipment.length} selected - suggested by class defaults or chosen manually</small>
+              </summary>
               <div className="selection-section__header">
                 <h3>Equipment</h3>
                 <span>
@@ -901,7 +1083,9 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                   Next
                 </button>
               </div>
-            </div>
+            </details>
+          </>
+        )}
           </>
         )}
       </div>
@@ -913,6 +1097,7 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
             modifier={activeRollTarget.modifier}
             kind={activeRollTarget.kind}
             initialMode={activeRollTarget.mode}
+            initialDifficulty={activeRollTarget.difficulty}
             onClose={() => setActiveRollTarget(null)}
           />
         </Suspense>

@@ -12,8 +12,13 @@ function modeAdjustment(input: DaggerheartRollInput) {
     return 0;
   }
 
-  assertDie(input.advantageDie ?? 0, 6, input.mode === "advantage" ? "Advantage die" : "Disadvantage die");
-  return input.mode === "advantage" ? input.advantageDie ?? 0 : -(input.advantageDie ?? 0);
+  if (input.advantageDie === undefined) {
+    throw new Error(
+      `${input.mode === "advantage" ? "Advantage" : "Disadvantage"} die value is required when mode is "${input.mode}"`,
+    );
+  }
+  assertDie(input.advantageDie, 6, input.mode === "advantage" ? "Advantage die" : "Disadvantage die");
+  return input.mode === "advantage" ? input.advantageDie : -input.advantageDie;
 }
 
 function successText(success?: boolean) {

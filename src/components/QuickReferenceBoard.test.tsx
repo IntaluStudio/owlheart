@@ -54,8 +54,13 @@ describe("QuickReferenceBoard", () => {
 
     expect(html).toContain("Test Build");
     expect(html).toContain("Local character trackers");
+    expect(html).toContain("Roll kind");
+    expect(html).toContain("Advantage");
+    expect(html).toContain("Difficulty");
     expect(html).toContain("Hope");
     expect(html).toContain("Agility");
+    expect(html).toContain("Sprint, leap, maneuver");
+    expect(html).toContain("Recall, analyze, comprehend");
     expect(html).toContain("Scout");
     expect(html).toContain("Thresholds");
     expect(html).toContain("8/15");
@@ -97,5 +102,53 @@ describe("QuickReferenceBoard", () => {
     expect(html).toContain("Show description");
     expect(html).not.toContain("Warrior description");
     expect(html).not.toContain("Selected Abilities");
+  });
+
+  test("enriches subclass cards with level-appropriate linked subclass features", () => {
+    const subclass: ContentEntry = {
+      id: "subclass:brave",
+      name: "Call of the Brave",
+      type: "subclass",
+      source: "SRD Core",
+      tags: ["subclass", "warrior"],
+      text: "",
+    };
+    const foundation: ContentEntry = {
+      id: "subclass:brave:foundation:courage",
+      name: "Courage",
+      type: "ability",
+      source: "SRD Core",
+      tags: ["subclass-feature", "foundation", "warrior"],
+      text: "Gain a bonus when danger rises.",
+      system: { subclassIds: ["subclass:brave"] },
+    };
+    const mastery: ContentEntry = {
+      id: "subclass:brave:mastery:camaraderie",
+      name: "Camaraderie",
+      type: "ability",
+      source: "SRD Core",
+      tags: ["subclass-feature", "mastery", "warrior"],
+      text: "A high-tier rally feature.",
+      system: { subclassIds: ["subclass:brave"] },
+    };
+
+    const html = renderToStaticMarkup(
+      <QuickReferenceBoard
+        build={build}
+        subclass={subclass}
+        domainCards={[]}
+        abilities={[]}
+        equipment={[]}
+        entries={[subclass, foundation, mastery]}
+        onRoll={() => undefined}
+        onStatusChange={() => undefined}
+        onTokenChange={() => undefined}
+      />,
+    );
+
+    expect(html).toContain("Courage");
+    expect(html).toContain("Gain a bonus when danger rises.");
+    expect(html).not.toContain("Camaraderie");
+    expect(html).not.toContain("A high-tier rally feature.");
   });
 });

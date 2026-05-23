@@ -13,16 +13,23 @@ describe("BuildManager", () => {
 
     expect(html).toContain("Current HP");
     expect(html).toContain("Current Stress");
-    expect(html).toContain("Current Armor");
+    expect(html).toContain("Marked armor");
+    expect(html).toContain("Armor score / slots");
     expect(html).not.toContain("Marked HP");
     expect(html).not.toContain("Marked Stress");
-    expect(html).not.toContain("Marked Armor");
   });
 
   test("shows an autopick button when the selected class has suggestions", () => {
     const html = renderToStaticMarkup(<BuildManager builds={[sampleCharacter]} entries={srdEntries} onChange={() => undefined} />);
 
     expect(html).toContain("Apply class suggestions");
+  });
+
+  test("shows quick build and wizard builder mode choices", () => {
+    const html = renderToStaticMarkup(<BuildManager builds={[sampleCharacter]} entries={srdEntries} onChange={() => undefined} />);
+
+    expect(html).toContain("Quick Build");
+    expect(html).toContain("Wizard Builder");
   });
 
   test("shows feature token editor", () => {
@@ -36,5 +43,12 @@ describe("BuildManager", () => {
     const html = renderToStaticMarkup(<BuildManager builds={[sampleCharacter]} entries={srdEntries} onChange={() => undefined} />);
 
     expect(html).toContain("Delete character");
+  });
+
+  test("shows derived stats preview and apply action", () => {
+    const html = renderToStaticMarkup(<BuildManager builds={[sampleCharacter]} entries={srdEntries} onChange={() => undefined} />);
+
+    expect(html).toContain("Derived stats");
+    expect(html).toContain("Apply derived stats");
   });
 });

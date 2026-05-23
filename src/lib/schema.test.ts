@@ -114,7 +114,7 @@ describe("character build validation", () => {
     expect(build.status).toEqual({
       maxHp: 0,
       markedHp: 0,
-      maxStress: 0,
+      maxStress: 6,
       markedStress: 0,
       evasion: 0,
       armorScore: 0,
@@ -125,5 +125,43 @@ describe("character build validation", () => {
       severeThreshold: 0,
     });
     expect(build.featureTokens).toEqual([]);
+  });
+
+  it("accepts optional wizard character details without requiring them on old builds", () => {
+    const build = validateCharacterBuild({
+      id: "character:wizard",
+      name: "Wizard Build",
+      level: 1,
+      selectedDomains: [],
+      selectedDomainCards: [],
+      selectedAbilities: [],
+      selectedEquipment: [],
+      traits: {
+        agility: 0,
+        strength: 0,
+        finesse: 0,
+        instinct: 0,
+        presence: 0,
+        knowledge: 0,
+      },
+      experiences: [],
+      featureTokens: [],
+      notes: "",
+      manualOverrides: {},
+      pronouns: "they/them",
+      description: {
+        clothes: "Weathered traveling leathers",
+        eyes: "Gold-flecked",
+        body: "Broad-shouldered",
+        skin: "Sun-browned",
+      },
+      backgroundAnswers: [{ id: "guardian-1", prompt: "Who did you fail to protect?", answer: "An old mentor." }],
+      connections: [{ id: "connection-1", prompt: "How did I save your life?", name: "Mara", answer: "Pulled me from a ruin." }],
+    });
+
+    expect(build.pronouns).toBe("they/them");
+    expect(build.description?.clothes).toBe("Weathered traveling leathers");
+    expect(build.backgroundAnswers?.[0].answer).toBe("An old mentor.");
+    expect(build.connections?.[0].name).toBe("Mara");
   });
 });

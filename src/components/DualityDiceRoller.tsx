@@ -20,6 +20,7 @@ type DualityDiceRollerProps = {
   modifier: number;
   kind?: DaggerheartRollKind;
   initialMode?: DaggerheartRollMode;
+  initialDifficulty?: number;
   onClose: () => void;
 };
 
@@ -85,6 +86,7 @@ function DiceScene({ hopeDie, fearDie, rolling }: { hopeDie: number; fearDie: nu
     fear.position.x = 1.35;
     scene.add(hope, fear);
 
+    // Size from the panel itself so the canvas stays correct inside popovers.
     const resize = () => {
       const width = Math.max(240, host.clientWidth);
       const height = 190;
@@ -92,13 +94,13 @@ function DiceScene({ hopeDie, fearDie, rolling }: { hopeDie: number; fearDie: nu
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
     };
-    resize();
-    window.addEventListener("resize", resize);
 
-    let frame = 0;
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(host);
+    resize(); // run once immediately; ResizeObserver fires async on first observe
+
     let animationId = 0;
     const animate = () => {
-      frame += 1;
       const speed = rollingRef.current ? 0.075 : 0.015;
       hope.rotation.x += speed;
       hope.rotation.y += speed * 1.3;
@@ -111,7 +113,10 @@ function DiceScene({ hopeDie, fearDie, rolling }: { hopeDie: number; fearDie: nu
 
     return () => {
       window.cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", resize);
+      resizeObserver.disconnect();
+
+      scene.remove(hope, fear, ambient, key);
+
       geometry.dispose();
       hope.material.dispose();
       fear.material.dispose();
@@ -130,13 +135,20 @@ function DiceScene({ hopeDie, fearDie, rolling }: { hopeDie: number; fearDie: nu
   );
 }
 
-export function DualityDiceRoller({ label, modifier, kind = "trait", initialMode = "normal", onClose }: DualityDiceRollerProps) {
+export function DualityDiceRoller({
+  label,
+  modifier,
+  kind = "trait",
+  initialMode = "normal",
+  initialDifficulty,
+  onClose,
+}: DualityDiceRollerProps) {
   const [hopeDie, setHopeDie] = useState(rollD12());
   const [fearDie, setFearDie] = useState(rollD12());
   const [advantageDie, setAdvantageDie] = useState(rollD6());
   const [mode, setMode] = useState<DaggerheartRollMode>(initialMode);
   const [rollKind, setRollKind] = useState<DaggerheartRollKind>(kind);
-  const [difficulty, setDifficulty] = useState<number | undefined>(undefined);
+  const [difficulty, setDifficulty] = useState<number | undefined>(initialDifficulty);
   const [rolling, setRolling] = useState(false);
   const [status, setStatus] = useState("");
 

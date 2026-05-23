@@ -15,22 +15,23 @@ function card(id: string): ContentEntry {
 
 describe("quick reference helpers", () => {
   test("creates trait roll targets with the selected modifier", () => {
-    expect(createTraitRollTarget("agility", 2)).toEqual({
+    expect(createTraitRollTarget("agility", 2, { kind: "action", mode: "advantage", difficulty: 15 })).toEqual({
       id: "trait:agility",
       label: "Agility",
       modifier: 2,
-      kind: "trait",
-      mode: "normal",
+      kind: "action",
+      mode: "advantage",
+      difficulty: 15,
     });
   });
 
   test("creates experience roll targets with the selected modifier", () => {
-    expect(createExperienceRollTarget({ id: "exp:scout", name: "Scout", modifier: 3 })).toEqual({
+    expect(createExperienceRollTarget({ id: "exp:scout", name: "Scout", modifier: 3 }, { kind: "reaction", mode: "disadvantage" })).toEqual({
       id: "exp:scout",
       label: "Scout",
       modifier: 3,
-      kind: "trait",
-      mode: "normal",
+      kind: "reaction",
+      mode: "disadvantage",
     });
   });
 

@@ -6,6 +6,8 @@ export const RUMBLE_CHAT_METADATA_KEY = "com.battle-system.friends/metadata_chat
 export const BONES_ROLL_METADATA_KEY = "com.battle-system.bones/metadata_bonesroll";
 export const BONES_RESULT_METADATA_KEY = "com.battle-system.bones/metadata_logroll";
 
+const OBR_READY_TIMEOUT_MS = 5000;
+
 export function isOwlbearAvailable() {
   return OBR.isAvailable;
 }
@@ -15,9 +17,17 @@ async function ensureReady() {
     return;
   }
 
-  await new Promise<void>((resolve) => {
-    OBR.onReady(resolve);
-  });
+  await Promise.race([
+    new Promise<void>((resolve) => {
+      OBR.onReady(resolve);
+    }),
+    new Promise<void>((_, reject) =>
+      setTimeout(
+        () => reject(new Error("OBR did not become ready within the timeout period")),
+        OBR_READY_TIMEOUT_MS,
+      ),
+    ),
+  ]);
 }
 
 export async function showOwlbearNotification(message: string, variant: "DEFAULT" | "ERROR" | "INFO" | "SUCCESS" | "WARNING" = "INFO") {
@@ -25,9 +35,13 @@ export async function showOwlbearNotification(message: string, variant: "DEFAULT
     return false;
   }
 
-  await ensureReady();
-  await OBR.notification.show(message, variant);
-  return true;
+  try {
+    await ensureReady();
+    await OBR.notification.show(message, variant);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function writeLastDualityResult(result: DualityResult) {
@@ -35,14 +49,18 @@ export async function writeLastDualityResult(result: DualityResult) {
     return false;
   }
 
-  await ensureReady();
-  await OBR.player.setMetadata({
-    [METADATA_KEYS.lastDualityResult]: {
-      ...result,
-      created: new Date().toISOString(),
-    },
-  });
-  return true;
+  try {
+    await ensureReady();
+    await OBR.player.setMetadata({
+      [METADATA_KEYS.lastDualityResult]: {
+        ...result,
+        created: new Date().toISOString(),
+      },
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function sendRumbleChat(message: string) {
@@ -50,17 +68,21 @@ export async function sendRumbleChat(message: string) {
     return false;
   }
 
-  await ensureReady();
-  const senderName = await OBR.player.getName();
-  await OBR.player.setMetadata({
-    [RUMBLE_CHAT_METADATA_KEY]: {
-      chatlog: message,
-      created: new Date().toISOString(),
-      sender: senderName || "Daggerheart Toolkit",
-      targetId: "0000",
-    },
-  });
-  return true;
+  try {
+    await ensureReady();
+    const senderName = await OBR.player.getName();
+    await OBR.player.setMetadata({
+      [RUMBLE_CHAT_METADATA_KEY]: {
+        chatlog: message,
+        created: new Date().toISOString(),
+        sender: senderName || "Daggerheart Toolkit",
+        targetId: "0000",
+      },
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function describeDiceIntegration() {

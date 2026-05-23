@@ -25,7 +25,7 @@ describe("suggested build helpers", () => {
         markedStress: 1,
         evasion: 0,
         armorScore: 0,
-        armorSlots: 4,
+        armorSlots: 0,
         markedArmor: 1,
         hope: 0,
         majorThreshold: 0,
@@ -61,5 +61,24 @@ describe("suggested build helpers", () => {
     expect(next.notes).toContain("Suggested Warrior starting inventory");
     expect(next.notes).toContain("Minor Health Potion or Minor Stamina Potion");
     expect(next.notes).toContain("the drawing of a lover or a sharpening stone");
+  });
+
+  test("exposes wizard prompts and Void class sheet references", () => {
+    const guardian = findSuggestedClassReference("core_class_guardian");
+    const warlock = findSuggestedClassReference("the_void_class_warlock");
+
+    expect(guardian?.descriptionPrompts.map((prompt) => prompt.id)).toEqual(["clothes", "eyes", "body", "skin"]);
+    expect(guardian?.backgroundQuestions).toHaveLength(2);
+    expect(guardian?.connectionPrompts).toHaveLength(2);
+    expect(guardian?.domainCardCount).toBe(2);
+    expect(warlock?.source.pdf).toContain("Warlock-v1.5-The-Void.pdf");
+    expect(warlock?.traits).toEqual({
+      agility: 1,
+      strength: -1,
+      finesse: 0,
+      instinct: 1,
+      presence: 2,
+      knowledge: 0,
+    });
   });
 });

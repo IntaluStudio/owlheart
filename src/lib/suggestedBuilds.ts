@@ -72,14 +72,15 @@ export function applySuggestedClassReference(build: CharacterBuild, entries: Con
     ...build,
     traits: reference.traits,
     selectedEquipment,
-    status: {
-      ...build.status,
-      maxHp: numericSystemValue(classEntry, "startingHitPoints") ?? build.status.maxHp,
-      evasion: numericSystemValue(classEntry, "startingEvasion") ?? build.status.evasion,
-      armorScore: numericSystemValue(armor, "baseScore") ?? build.status.armorScore,
-      majorThreshold: numericSystemValue(armor, "baseMajorThreshold") ?? build.status.majorThreshold,
-      severeThreshold: numericSystemValue(armor, "baseSevereThreshold") ?? build.status.severeThreshold,
-    },
+      status: {
+        ...build.status,
+        maxHp: numericSystemValue(classEntry, "startingHitPoints") ?? build.status.maxHp,
+        evasion: numericSystemValue(classEntry, "startingEvasion") ?? build.status.evasion,
+        armorScore: numericSystemValue(armor, "baseScore") ?? build.status.armorScore,
+        armorSlots: numericSystemValue(armor, "baseScore") ?? build.status.armorSlots,
+        majorThreshold: numericSystemValue(armor, "baseMajorThreshold") ?? build.status.majorThreshold,
+        severeThreshold: numericSystemValue(armor, "baseSevereThreshold") ?? build.status.severeThreshold,
+      },
     notes: [existingNotes, suggestedInventory].filter(Boolean).join("\n\n"),
   };
 }
