@@ -6,7 +6,9 @@ vi.mock("./lib/owlbear", () => ({
   isOwlbearAvailable: () => false,
   sendRumbleChat: async () => false,
   showOwlbearNotification: async () => false,
+  subscribeToSharedRolls: async () => () => undefined,
   writeLastDualityResult: async () => false,
+  broadcastSharedRoll: async () => false,
 }));
 
 describe("App navigation", () => {
@@ -17,16 +19,18 @@ describe("App navigation", () => {
     const buildsIndex = nav.indexOf(">Builds<");
     const srdIndex = nav.indexOf(">SRD<");
     const packsIndex = nav.indexOf(">Packs<");
-    const dualityIndex = nav.indexOf(">Duality<");
+    const diceIndex = nav.indexOf(">Dice<");
 
     expect(buildsIndex).toBeGreaterThan(-1);
     expect(srdIndex).toBeGreaterThan(buildsIndex);
     expect(packsIndex).toBeGreaterThan(srdIndex);
-    expect(dualityIndex).toBeGreaterThan(packsIndex);
+    expect(diceIndex).toBeGreaterThan(packsIndex);
     expect(nav).toContain("tab-button tab-button--active");
     expect(nav.indexOf("tab-button tab-button--active")).toBeLessThan(srdIndex);
     expect(nav).toContain('disabled=""');
     expect(nav).toContain("Packs disabled for now");
     expect(html).toContain("Void content");
-  });
+    expect(html).toContain("Quick roll");
+    expect(html).toContain("Shared rolls");
+  }, 10000);
 });

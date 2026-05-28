@@ -172,10 +172,26 @@ export function DualityDiceRoller({
     setRolling(true);
     setStatus("");
     window.setTimeout(() => {
-      setHopeDie(rollD12());
-      setFearDie(rollD12());
-      setAdvantageDie(rollD6());
+      const nextHopeDie = rollD12();
+      const nextFearDie = rollD12();
+      const nextAdvantageDie = rollD6();
+      const rolled = formatDaggerheartRoll({
+        kind: rollKind,
+        label,
+        hopeDie: nextHopeDie,
+        fearDie: nextFearDie,
+        modifier,
+        mode,
+        advantageDie: nextAdvantageDie,
+        difficulty,
+      });
+      setHopeDie(nextHopeDie);
+      setFearDie(nextFearDie);
+      setAdvantageDie(nextAdvantageDie);
       setRolling(false);
+      void writeLastDualityResult(toDualityResult(rolled), label).then((sent) => {
+        setStatus(sent ? "Broadcast to shared roll log." : "Rolled locally.");
+      });
     }, 620);
   };
 
@@ -185,13 +201,13 @@ export function DualityDiceRoller({
   };
 
   const notify = async (rolled: DaggerheartRollResult) => {
-    await writeLastDualityResult(toDualityResult(rolled));
+    await writeLastDualityResult(toDualityResult(rolled), label);
     const shown = await showOwlbearNotification(`${label}: ${rolled.labelText}`, rolled.outcome === "With Fear" ? "WARNING" : "SUCCESS");
     setStatus(shown ? "Sent Owlbear notification." : "Owlbear is not available in this browser context.");
   };
 
   const sendToRumble = async (rolled: DaggerheartRollResult) => {
-    await writeLastDualityResult(toDualityResult(rolled));
+    await writeLastDualityResult(toDualityResult(rolled), label);
     const sent = await sendRumbleChat(`${label} | ${rolled.copyText.replace(/\n/g, " | ")}`);
     setStatus(sent ? "Sent to Rumble metadata." : "Rumble output requires an Owlbear room context.");
   };

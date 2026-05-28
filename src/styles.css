@@ -33,9 +33,17 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
-  min-width: 320px;
+  min-width: 0;
   min-height: 100vh;
   background:
     radial-gradient(circle at 50% 0%, rgba(43, 67, 85, 0.28), transparent 34%),
@@ -47,6 +55,8 @@ input,
 select,
 textarea {
   font: inherit;
+  max-width: 100%;
+  min-width: 0;
 }
 
 button {
@@ -61,16 +71,19 @@ button:disabled {
 .app-shell {
   display: grid;
   gap: 14px;
+  width: 100%;
   max-width: 980px;
+  min-width: 0;
   min-height: 100vh;
   margin: 0 auto;
-  padding: 16px;
+  padding: clamp(10px, 3vw, 16px);
 }
 
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
   border-bottom: 1px solid var(--gold);
   padding-bottom: 12px;
@@ -91,7 +104,7 @@ button:disabled {
 }
 
 .switch--header {
-  flex: 0 0 auto;
+  flex: 1 1 150px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface-raised);
@@ -100,8 +113,9 @@ button:disabled {
 
 .tracker-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
   gap: 8px;
+  min-width: 0;
 }
 
 .tracker-control {
@@ -110,7 +124,8 @@ button:disabled {
   border: 1px solid #d7ddd8;
   border-radius: 8px;
   background: #ffffff;
-  padding: 8px;
+  min-width: 0;
+  padding: 7px;
 }
 
 .tracker-control > span {
@@ -122,7 +137,7 @@ button:disabled {
 
 .tracker-control > div {
   display: grid;
-  grid-template-columns: 32px 1fr 32px;
+  grid-template-columns: 30px minmax(0, 1fr) 30px;
   align-items: center;
   gap: 6px;
 }
@@ -133,8 +148,13 @@ button:disabled {
 
 .tab-bar {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 8px;
+}
+
+.tracker-link-button {
+  width: 100%;
+  min-height: 74px;
 }
 
 .tab-button,
@@ -144,6 +164,7 @@ button:disabled {
   align-items: center;
   justify-content: center;
   gap: 7px;
+  max-width: 100%;
   min-height: 38px;
   border: 1px solid #cbd4cf;
   border-radius: 8px;
@@ -202,6 +223,7 @@ button:disabled {
 .toolbar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -243,8 +265,9 @@ button:disabled {
 
 .segmented-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 7px;
-  overflow-x: auto;
+  overflow-x: hidden;
   padding: 2px 0 4px;
   scrollbar-width: thin;
 }
@@ -254,7 +277,7 @@ button:disabled {
 }
 
 .segmented-tab {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   min-height: 34px;
   border: 1px solid #cbd4cf;
   border-radius: 8px;
@@ -303,17 +326,20 @@ textarea {
 .split-pane,
 .build-layout {
   display: grid;
-  grid-template-columns: minmax(210px, 0.9fr) minmax(260px, 1.3fr);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr);
   gap: 12px;
   min-height: 0;
+  min-width: 0;
 }
 
 .list-pane,
 .detail-pane,
 .build-list,
 .build-editor {
+  min-width: 0;
   max-height: calc(100vh - 218px);
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   border: 1px solid #d7ddd8;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.78);
@@ -746,6 +772,15 @@ textarea {
   gap: 8px;
 }
 
+.wizard-empty-state {
+  grid-column: 1 / -1;
+  border: 1px dashed #343944;
+  border-radius: 8px;
+  background: #20242d;
+  color: #aeb5c1;
+  padding: 10px;
+}
+
 .wizard-choice-grid--compact {
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
@@ -1033,14 +1068,73 @@ textarea {
   font-size: 0.76rem;
 }
 
+.sheet-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.sheet-tab {
+  display: grid;
+  gap: 3px;
+  min-height: 58px;
+  border: 1px solid #d7ddd8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2d3136;
+  padding: 9px 10px;
+  text-align: left;
+}
+
+.sheet-tab--active {
+  border-color: #8d1d2c;
+  box-shadow: inset 3px 0 0 #8d1d2c;
+}
+
+.sheet-tab span {
+  color: #50575d;
+  font-size: 0.72rem;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.sheet-tab strong {
+  color: #161616;
+  font-size: 0.9rem;
+  line-height: 1.1;
+}
+
+.sheet-tab small {
+  color: #626a70;
+  font-size: 0.72rem;
+  font-weight: 760;
+}
+
 .quick-board__zone {
   display: grid;
   gap: 9px;
 }
 
+.alternate-tracker-panel {
+  align-content: start;
+}
+
+.alternate-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 8px;
+}
+
+.alternate-status-grid label {
+  border: 1px solid #d7ddd8;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 9px;
+}
+
 .quick-board__columns {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 12px;
 }
 
@@ -1053,7 +1147,7 @@ textarea {
 
 .roll-toolbar {
   display: grid;
-  grid-template-columns: minmax(170px, 0.9fr) minmax(260px, 1.35fr) minmax(150px, 0.8fr);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 14px;
   border: 1px solid #d7ddd8;
   border-radius: 8px;
@@ -1070,12 +1164,12 @@ textarea {
 
 .roll-toolbar .segmented-tabs {
   gap: 8px;
-  overflow-x: visible;
+  overflow-x: hidden;
 }
 
 .roll-toolbar .segmented-tab {
   flex: 1 1 0;
-  min-width: max-content;
+  min-width: 0;
   padding-inline: 11px;
 }
 
@@ -1170,6 +1264,43 @@ textarea {
   border-radius: 8px;
   background: #ffffff;
   padding: 9px;
+}
+
+.suggestion-preview-card {
+  display: grid;
+  gap: 9px;
+  border: 1px solid #d7ddd8;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.84);
+  padding: 12px;
+}
+
+.suggestion-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.suggestion-preview-row {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #d7ddd8;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 9px;
+}
+
+.suggestion-preview-row span {
+  color: #50575d;
+  font-size: 0.74rem;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.suggestion-preview-row strong {
+  color: #161616;
+  font-size: 0.9rem;
+  line-height: 1.25;
 }
 
 .derived-card span,
@@ -1458,6 +1589,101 @@ textarea {
   align-content: start;
 }
 
+.quick-roll-strip,
+.roll-log {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 9px;
+}
+
+.quick-roll-strip {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.quick-roll-strip > span,
+.roll-log__header span,
+.roll-log li span {
+  color: var(--ink-muted);
+  font-size: 0.74rem;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.quick-roll-strip > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+}
+
+.quick-roll-strip strong {
+  grid-column: 1 / -1;
+  color: var(--gold-bright);
+  font-size: 0.8rem;
+}
+
+.roll-log__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.roll-log__header strong {
+  color: var(--ink-bright);
+  font-size: 0.86rem;
+}
+
+.roll-log ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.roll-log li {
+  display: grid;
+  grid-template-columns: minmax(70px, 0.45fr) minmax(80px, 0.65fr) minmax(0, 1fr);
+  gap: 7px;
+  align-items: baseline;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  padding: 7px;
+}
+
+.roll-log li strong {
+  color: var(--ink-bright);
+  font-size: 0.78rem;
+}
+
+.roll-log li em {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-style: normal;
+  overflow-wrap: anywhere;
+}
+
+.mode-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  border: 1px solid rgba(227, 179, 65, 0.55);
+  border-radius: 999px;
+  background: rgba(227, 179, 65, 0.12);
+  color: var(--gold-soft);
+  padding: 6px 10px;
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
 .roll-result {
   display: grid;
   justify-items: start;
@@ -1465,7 +1691,7 @@ textarea {
   border: 1px solid #d7ddd8;
   border-radius: 8px;
   background: #ffffff;
-  padding: 18px;
+  padding: clamp(10px, 3vw, 18px);
 }
 
 .roll-result span {
@@ -1476,7 +1702,7 @@ textarea {
 
 .roll-result strong {
   color: #161616;
-  font-size: 3rem;
+  font-size: clamp(2rem, 12vw, 3rem);
   line-height: 0.95;
 }
 
@@ -1934,6 +2160,11 @@ select option {
 
   .reference-grid--board {
     column-count: 1;
+  }
+
+  .quick-roll-strip,
+  .roll-log li {
+    grid-template-columns: 1fr;
   }
 
   .manual-reference-grid,

@@ -1,18 +1,28 @@
 import { Download, Plus, Save, Sparkles, Trash2, Upload } from "lucide-react";
-import { ChangeEvent, lazy, Suspense, useMemo, useState } from "react";
+import { ChangeEvent, lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { CharacterWizard } from "./CharacterWizard";
 import { ContentCard } from "./ContentCard";
 import { QuickReferenceBoard } from "./QuickReferenceBoard";
+import { SuggestionPreviewCard } from "./SuggestionPreviewCard";
 import { createLocalId, downloadJson, readJsonFile } from "../lib/importExport";
 import { getAvailableAbilitiesForBuild, getAvailableDomainCardsForBuild, getSelectedReferences } from "../lib/buildFiltering";
 import { characterBuildSchema, DEFAULT_MAX_STRESS } from "../lib/schema";
 import { getContentByType } from "../lib/contentIndex";
-import { TRAIT_KEYS, type CharacterBuild, type CharacterExperience, type CharacterFeatureToken, type ContentEntry, type TraitKey } from "../lib/types";
+import {
+  TRAIT_KEYS,
+  type CharacterAlternateTracker,
+  type CharacterBuild,
+  type CharacterExperience,
+  type CharacterFeatureToken,
+  type ContentEntry,
+  type TraitKey,
+} from "../lib/types";
 import { filterContentChoices, type RollTarget } from "../lib/quickReference";
-import { applySuggestedClassReference, findSuggestedClassReference } from "../lib/suggestedBuilds";
+import { applySuggestedClassReference, previewSuggestedClassReference } from "../lib/suggestedBuilds";
 import { getAutoSelectedAbilityIds, resetBuildForClassChange, resetBuildForSubclassChange } from "../lib/classChange";
 import { applyDerivedStatus, buildDerivations } from "../lib/buildDerivations";
 import { applySuggestedFeatureTokens, getCalculationHintsForBuild, getSuggestedFeatureTokens } from "../lib/calculationHints";
+import { linkSelectedTokenToCharacter, updateLinkedTokenStats } from "../lib/owlbear";
 
 const EQUIPMENT_PAGE_SIZE = 10;
 const CARD_PAGE_SIZE = 8;
@@ -99,7 +109,7 @@ function toggleId(list: string[], id: string) {
 export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
   const [selectedBuildId, setSelectedBuildId] = useState(builds[0]?.id);
   const [builderMode, setBuilderMode] = useState<"quick" | "wizard">("quick");
-  const [quickReference, setQuickReference] = useState(false);
+  const [quickReference, setQuickReference] = useState(true);
   const [importError, setImportError] = useState("");
   const [equipmentQuery, setEquipmentQuery] = useState("");
   const [equipmentPage, setEquipmentPage] = useState(1);
@@ -111,7 +121,10 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
   const [activeRollTarget, setActiveRollTarget] = useState<RollTarget | null>(null);
 
   const selectedBuild = builds.find((build) => build.id === selectedBuildId) ?? builds[0];
-  const selectedSuggestion = findSuggestedClassReference(selectedBuild?.classId);
+  const suggestionPreview = useMemo(
+    () => (selectedBuild ? previewSuggestedClassReference(selectedBuild, entries) : undefined),
+    [entries, selectedBuild],
+  );
   const selectedReferences = useMemo(
     () => (selectedBuild ? getSelectedReferences(entries, selectedBuild) : undefined),
     [entries, selectedBuild],
@@ -178,6 +191,12 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
     const next = { ...selectedBuild, ...patch };
     onChange(builds.map((build) => (build.id === selectedBuild.id ? next : build)));
   };
+
+  useEffect(() => {
+    if (selectedBuild?.linkedTokenId) {
+      void updateLinkedTokenStats(selectedBuild);
+    }
+  }, [selectedBuild]);
 
   const updateTrait = (trait: TraitKey, value: number) => {
     if (!selectedBuild) {
@@ -283,8 +302,22 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
     });
   };
 
+  const updateAlternateTracker = (kind: "beastform" | "companion", tracker: CharacterAlternateTracker) => {
+    updateBuild({ [kind]: tracker } as Partial<CharacterBuild>);
+  };
+
+  const linkToken = async () => {
+    if (!selectedBuild) {
+      return;
+    }
+    const tokenId = await linkSelectedTokenToCharacter(selectedBuild);
+    if (tokenId) {
+      updateBuild({ linkedTokenId: tokenId });
+    }
+  };
+
   const applyClassSuggestions = () => {
-    if (!selectedBuild || !selectedSuggestion) {
+    if (!selectedBuild || !suggestionPreview?.reference) {
       return;
     }
 
@@ -481,25 +514,24 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
         ) : (
           <>
         <div className="toolbar toolbar--wrap">
+          <span className="mode-pill">{quickReference ? "Reference View" : "Edit Build"}</span>
           <button type="button" className="button" onClick={() => setQuickReference((value) => !value)}>
             <Save size={16} aria-hidden="true" />
-            {quickReference ? "Edit build" : "Quick reference"}
+            {quickReference ? "Edit Build" : "Save Build"}
           </button>
           <button type="button" className="button" onClick={() => downloadJson(`${selectedBuild.id.replace(/[:/]/g, "-")}.json`, selectedBuild)}>
             <Download size={16} aria-hidden="true" />
             Export
           </button>
-          {!quickReference ? (
-            <button type="button" className="button" disabled={!selectedSuggestion} onClick={applyClassSuggestions}>
-              <Sparkles size={16} aria-hidden="true" />
-              Apply class suggestions
-            </button>
-          ) : null}
           <button type="button" className="button button--danger" onClick={deleteSelectedBuild}>
             <Trash2 size={16} aria-hidden="true" />
             Delete character
           </button>
         </div>
+
+        {suggestionPreview?.reference ? (
+          <SuggestionPreviewCard preview={suggestionPreview} onApply={applyClassSuggestions} />
+        ) : null}
 
         {quickReference && selectedReferences ? (
           <QuickReferenceBoard
@@ -515,6 +547,8 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
             onRoll={setActiveRollTarget}
             onStatusChange={updateStatus}
             onTokenChange={(featureTokens) => updateBuild({ featureTokens })}
+            onLinkToken={linkToken}
+            onAlternateTrackerChange={updateAlternateTracker}
           />
         ) : (
           <>
@@ -630,9 +664,12 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                     <div key={preview.field} className="derived-card">
                       <span>{preview.label}</span>
                       <strong>
-                        {preview.current} {preview.derived !== undefined ? `-> ${preview.derived}` : "-> no source"}
+                        {preview.formula ?? `${preview.current} ${preview.derived !== undefined ? `-> ${preview.derived}` : "-> no source"}`}
                       </strong>
-                      <small>{preview.sourceName ?? "No structured source selected"}</small>
+                      <small>
+                        {preview.sourceName ?? "No structured source selected"}
+                        {preview.formula ? ` • current saved: ${preview.current}` : ""}
+                      </small>
                     </div>
                   ))}
                 </div>

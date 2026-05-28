@@ -1,7 +1,12 @@
 import { describe, expect, test } from "vitest";
 import srdContent from "../../public/data/srd-core.json";
 import { sampleCharacter } from "../data/sampleCharacter";
-import { applySuggestedClassReference, findSuggestedClassReference } from "./suggestedBuilds";
+import {
+  applySuggestedClassReference,
+  findSuggestedClassReference,
+  previewSuggestedClassReference,
+  resolveSuggestedClassReference,
+} from "./suggestedBuilds";
 import type { CharacterBuild, ContentEntry } from "./types";
 
 const srdEntries = srdContent as ContentEntry[];
@@ -48,14 +53,14 @@ describe("suggested build helpers", () => {
     expect(next.status).toMatchObject({
       maxHp: 6,
       markedHp: 2,
-      maxStress: 6,
+      maxStress: 7,
       markedStress: 1,
-      evasion: 11,
+      evasion: 10,
       armorScore: 4,
       armorSlots: 4,
       markedArmor: 1,
-      majorThreshold: 7,
-      severeThreshold: 15,
+      majorThreshold: 9,
+      severeThreshold: 17,
     });
     expect(next.notes).toContain("Existing note.");
     expect(next.notes).toContain("Suggested Warrior starting inventory");
@@ -79,6 +84,90 @@ describe("suggested build helpers", () => {
       instinct: 1,
       presence: 2,
       knowledge: 0,
+    });
+  });
+
+  test("previews Guardian Spear replacement before applying suggestions", () => {
+    const guardianWithSpear: CharacterBuild = {
+      ...sampleCharacter,
+      classId: "core_class_guardian",
+      selectedEquipment: ["homebrew:keepsake", "core_weapon_spear"],
+      traits: { agility: 0, strength: 0, finesse: 0, instinct: 0, presence: 0, knowledge: 0 },
+      notes: "Existing note.",
+    };
+
+    const preview = previewSuggestedClassReference(guardianWithSpear, srdEntries);
+
+    expect(preview.reference?.className).toBe("Guardian");
+    expect(preview.hasChanges).toBe(true);
+    expect(preview.equipment.find((item) => item.slot === "primaryWeapon")).toMatchObject({
+      currentName: "Spear",
+      suggestedName: "Battleaxe",
+      changed: true,
+    });
+    expect(preview.equipment.find((item) => item.slot === "armor")).toMatchObject({
+      currentName: "None",
+      suggestedName: "Chainmail Armor",
+      changed: true,
+    });
+  });
+
+  test("applies suggestion previews idempotently while preserving unrelated equipment", () => {
+    const guardianWithSpear: CharacterBuild = {
+      ...sampleCharacter,
+      classId: "core_class_guardian",
+      selectedEquipment: ["homebrew:keepsake", "core_weapon_spear"],
+      notes: "Existing note.",
+    };
+
+    const applied = applySuggestedClassReference(guardianWithSpear, srdEntries);
+    const appliedAgain = applySuggestedClassReference(applied, srdEntries);
+
+    expect(applied.selectedEquipment).toEqual([
+      "homebrew:keepsake",
+      "core_weapon_battleaxe",
+      "core_armor_chainmail_armor",
+    ]);
+    expect(applied.status).toMatchObject({
+      maxHp: 7,
+      evasion: 8,
+      armorScore: 4,
+      armorSlots: 4,
+      majorThreshold: 9,
+      severeThreshold: 17,
+    });
+    expect(applied.notes).toContain("Existing note.");
+    expect(applied.notes.match(/\[Suggested Class Inventory\]/g)).toHaveLength(1);
+    expect(appliedAgain).toEqual(applied);
+  });
+
+  test("resolves Blood Hunter Lycan variant traits and weapon", async () => {
+    const { voidPlaytestContent } = await import("../data/voidPlaytestContent");
+    const activeEntries = [...srdEntries, ...voidPlaytestContent];
+    const lycanBuild: CharacterBuild = {
+      ...sampleCharacter,
+      classId: "the_void_class_bloodhunter",
+      subclassId: "the_void_subclass_order_of_the_lycan",
+      selectedEquipment: ["core_weapon_longsword", "core_armor_leather_armor"],
+    };
+
+    const reference = resolveSuggestedClassReference(lycanBuild, activeEntries);
+    const preview = previewSuggestedClassReference(lycanBuild, activeEntries);
+
+    expect(reference?.variantLabel).toBe("Order of the Lycan");
+    expect(reference?.traits).toEqual({
+      agility: 1,
+      strength: 2,
+      finesse: -1,
+      instinct: 1,
+      presence: 0,
+      knowledge: 0,
+    });
+    expect(reference?.equipment.primaryWeaponId).toBe("core_weapon_battleaxe");
+    expect(preview.equipment.find((item) => item.slot === "primaryWeapon")).toMatchObject({
+      currentName: "Longsword",
+      suggestedName: "Battleaxe",
+      changed: true,
     });
   });
 });

@@ -4,6 +4,7 @@ type TrackerStripProps = {
   build: CharacterBuild;
   onStatusChange: (patch: Partial<CharacterBuild["status"]>) => void;
   onTokenChange: (tokens: CharacterFeatureToken[]) => void;
+  onLinkToken?: () => void;
 };
 
 function clamp(value: number, min: number, max?: number) {
@@ -37,7 +38,7 @@ function ResourceControl({
   );
 }
 
-export function TrackerStrip({ build, onStatusChange, onTokenChange }: TrackerStripProps) {
+export function TrackerStrip({ build, onStatusChange, onTokenChange, onLinkToken }: TrackerStripProps) {
   const updateToken = (tokenId: string, value: number) => {
     onTokenChange(
       build.featureTokens.map((token) =>
@@ -52,6 +53,11 @@ export function TrackerStrip({ build, onStatusChange, onTokenChange }: TrackerSt
       <ResourceControl label="Stress" value={build.status.markedStress} max={build.status.maxStress} onChange={(markedStress) => onStatusChange({ markedStress })} />
       <ResourceControl label="Armor" value={build.status.markedArmor} max={build.status.armorSlots} onChange={(markedArmor) => onStatusChange({ markedArmor })} />
       <ResourceControl label="Hope" value={build.status.hope} onChange={(hope) => onStatusChange({ hope })} />
+      {onLinkToken ? (
+        <button type="button" className="button tracker-link-button" onClick={onLinkToken}>
+          {build.linkedTokenId ? "Token linked" : "Link token"}
+        </button>
+      ) : null}
       {build.featureTokens.map((token) => (
         <ResourceControl
           key={token.id}

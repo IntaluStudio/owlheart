@@ -8,6 +8,7 @@ export type DerivedStatusPreview = {
   label: string;
   current: number;
   derived?: number;
+  formula?: string;
   sourceName?: string;
   sourceId?: string;
 };
@@ -54,39 +55,108 @@ function makeStatusPreview(
   derived: number | undefined,
   source: ContentEntry | undefined,
   sourceName = source?.name,
+  formula?: string,
 ): DerivedStatusPreview {
   return {
     field,
     label: STATUS_LABELS[field],
     current: build.status[field],
     derived,
+    formula,
     sourceName,
     sourceId: source?.id,
   };
+}
+
+function signedFormula(base: number | undefined, bonus: number, derived: number | undefined) {
+  if (base === undefined || derived === undefined || bonus === 0) {
+    return undefined;
+  }
+
+  return `${base} ${bonus > 0 ? "+" : "-"} ${Math.abs(bonus)} = ${derived}`;
 }
 
 export function buildDerivations(build: CharacterBuild, entries: ContentEntry[]): BuildDerivationPreview {
   const selected = getSelectedReferences(entries, build);
   const armor = selected.equipment.find((entry) => equipmentType(entry) === "armor" || entry.tags.includes("armor"));
   const weapons = selected.equipment.filter((entry) => equipmentType(entry) === "weapon" || entry.tags.includes("weapon"));
-  const stressBonusHints = getCalculationHintsForBuild(build, entries).filter(
-    (hint): hint is StatusBonusHint => hint.type === "statusBonus" && hint.field === "maxStress",
+  const statusBonusHints = getCalculationHintsForBuild(build, entries).filter(
+    (hint): hint is StatusBonusHint => hint.type === "statusBonus",
   );
-  const derivedMaxStress = DEFAULT_MAX_STRESS + stressBonusHints.reduce((total, hint) => total + hint.amount, 0);
-  const stressSource = stressBonusHints[0]
-    ? entries.find((entry) => entry.id === stressBonusHints[0].sourceContentId)
-    : undefined;
-  const stressSourceName = stressBonusHints.length
-    ? stressBonusHints.map((hint) => hint.label).join(", ")
-    : "SRD base stress";
+  const statusBonusHintsByField = statusBonusHints.reduce<Partial<Record<DerivedStatusField, StatusBonusHint[]>>>(
+    (accumulator, hint) => {
+      accumulator[hint.field] = [...(accumulator[hint.field] ?? []), hint];
+      return accumulator;
+    },
+    {},
+  );
+  const statusBonusTotal = (field: DerivedStatusField) =>
+    (statusBonusHintsByField[field] ?? []).reduce((total, hint) => total + hint.amount, 0);
+  const statusBonusLabel = (hint: StatusBonusHint) => {
+    const source = entries.find((entry) => entry.id === hint.sourceContentId);
+    return source && source.name !== hint.label ? `${source.name}: ${hint.label}` : hint.label;
+  };
+  const statusBonusLabels = (field: DerivedStatusField) => [
+    ...new Set((statusBonusHintsByField[field] ?? []).map(statusBonusLabel)),
+  ];
+  const firstStatusBonusSource = (field: DerivedStatusField) => {
+    const firstHint = statusBonusHintsByField[field]?.[0];
+    return firstHint ? entries.find((entry) => entry.id === firstHint.sourceContentId) : undefined;
+  };
+  const withBonusSourceName = (baseName: string | undefined, field: DerivedStatusField) => {
+    const bonusLabels = statusBonusLabels(field);
+    return [baseName, ...bonusLabels].filter(Boolean).join(" + ") || undefined;
+  };
+
+  const classHp = numericSystemValue(selected.class, "startingHitPoints");
+  const classEvasion = numericSystemValue(selected.class, "startingEvasion");
+  const armorScore = numericSystemValue(armor, "baseScore");
+  const majorThreshold = numericSystemValue(armor, "baseMajorThreshold");
+  const severeThreshold = numericSystemValue(armor, "baseSevereThreshold");
+  const stressBonusLabels = statusBonusLabels("maxStress");
+  const derivedMaxStress = DEFAULT_MAX_STRESS + statusBonusTotal("maxStress");
+  const stressSourceName = stressBonusLabels.length ? stressBonusLabels.join(", ") : "SRD base stress";
+  const evasionBonus = statusBonusTotal("evasion");
+  const derivedEvasion = classEvasion !== undefined ? classEvasion + evasionBonus : undefined;
 
   const status = [
-    makeStatusPreview(build, "maxHp", numericSystemValue(selected.class, "startingHitPoints"), selected.class),
-    makeStatusPreview(build, "maxStress", derivedMaxStress, stressSource, stressSourceName),
-    makeStatusPreview(build, "evasion", numericSystemValue(selected.class, "startingEvasion"), selected.class),
-    makeStatusPreview(build, "armorScore", numericSystemValue(armor, "baseScore"), armor),
-    makeStatusPreview(build, "majorThreshold", numericSystemValue(armor, "baseMajorThreshold"), armor),
-    makeStatusPreview(build, "severeThreshold", numericSystemValue(armor, "baseSevereThreshold"), armor),
+    makeStatusPreview(
+      build,
+      "maxHp",
+      classHp !== undefined ? classHp + statusBonusTotal("maxHp") : undefined,
+      selected.class ?? firstStatusBonusSource("maxHp"),
+      withBonusSourceName(selected.class?.name, "maxHp"),
+    ),
+    makeStatusPreview(build, "maxStress", derivedMaxStress, firstStatusBonusSource("maxStress"), stressSourceName),
+    makeStatusPreview(
+      build,
+      "evasion",
+      derivedEvasion,
+      selected.class ?? firstStatusBonusSource("evasion"),
+      withBonusSourceName(selected.class?.name, "evasion"),
+      signedFormula(classEvasion, evasionBonus, derivedEvasion),
+    ),
+    makeStatusPreview(
+      build,
+      "armorScore",
+      armorScore !== undefined ? armorScore + statusBonusTotal("armorScore") : undefined,
+      armor ?? firstStatusBonusSource("armorScore"),
+      withBonusSourceName(armor?.name, "armorScore"),
+    ),
+    makeStatusPreview(
+      build,
+      "majorThreshold",
+      majorThreshold !== undefined ? majorThreshold + build.level + statusBonusTotal("majorThreshold") : undefined,
+      armor ?? firstStatusBonusSource("majorThreshold"),
+      withBonusSourceName(armor ? `${armor.name} + Level` : undefined, "majorThreshold"),
+    ),
+    makeStatusPreview(
+      build,
+      "severeThreshold",
+      severeThreshold !== undefined ? severeThreshold + build.level + statusBonusTotal("severeThreshold") : undefined,
+      armor ?? firstStatusBonusSource("severeThreshold"),
+      withBonusSourceName(armor ? `${armor.name} + Level` : undefined, "severeThreshold"),
+    ),
   ];
 
   return {

@@ -3,11 +3,14 @@ import { useEffect, useMemo, useState } from "react";
 import { BuildManager } from "./components/BuildManager";
 import { DualityHelper } from "./components/DualityHelper";
 import { HomebrewManager } from "./components/HomebrewManager";
+import { QuickRollStrip } from "./components/QuickRollStrip";
+import { RollLog } from "./components/RollLog";
 import { SrdBrowser } from "./components/SrdBrowser";
 import { sampleCharacter } from "./data/sampleCharacter";
 import { voidPlaytestContent } from "./data/voidPlaytestContent";
 import { getActiveContent } from "./lib/contentIndex";
 import { loadSrdContent } from "./lib/srdDataLoader";
+import { subscribeToSharedRolls } from "./lib/owlbear";
 import {
   loadCharacterBuilds,
   loadHomebrewPacks,
@@ -16,7 +19,7 @@ import {
   saveHomebrewPacks,
   saveVoidContentEnabled,
 } from "./lib/storage";
-import type { CharacterBuild, ContentEntry, HomebrewPack } from "./lib/types";
+import type { CharacterBuild, ContentEntry, HomebrewPack, SharedRollEntry } from "./lib/types";
 
 type TabId = "srd" | "homebrew" | "builds" | "duality";
 
@@ -24,7 +27,7 @@ const tabs = [
   { id: "builds", label: "Builds", icon: UserRound },
   { id: "srd", label: "SRD", icon: BookOpen },
   { id: "homebrew", label: "Packs", icon: Boxes, disabled: true },
-  { id: "duality", label: "Duality", icon: Dice5 },
+  { id: "duality", label: "Dice", icon: Dice5 },
 ] satisfies Array<{ id: TabId; label: string; icon: typeof BookOpen; disabled?: boolean }>;
 
 export function App() {
@@ -35,6 +38,7 @@ export function App() {
   const [packs, setPacks] = useState<HomebrewPack[]>(() => loadHomebrewPacks());
   const [builds, setBuilds] = useState<CharacterBuild[]>(() => loadCharacterBuilds([sampleCharacter]));
   const [voidContentEnabled, setVoidContentEnabled] = useState(() => loadVoidContentEnabled());
+  const [sharedRolls, setSharedRolls] = useState<SharedRollEntry[]>([]);
 
   useEffect(() => {
     let isCurrent = true;
@@ -70,6 +74,26 @@ export function App() {
   useEffect(() => {
     saveVoidContentEnabled(voidContentEnabled);
   }, [voidContentEnabled]);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    let isCurrent = true;
+
+    subscribeToSharedRolls((roll) => {
+      setSharedRolls((current) => [roll, ...current.filter((entry) => entry.id !== roll.id)].slice(0, 10));
+    }).then((cleanup) => {
+      if (isCurrent) {
+        unsubscribe = cleanup;
+      } else {
+        cleanup();
+      }
+    });
+
+    return () => {
+      isCurrent = false;
+      unsubscribe?.();
+    };
+  }, []);
 
   const baseContent = useMemo(
     () => (voidContentEnabled ? [...srdContent, ...voidPlaytestContent] : srdContent),
@@ -117,6 +141,8 @@ export function App() {
         })}
       </nav>
 
+      <QuickRollStrip />
+
       {isSrdLoading ? <p className="status-line">Loading SRD data...</p> : null}
       {srdLoadError ? <p className="inline-error">{srdLoadError}</p> : null}
 
@@ -124,6 +150,7 @@ export function App() {
       {activeTab === "homebrew" ? <HomebrewManager packs={packs} onChange={setPacks} /> : null}
       {activeTab === "builds" ? <BuildManager builds={builds} entries={activeContent} onChange={setBuilds} /> : null}
       {activeTab === "duality" ? <DualityHelper /> : null}
+      <RollLog rolls={sharedRolls} />
     </main>
   );
 }

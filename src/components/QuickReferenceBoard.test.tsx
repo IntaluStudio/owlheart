@@ -151,4 +151,44 @@ describe("QuickReferenceBoard", () => {
     expect(html).not.toContain("Camaraderie");
     expect(html).not.toContain("A high-tier rally feature.");
   });
+
+  test("renders beastform and companion slides when the build has those features", () => {
+    const html = renderToStaticMarkup(
+      <QuickReferenceBoard
+        build={{
+          ...build,
+          classId: "core_class_druid",
+          subclassId: "core_subclass_beastbound",
+          selectedAbilities: ["core_class_druid:feature:beastform", "core_subclass_beastbound:foundation:companion"],
+          beastform: {
+            name: "Bear",
+            attackDice: "2d8+2",
+            status: { ...build.status, markedHp: 0, maxHp: 4, evasion: 13 },
+          },
+          companion: {
+            name: "Rook",
+            status: { ...build.status, markedStress: 1, maxStress: 3, evasion: 12 },
+          },
+        }}
+        classEntry={{ id: "core_class_druid", name: "Druid", type: "class", source: "SRD Core", tags: ["class"], text: "" }}
+        subclass={{ id: "core_subclass_beastbound", name: "Beastbound", type: "subclass", source: "SRD Core", tags: ["subclass"], text: "" }}
+        domainCards={[]}
+        abilities={[
+          { id: "core_class_druid:feature:beastform", name: "Beastform", type: "ability", source: "SRD Core", tags: ["class-feature"], text: "" },
+          { id: "core_subclass_beastbound:foundation:companion", name: "Companion", type: "ability", source: "SRD Core", tags: ["subclass-feature"], text: "" },
+        ]}
+        equipment={[]}
+        onRoll={() => undefined}
+        onStatusChange={() => undefined}
+        onTokenChange={() => undefined}
+        onAlternateTrackerChange={() => undefined}
+      />,
+    );
+
+    expect(html).toContain("Character");
+    expect(html).toContain("Beastform");
+    expect(html).toContain("Companion");
+    expect(html).toContain("Bear");
+    expect(html).toContain("2d8+2");
+  });
 });

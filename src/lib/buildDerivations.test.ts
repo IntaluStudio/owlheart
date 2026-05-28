@@ -11,7 +11,7 @@ const baseBuild: CharacterBuild = {
   selectedDomains: [],
   selectedDomainCards: [],
   selectedAbilities: [],
-  selectedEquipment: ["armor:chainmail", "weapon:spear", "weapon:dagger"],
+  selectedEquipment: ["core_armor_chainmail_armor", "weapon:spear", "weapon:dagger"],
   traits: {
     agility: 0,
     strength: 0,
@@ -82,7 +82,7 @@ const entries: ContentEntry[] = [
     system: {},
   },
   {
-    id: "armor:chainmail",
+    id: "core_armor_chainmail_armor",
     name: "Chainmail Armor",
     type: "item",
     source: "SRD Core",
@@ -94,6 +94,28 @@ const entries: ContentEntry[] = [
       baseMajorThreshold: 7,
       baseSevereThreshold: 15,
     },
+  },
+  {
+    id: "core_domain_card_fortified_armor",
+    name: "Fortified Armor",
+    type: "domain-card",
+    source: "SRD Core",
+    tags: ["blade", "ability", "level-4"],
+    text: "While you are wearing armor, gain a +2 bonus to your damage thresholds.",
+    domain: "blade",
+    level: 4,
+    system: { cardType: "ability" },
+  },
+  {
+    id: "core_domain_card_armorer",
+    name: "Armorer",
+    type: "domain-card",
+    source: "SRD Core",
+    tags: ["valor", "ability", "level-5"],
+    text: "While you're wearing armor, gain a +1 bonus to your Armor Score.",
+    domain: "valor",
+    level: 5,
+    system: { cardType: "ability" },
   },
   {
     id: "weapon:spear",
@@ -126,10 +148,11 @@ describe("buildDerivations", () => {
     expect(derivation.statusByField.maxHp?.derived).toBe(6);
     expect(derivation.statusByField.maxStress?.derived).toBe(6);
     expect(derivation.statusByField.maxStress?.sourceName).toBe("SRD base stress");
-    expect(derivation.statusByField.evasion?.derived).toBe(10);
+    expect(derivation.statusByField.evasion?.derived).toBe(9);
+    expect(derivation.statusByField.evasion?.formula).toBe("10 - 1 = 9");
     expect(derivation.statusByField.armorScore?.derived).toBe(4);
-    expect(derivation.statusByField.majorThreshold?.derived).toBe(7);
-    expect(derivation.statusByField.severeThreshold?.derived).toBe(15);
+    expect(derivation.statusByField.majorThreshold?.derived).toBe(8);
+    expect(derivation.statusByField.severeThreshold?.derived).toBe(16);
     expect(derivation.armor?.name).toBe("Chainmail Armor");
     expect(derivation.primaryWeapons.map((entry) => entry.name)).toEqual(["Spear"]);
     expect(derivation.secondaryWeapons.map((entry) => entry.name)).toEqual(["Dagger"]);
@@ -140,7 +163,7 @@ describe("buildDerivations", () => {
     const derivation = buildDerivations({ ...baseBuild, ancestryId: "core_ancestry_human" }, entries);
 
     expect(derivation.statusByField.maxStress?.derived).toBe(7);
-    expect(derivation.statusByField.maxStress?.sourceName).toBe("High Stamina");
+    expect(derivation.statusByField.maxStress?.sourceName).toBe("Human: High Stamina");
   });
 
   test("adds multiple stress slot bonuses together", () => {
@@ -154,7 +177,32 @@ describe("buildDerivations", () => {
     );
 
     expect(derivation.statusByField.maxStress?.derived).toBe(8);
-    expect(derivation.statusByField.maxStress?.sourceName).toBe("High Stamina, At Ease");
+    expect(derivation.statusByField.maxStress?.sourceName).toBe("Human: High Stamina, At Ease");
+  });
+
+  test("adds character level and reliable passive card bonuses to armor thresholds", () => {
+    const derivation = buildDerivations(
+      {
+        ...baseBuild,
+        level: 3,
+        selectedDomainCards: ["core_domain_card_fortified_armor"],
+      },
+      entries,
+    );
+
+    expect(derivation.statusByField.majorThreshold?.derived).toBe(12);
+    expect(derivation.statusByField.severeThreshold?.derived).toBe(20);
+  });
+
+  test("applies armor-required armor score bonuses only when armor is selected", () => {
+    const withArmor = buildDerivations({ ...baseBuild, selectedDomainCards: ["core_domain_card_armorer"] }, entries);
+    const withoutArmor = buildDerivations(
+      { ...baseBuild, selectedEquipment: [], selectedDomainCards: ["core_domain_card_armorer"] },
+      entries,
+    );
+
+    expect(withArmor.statusByField.armorScore?.derived).toBe(5);
+    expect(withoutArmor.statusByField.armorScore?.derived).toBeUndefined();
   });
 
   test("handles builds without selected armor without crashing", () => {
@@ -175,13 +223,13 @@ describe("buildDerivations", () => {
       markedHp: 2,
       maxStress: 6,
       markedStress: 3,
-      evasion: 10,
+      evasion: 9,
       armorScore: 4,
       armorSlots: 4,
       markedArmor: 1,
       hope: 4,
-      majorThreshold: 7,
-      severeThreshold: 15,
+      majorThreshold: 8,
+      severeThreshold: 16,
     });
   });
 

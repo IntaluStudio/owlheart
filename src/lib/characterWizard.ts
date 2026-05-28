@@ -161,9 +161,10 @@ export function applyWizardClassSelection(build: CharacterBuild, entries: Conten
 }
 
 export function applyWizardSubclassSelection(build: CharacterBuild, entries: ContentEntry[], subclassId: string): CharacterBuild {
+  const next = resetBuildForSubclassChange(build, entries, subclassId);
   return {
-    ...resetBuildForSubclassChange(build, entries, subclassId),
-    selectedAbilities: getAutoSelectedAbilityIds(entries, build.classId, subclassId),
+    ...next,
+    selectedAbilities: getAutoSelectedAbilityIds(entries, next.classId, next.subclassId),
   };
 }
 

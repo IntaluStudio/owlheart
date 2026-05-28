@@ -136,6 +136,12 @@ const characterStatusSchema = z.object({
   severeThreshold: z.number().int().min(0).default(0),
 });
 
+const characterAlternateTrackerSchema = z.object({
+  name: z.string().default(""),
+  status: characterStatusSchema.default(defaultStatus),
+  attackDice: z.string().optional(),
+});
+
 export const characterBuildSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -164,6 +170,9 @@ export const characterBuildSchema = z.object({
   description: characterDescriptionSchema.optional(),
   backgroundAnswers: z.array(characterPromptAnswerSchema).optional(),
   connections: z.array(characterConnectionSchema).optional(),
+  beastform: characterAlternateTrackerSchema.optional(),
+  companion: characterAlternateTrackerSchema.optional(),
+  linkedTokenId: z.string().optional(),
   manualOverrides: z
     .object({
       ignoreDomainRequirements: z.boolean().optional(),

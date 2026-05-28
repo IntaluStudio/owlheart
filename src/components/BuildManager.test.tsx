@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { BuildManager } from "./BuildManager";
 import { sampleCharacter } from "../data/sampleCharacter";
 import srdContent from "../../public/data/srd-core.json";
@@ -7,22 +7,35 @@ import type { ContentEntry } from "../lib/types";
 
 const srdEntries = srdContent as ContentEntry[];
 
-describe("BuildManager", () => {
-  test("uses current labels for manually tracked status fields", () => {
-    const html = renderToStaticMarkup(<BuildManager builds={[sampleCharacter]} entries={[]} onChange={() => undefined} />);
+vi.mock("../lib/owlbear", () => ({
+  linkSelectedTokenToCharacter: async () => undefined,
+  updateLinkedTokenStats: async () => false,
+}));
 
-    expect(html).toContain("Current HP");
-    expect(html).toContain("Current Stress");
-    expect(html).toContain("Marked armor");
-    expect(html).toContain("Armor score / slots");
-    expect(html).not.toContain("Marked HP");
-    expect(html).not.toContain("Marked Stress");
+describe("BuildManager", () => {
+  test("opens in reference view with a clear edit action", () => {
+    const html = renderToStaticMarkup(<BuildManager builds={[sampleCharacter]} entries={srdEntries} onChange={() => undefined} />);
+
+    expect(html).toContain("Reference View");
+    expect(html).toContain("Edit Build");
+    expect(html).not.toContain("Save Build");
+    expect(html).toContain("Local character trackers");
   });
 
   test("shows an autopick button when the selected class has suggestions", () => {
-    const html = renderToStaticMarkup(<BuildManager builds={[sampleCharacter]} entries={srdEntries} onChange={() => undefined} />);
+    const guardianWithSpear = {
+      ...sampleCharacter,
+      classId: "core_class_guardian",
+      selectedEquipment: ["core_weapon_spear"],
+    };
 
-    expect(html).toContain("Apply class suggestions");
+    const html = renderToStaticMarkup(<BuildManager builds={[guardianWithSpear]} entries={srdEntries} onChange={() => undefined} />);
+
+    expect(html).toContain("Suggestion preview");
+    expect(html).toContain("Spear");
+    expect(html).toContain("Battleaxe");
+    expect(html).toContain("Chainmail Armor");
+    expect(html).toContain("Apply suggestions");
   });
 
   test("shows quick build and wizard builder mode choices", () => {
@@ -32,11 +45,11 @@ describe("BuildManager", () => {
     expect(html).toContain("Wizard Builder");
   });
 
-  test("shows feature token editor", () => {
+  test("shows feature token trackers in reference view", () => {
     const html = renderToStaticMarkup(<BuildManager builds={[sampleCharacter]} entries={srdEntries} onChange={() => undefined} />);
 
-    expect(html).toContain("Feature tokens");
-    expect(html).toContain("Add token");
+    expect(html).toContain("HP");
+    expect(html).toContain("Stress");
   });
 
   test("shows delete character action", () => {
@@ -45,10 +58,10 @@ describe("BuildManager", () => {
     expect(html).toContain("Delete character");
   });
 
-  test("shows derived stats preview and apply action", () => {
+  test("keeps edit-only derived stats behind edit mode", () => {
     const html = renderToStaticMarkup(<BuildManager builds={[sampleCharacter]} entries={srdEntries} onChange={() => undefined} />);
 
-    expect(html).toContain("Derived stats");
-    expect(html).toContain("Apply derived stats");
+    expect(html).not.toContain("Derived stats");
+    expect(html).not.toContain("Apply derived stats");
   });
 });

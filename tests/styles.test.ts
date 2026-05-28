@@ -34,9 +34,17 @@ describe("quick board CSS", () => {
   test("gives quick reference roll controls breathing room", () => {
     const css = readFileSync("src/styles.css", "utf8");
 
-    expect(css).toMatch(/\.roll-toolbar\s*\{[^}]*grid-template-columns:\s*minmax\(170px,\s*0\.9fr\)\s+minmax\(260px,\s*1\.35fr\)\s+minmax\(150px,\s*0\.8fr\)/s);
+    expect(css).toMatch(/\.roll-toolbar\s*\{[^}]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(150px,\s*1fr\)\)/s);
     expect(css).toMatch(/\.roll-toolbar\s*\{[^}]*gap:\s*14px/s);
     expect(css).toMatch(/@media\s*\(max-width:\s*720px\)[\s\S]*?\.roll-toolbar\s*\{[^}]*grid-template-columns:\s*1fr/s);
+  });
+
+  test("prevents sidebar horizontal scrolling with wrapped controls", () => {
+    const css = readFileSync("src/styles.css", "utf8");
+
+    expect(css).toMatch(/html,[\s\S]*?body,[\s\S]*?#root\s*\{[^}]*overflow-x:\s*hidden/s);
+    expect(css).toMatch(/\.tab-bar\s*\{[^}]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(120px,\s*1fr\)\)/s);
+    expect(css).toMatch(/\.segmented-tabs\s*\{[^}]*flex-wrap:\s*wrap/s);
   });
 
   test("keeps quick reference feature cards in natural-height columns", () => {

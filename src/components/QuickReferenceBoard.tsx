@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ContentCard } from "./ContentCard";
 import { TrackerStrip } from "./TrackerStrip";
 import {
@@ -7,7 +7,15 @@ import {
   splitCardVault,
   type RollTarget,
 } from "../lib/quickReference";
-import { TRAIT_KEYS, type CharacterBuild, type ContentEntry, type DaggerheartRollKind, type DaggerheartRollMode, type TraitKey } from "../lib/types";
+import {
+  TRAIT_KEYS,
+  type CharacterAlternateTracker,
+  type CharacterBuild,
+  type ContentEntry,
+  type DaggerheartRollKind,
+  type DaggerheartRollMode,
+  type TraitKey,
+} from "../lib/types";
 import type { CharacterFeatureToken } from "../lib/types";
 
 type QuickReferenceBoardProps = {
@@ -23,7 +31,11 @@ type QuickReferenceBoardProps = {
   onRoll: (target: RollTarget) => void;
   onStatusChange: (patch: Partial<CharacterBuild["status"]>) => void;
   onTokenChange: (tokens: CharacterFeatureToken[]) => void;
+  onLinkToken?: () => void;
+  onAlternateTrackerChange?: (kind: "beastform" | "companion", tracker: CharacterAlternateTracker) => void;
 };
+
+type SheetKind = "character" | "beastform" | "companion";
 
 const TRAIT_LABELS: Record<TraitKey, string> = {
   agility: "Agility",
@@ -43,12 +55,50 @@ const TRAIT_HELP: Record<TraitKey, string> = {
   knowledge: "Recall, analyze, comprehend",
 };
 
+const emptyAlternateStatus: CharacterBuild["status"] = {
+  maxHp: 0,
+  markedHp: 0,
+  maxStress: 6,
+  markedStress: 0,
+  evasion: 0,
+  armorScore: 0,
+  armorSlots: 0,
+  markedArmor: 0,
+  hope: 0,
+  majorThreshold: 0,
+  severeThreshold: 0,
+};
+
+const alternateStatusFields: Array<{
+  key: keyof CharacterBuild["status"];
+  label: string;
+}> = [
+  { key: "maxHp", label: "HP slots" },
+  { key: "markedHp", label: "Current HP" },
+  { key: "maxStress", label: "Stress slots" },
+  { key: "markedStress", label: "Current Stress" },
+  { key: "evasion", label: "Evasion" },
+  { key: "armorScore", label: "Armor score" },
+  { key: "armorSlots", label: "Armor slots" },
+  { key: "markedArmor", label: "Current Armor" },
+  { key: "majorThreshold", label: "Major threshold" },
+  { key: "severeThreshold", label: "Severe threshold" },
+];
+
 function modifierLabel(modifier: number) {
   return modifier >= 0 ? `+${modifier}` : String(modifier);
 }
 
 function EmptySlot({ label }: { label: string }) {
   return <div className="reference-slot reference-slot--empty">{label}</div>;
+}
+
+function makeEmptyAlternateTracker(name: string): CharacterAlternateTracker {
+  return {
+    name,
+    status: emptyAlternateStatus,
+    attackDice: "",
+  };
 }
 
 function slug(value: string) {
@@ -103,11 +153,26 @@ export function QuickReferenceBoard({
   onRoll,
   onStatusChange,
   onTokenChange,
+  onLinkToken,
+  onAlternateTrackerChange,
 }: QuickReferenceBoardProps) {
   const [rollKind, setRollKind] = useState<DaggerheartRollKind>("action");
   const [rollMode, setRollMode] = useState<DaggerheartRollMode>("normal");
   const [rollDifficulty, setRollDifficulty] = useState("");
+  const [activeSheet, setActiveSheet] = useState<SheetKind>("character");
   const cardSplit = splitCardVault(domainCards);
+  const hasDruidBeastform =
+    build.classId === "core_class_druid" ||
+    classEntry?.id === "core_class_druid" ||
+    abilities.some((entry) => entry.id === "core_class_druid:feature:beastform");
+  const hasBeastboundCompanion =
+    build.subclassId === "core_subclass_beastbound" ||
+    subclass?.id === "core_subclass_beastbound" ||
+    abilities.some((entry) => entry.id === "core_subclass_beastbound:foundation:companion");
+  const showBeastform = Boolean(build.beastform || hasDruidBeastform);
+  const showCompanion = Boolean(build.companion || hasBeastboundCompanion);
+  const beastformTracker = build.beastform ?? makeEmptyAlternateTracker("Beastform");
+  const companionTracker = build.companion ?? makeEmptyAlternateTracker("Companion");
   const classSlug = classEntry ? slug(classEntry.name) : "";
   const classAbilities = abilities.filter(
     (entry) =>
@@ -146,6 +211,81 @@ export function QuickReferenceBoard({
     }),
     [rollDifficulty, rollKind, rollMode],
   );
+  const sheetTabs = [
+    { kind: "character" as const, label: "Character", detail: build.name, attackDice: undefined },
+    ...(showBeastform
+      ? [
+          {
+            kind: "beastform" as const,
+            label: "Beastform",
+            detail: beastformTracker.name || "Manual tracker",
+            attackDice: beastformTracker.attackDice,
+          },
+        ]
+      : []),
+    ...(showCompanion
+      ? [
+          {
+            kind: "companion" as const,
+            label: "Companion",
+            detail: companionTracker.name || "Manual tracker",
+            attackDice: companionTracker.attackDice,
+          },
+        ]
+      : []),
+  ];
+  const activeAlternateKind = activeSheet === "beastform" || activeSheet === "companion" ? activeSheet : undefined;
+  const activeAlternateTracker =
+    activeAlternateKind === "beastform"
+      ? beastformTracker
+      : activeAlternateKind === "companion"
+        ? companionTracker
+        : undefined;
+
+  useEffect(() => {
+    if ((activeSheet === "beastform" && !showBeastform) || (activeSheet === "companion" && !showCompanion)) {
+      setActiveSheet("character");
+    }
+  }, [activeSheet, showBeastform, showCompanion]);
+
+  const updateAlternateTracker = (kind: "beastform" | "companion", patch: Partial<CharacterAlternateTracker>) => {
+    const tracker = kind === "beastform" ? beastformTracker : companionTracker;
+    onAlternateTrackerChange?.(kind, { ...tracker, ...patch });
+  };
+
+  const updateAlternateStatus = (
+    kind: "beastform" | "companion",
+    patch: Partial<CharacterAlternateTracker["status"]>,
+  ) => {
+    const tracker = kind === "beastform" ? beastformTracker : companionTracker;
+    onAlternateTrackerChange?.(kind, {
+      ...tracker,
+      status: {
+        ...tracker.status,
+        ...patch,
+      },
+    });
+  };
+
+  const sheetSwitcher =
+    sheetTabs.length > 1 ? (
+      <div className="sheet-tabs" role="tablist" aria-label="Character reference slides">
+        {sheetTabs.map((tab) => (
+          <button
+            key={tab.kind}
+            type="button"
+            role="tab"
+            aria-selected={activeSheet === tab.kind}
+            className={activeSheet === tab.kind ? "sheet-tab sheet-tab--active" : "sheet-tab"}
+            onClick={() => setActiveSheet(tab.kind)}
+          >
+            <span>{tab.label}</span>
+            <strong>{tab.detail}</strong>
+            {tab.attackDice ? <small>{tab.attackDice}</small> : null}
+          </button>
+        ))}
+      </div>
+    ) : null;
 
   return (
     <section className="quick-board" aria-label={`${build.name} quick reference board`}>
@@ -161,7 +301,56 @@ export function QuickReferenceBoard({
         </div>
       </header>
 
-      <TrackerStrip build={build} onStatusChange={onStatusChange} onTokenChange={onTokenChange} />
+      {sheetSwitcher}
+
+      {activeAlternateKind && activeAlternateTracker ? (
+        <section className="quick-board__zone alternate-tracker-panel">
+          <div className="selection-section__header">
+            <h3>{activeAlternateKind === "beastform" ? "Beastform Tracker" : "Companion Tracker"}</h3>
+            <span>Manual independent tracker</span>
+          </div>
+          <div className="form-grid">
+            <label>
+              <span>Name</span>
+              <input
+                value={activeAlternateTracker.name}
+                disabled={!onAlternateTrackerChange}
+                onChange={(event) => updateAlternateTracker(activeAlternateKind, { name: event.currentTarget.value })}
+              />
+            </label>
+            <label>
+              <span>Attack dice</span>
+              <input
+                value={activeAlternateTracker.attackDice ?? ""}
+                disabled={!onAlternateTrackerChange}
+                onChange={(event) =>
+                  updateAlternateTracker(activeAlternateKind, {
+                    attackDice: event.currentTarget.value || undefined,
+                  })
+                }
+                placeholder="Optional"
+              />
+            </label>
+          </div>
+          <div className="alternate-status-grid">
+            {alternateStatusFields.map((field) => (
+              <label key={field.key}>
+                <span>{field.label}</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={activeAlternateTracker.status[field.key]}
+                  disabled={!onAlternateTrackerChange}
+                  onChange={(event) => updateAlternateStatus(activeAlternateKind, { [field.key]: Number(event.currentTarget.value) })}
+                />
+              </label>
+            ))}
+          </div>
+        </section>
+      ) : (
+        <>
+
+      <TrackerStrip build={build} onStatusChange={onStatusChange} onTokenChange={onTokenChange} onLinkToken={onLinkToken} />
 
       <section className="quick-board__zone">
         <h3>Traits</h3>
@@ -342,6 +531,8 @@ export function QuickReferenceBoard({
           <p className="quick-board__notes">{build.notes}</p>
         </section>
       ) : null}
+        </>
+      )}
     </section>
   );
 }

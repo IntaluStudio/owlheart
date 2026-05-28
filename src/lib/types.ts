@@ -4,6 +4,8 @@ export const METADATA_KEYS = {
   homebrewPacks: `${EXTENSION_ID}/homebrew-packs`,
   characters: `${EXTENSION_ID}/characters`,
   lastDualityResult: `${EXTENSION_ID}/last-duality-result`,
+  sharedRoll: `${EXTENSION_ID}/shared-roll`,
+  tokenStats: `${EXTENSION_ID}/token-stats`,
   voidContentEnabled: `${EXTENSION_ID}/void-content-enabled`,
 } as const;
 
@@ -103,6 +105,12 @@ export type CharacterStatusReference = {
   severeThreshold: number;
 };
 
+export type CharacterAlternateTracker = {
+  name: string;
+  status: CharacterStatusReference;
+  attackDice?: string;
+};
+
 export type DerivedStatusField =
   | "maxHp"
   | "maxStress"
@@ -118,6 +126,13 @@ export type StatusBonusHint = {
   field: DerivedStatusField;
   amount: number;
   note: string;
+  requirements?: {
+    selectedArmor?: boolean;
+    selectedDomainCount?: {
+      domain: string;
+      count: number;
+    };
+  };
 };
 
 export type CharacterBuild = {
@@ -141,6 +156,9 @@ export type CharacterBuild = {
   description?: CharacterDescription;
   backgroundAnswers?: CharacterPromptAnswer[];
   connections?: CharacterConnection[];
+  beastform?: CharacterAlternateTracker;
+  companion?: CharacterAlternateTracker;
+  linkedTokenId?: string;
   manualOverrides: {
     ignoreDomainRequirements?: boolean;
     ignoreLevelRequirements?: boolean;
@@ -170,6 +188,16 @@ export type DualityResult = DualityInput & {
   outcome: DualityOutcome;
   label: string;
   copyText: string;
+};
+
+export type SharedRollEntry = {
+  id: string;
+  playerName: string;
+  label: string;
+  resultText: string;
+  total?: number;
+  outcome?: DualityOutcome;
+  timestamp: number;
 };
 
 export type DaggerheartRollKind = "action" | "trait" | "reaction";

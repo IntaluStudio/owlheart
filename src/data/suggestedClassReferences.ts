@@ -22,6 +22,17 @@ type SuggestedConnectionPrompt = {
   prompt: string;
 };
 
+export type SuggestedClassReferenceOverride = {
+  subclassId: string;
+  label: string;
+  traits?: CharacterTraits;
+  equipment?: Partial<{
+    primaryWeaponId: string;
+    secondaryWeaponId?: string;
+    armorId: string;
+  }>;
+};
+
 export type SuggestedClassReference = {
   classId: string;
   className: string;
@@ -44,6 +55,7 @@ export type SuggestedClassReference = {
   backgroundQuestions: string[];
   connectionPrompts: SuggestedConnectionPrompt[];
   domainCardCount: number;
+  subclassOverrides?: SuggestedClassReferenceOverride[];
 };
 
 const PDF_SOURCE = "Reference Data/Character-Sheets-and-Guides-Daggerheart-May212025.pdf";
@@ -227,7 +239,7 @@ export const suggestedClassReferences: SuggestedClassReference[] = [
   classReference({
     classId: "the_void_class_witch",
     className: "Witch",
-    source: { pdf: "Reference Data/Witch-v1.5-The-Void.pdf", pdfPage: 1 },
+    source: { pdf: "Reference Data/Witch-v1.5-The-Void.pdf", pdfPage: 2 },
     traits: { agility: 0, strength: -1, finesse: 0, instinct: 2, presence: 1, knowledge: 1 },
     equipment: {
       primaryWeaponId: "core_weapon_dualstaff",
@@ -246,7 +258,7 @@ export const suggestedClassReferences: SuggestedClassReference[] = [
   classReference({
     classId: "the_void_class_assassin",
     className: "Assassin",
-    source: { pdf: "Reference Data/Assassin-v1.5-The-Void2.pdf", pdfPage: 1 },
+    source: { pdf: "Reference Data/Assassin-v1.5-The-Void2.pdf", pdfPage: 2 },
     traits: { agility: 2, strength: -1, finesse: 1, instinct: 0, presence: 0, knowledge: 1 },
     equipment: {
       primaryWeaponId: "core_weapon_broadsword",
@@ -266,7 +278,7 @@ export const suggestedClassReferences: SuggestedClassReference[] = [
   classReference({
     classId: "the_void_class_warlock",
     className: "Warlock",
-    source: { pdf: "Reference Data/Warlock-v1.5-The-Void.pdf", pdfPage: 1 },
+    source: { pdf: "Reference Data/Warlock-v1.5-The-Void.pdf", pdfPage: 2 },
     traits: { agility: 1, strength: -1, finesse: 0, instinct: 1, presence: 2, knowledge: 0 },
     equipment: {
       primaryWeaponId: "core_weapon_scepter",
@@ -285,7 +297,7 @@ export const suggestedClassReferences: SuggestedClassReference[] = [
   classReference({
     classId: "the_void_class_brawler",
     className: "Brawler",
-    source: { pdf: "Reference Data/Brawler-v1.5-The-Void.pdf", pdfPage: 1 },
+    source: { pdf: "Reference Data/Brawler-v1.5-The-Void.pdf", pdfPage: 2 },
     traits: { agility: 1, strength: 1, finesse: 0, instinct: 2, presence: 0, knowledge: -1 },
     equipment: {
       primaryWeaponId: "core_weapon_quarterstaff",
@@ -304,7 +316,7 @@ export const suggestedClassReferences: SuggestedClassReference[] = [
   classReference({
     classId: "the_void_class_bloodhunter",
     className: "Blood Hunter",
-    source: { pdf: "Reference Data/Bloodhunter-v1.5-The-Void.pdf", pdfPage: 1 },
+    source: { pdf: "Reference Data/Bloodhunter-v1.5-The-Void.pdf", pdfPage: 2 },
     traits: { agility: 2, strength: -1, finesse: 1, instinct: 1, presence: 0, knowledge: 0 },
     equipment: {
       primaryWeaponId: "core_weapon_longsword",
@@ -318,6 +330,17 @@ export const suggestedClassReferences: SuggestedClassReference[] = [
     connectionPrompts: [
       { id: "connection-1", prompt: "How does my determination to rid the Mortal Realms of evildoers align with your beliefs?" },
       { id: "connection-2", prompt: "What did you ask me not to become?" },
+    ],
+    subclassOverrides: [
+      {
+        subclassId: "the_void_subclass_order_of_the_lycan",
+        label: "Order of the Lycan",
+        traits: { agility: 1, strength: 2, finesse: -1, instinct: 1, presence: 0, knowledge: 0 },
+        equipment: {
+          primaryWeaponId: "core_weapon_battleaxe",
+          armorId: "core_armor_leather_armor",
+        },
+      },
     ],
   }),
 ];

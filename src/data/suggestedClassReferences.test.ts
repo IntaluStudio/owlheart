@@ -57,6 +57,19 @@ describe("suggestedClassReferences", () => {
         expect(ids.has(reference.equipment.secondaryWeaponId), reference.equipment.secondaryWeaponId).toBe(true);
       }
 
+      for (const override of reference.subclassOverrides ?? []) {
+        expect(ids.has(override.subclassId), override.subclassId).toBe(true);
+        if (override.equipment?.primaryWeaponId) {
+          expect(ids.has(override.equipment.primaryWeaponId), override.equipment.primaryWeaponId).toBe(true);
+        }
+        if (override.equipment?.secondaryWeaponId) {
+          expect(ids.has(override.equipment.secondaryWeaponId), override.equipment.secondaryWeaponId).toBe(true);
+        }
+        if (override.equipment?.armorId) {
+          expect(ids.has(override.equipment.armorId), override.equipment.armorId).toBe(true);
+        }
+      }
+
       for (const choice of reference.inventory.choices) {
         for (const option of choice.options) {
           if (option.contentId) {
@@ -65,5 +78,47 @@ describe("suggestedClassReferences", () => {
         }
       }
     }
+  });
+
+  test("uses the Void suggestion guide page for source references", () => {
+    const voidReferences = suggestedClassReferences.filter((reference) => reference.classId.startsWith("the_void_class_"));
+
+    expect(voidReferences.length).toBeGreaterThan(0);
+    for (const reference of voidReferences) {
+      expect(reference.source.pdfPage).toBe(2);
+    }
+  });
+
+  test("keeps Blood Hunter defaults and exposes the Lycan variant override", () => {
+    const bloodHunter = suggestedClassReferences.find((reference) => reference.classId === "the_void_class_bloodhunter");
+
+    expect(bloodHunter?.traits).toEqual({
+      agility: 2,
+      strength: -1,
+      finesse: 1,
+      instinct: 1,
+      presence: 0,
+      knowledge: 0,
+    });
+    expect(bloodHunter?.equipment.primaryWeaponId).toBe("core_weapon_longsword");
+    expect(bloodHunter?.equipment.armorId).toBe("core_armor_leather_armor");
+    expect(bloodHunter?.subclassOverrides).toEqual([
+      {
+        subclassId: "the_void_subclass_order_of_the_lycan",
+        label: "Order of the Lycan",
+        traits: {
+          agility: 1,
+          strength: 2,
+          finesse: -1,
+          instinct: 1,
+          presence: 0,
+          knowledge: 0,
+        },
+        equipment: {
+          primaryWeaponId: "core_weapon_battleaxe",
+          armorId: "core_armor_leather_armor",
+        },
+      },
+    ]);
   });
 });

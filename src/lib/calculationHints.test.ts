@@ -47,6 +47,40 @@ const vitality: ContentEntry = {
   text: "When you choose this card, permanently gain two benefits from a list that includes one Stress slot.",
 };
 
+const armorer: ContentEntry = {
+  id: "core_domain_card_armorer",
+  name: "Armorer",
+  type: "domain-card",
+  source: "SRD Core",
+  tags: ["valor", "ability", "level-5"],
+  text: "While you're wearing armor, gain a +1 bonus to your Armor Score.",
+  domain: "valor",
+  level: 5,
+};
+
+const bladeTouched: ContentEntry = {
+  id: "core_domain_card_blade_touched",
+  name: "Blade-Touched",
+  type: "domain-card",
+  source: "SRD Core",
+  tags: ["blade", "ability", "level-7"],
+  text: "When 4 or more of the domain cards in your loadout are from the Blade domain, gain +4 Severe threshold.",
+  domain: "blade",
+  level: 7,
+};
+
+function bladeCard(id: string): ContentEntry {
+  return {
+    id,
+    name: id,
+    type: "domain-card",
+    source: "SRD Core",
+    tags: ["blade", "ability"],
+    text: "",
+    domain: "blade",
+  };
+}
+
 const build: CharacterBuild = {
   id: "character:test",
   name: "Test",
@@ -144,5 +178,40 @@ describe("calculation hints", () => {
     );
 
     expect(hints.filter((hint) => hint.type === "statusBonus")).toEqual([]);
+  });
+
+  test("honors armor requirements for passive status bonuses", () => {
+    const armor: ContentEntry = {
+      id: "core_armor_chainmail_armor",
+      name: "Chainmail Armor",
+      type: "item",
+      source: "SRD Core",
+      tags: ["armor"],
+      text: "Heavy: -1 to Evasion",
+      system: { equipmentType: "armor" },
+    };
+    const withArmor = getCalculationHintsForBuild(
+      { ...build, selectedDomainCards: [armorer.id], selectedEquipment: [armor.id] },
+      [armorer, armor],
+    );
+    const withoutArmor = getCalculationHintsForBuild({ ...build, selectedDomainCards: [armorer.id] }, [armorer]);
+
+    expect(withArmor.filter((hint) => hint.type === "statusBonus").map((hint) => hint.label)).toContain("Armorer");
+    expect(withoutArmor.filter((hint) => hint.type === "statusBonus").map((hint) => hint.label)).not.toContain("Armorer");
+  });
+
+  test("honors domain-card count requirements for touched cards", () => {
+    const bladeEntries = [bladeTouched, bladeCard("blade:1"), bladeCard("blade:2"), bladeCard("blade:3")];
+    const active = getCalculationHintsForBuild(
+      { ...build, selectedDomainCards: bladeEntries.map((entry) => entry.id) },
+      bladeEntries,
+    );
+    const inactive = getCalculationHintsForBuild(
+      { ...build, selectedDomainCards: bladeEntries.slice(0, 3).map((entry) => entry.id) },
+      bladeEntries,
+    );
+
+    expect(active.filter((hint) => hint.type === "statusBonus").map((hint) => hint.label)).toContain("Blade-Touched");
+    expect(inactive.filter((hint) => hint.type === "statusBonus").map((hint) => hint.label)).not.toContain("Blade-Touched");
   });
 });

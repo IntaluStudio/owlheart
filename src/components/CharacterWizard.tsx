@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, Save, Sparkles, X } from "lucide-react";
 import { useMemo, useState } from "react";
+import { SuggestionPreviewCard } from "./SuggestionPreviewCard";
 import { getAvailableDomainCardsForBuild } from "../lib/buildFiltering";
 import { buildDerivations } from "../lib/buildDerivations";
 import {
@@ -16,13 +17,14 @@ import {
 } from "../lib/characterWizard";
 import { getContentByType } from "../lib/contentIndex";
 import { createLocalId } from "../lib/importExport";
-import { findSuggestedClassReference } from "../lib/suggestedBuilds";
+import { applySuggestedClassReference, previewSuggestedClassReference } from "../lib/suggestedBuilds";
 import { TRAIT_KEYS, type CharacterBuild, type CharacterDescription, type CharacterExperience, type ContentEntry, type TraitKey } from "../lib/types";
 
 type CharacterWizardProps = {
   entries: ContentEntry[];
   onFinish: (build: CharacterBuild) => void;
   onCancel?: () => void;
+  initialDraft?: CharacterBuild;
 };
 
 const TRAIT_LABELS: Record<TraitKey, string> = {
@@ -95,11 +97,12 @@ function emptyExperience(build: CharacterBuild): CharacterExperience {
   };
 }
 
-export function CharacterWizard({ entries, onFinish, onCancel }: CharacterWizardProps) {
+export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: CharacterWizardProps) {
   const [activeStepIndex, setActiveStepIndex] = useState(0);
-  const [draft, setDraft] = useState<CharacterBuild>(() => createWizardDraft());
+  const [draft, setDraft] = useState<CharacterBuild>(() => initialDraft ?? createWizardDraft());
   const activeStep = WIZARD_STEPS[activeStepIndex];
-  const reference = findSuggestedClassReference(draft.classId);
+  const suggestionPreview = useMemo(() => previewSuggestedClassReference(draft, entries), [draft, entries]);
+  const reference = suggestionPreview.reference;
   const validationErrors = useMemo(() => validateWizardBuild(draft, entries), [draft, entries]);
   const classes = useMemo(() => getWizardAvailableClasses(entries), [entries]);
   const subclasses = useMemo(() => getWizardSubclasses(entries, draft.classId), [draft.classId, entries]);
@@ -188,6 +191,12 @@ export function CharacterWizard({ entries, onFinish, onCancel }: CharacterWizard
               <strong>{reference ? `${reference.className} sheet defaults` : "Choose a class to load sheet defaults"}</strong>
               <p>{reference ? `${reference.source.pdf} p.${reference.source.pdfPage}` : "Suggested traits, weapons, armor, inventory, and prompts load from structured sheet data."}</p>
             </div>
+            {suggestionPreview.reference ? (
+              <SuggestionPreviewCard
+                preview={suggestionPreview}
+                onApply={() => setDraft((current) => applySuggestedClassReference(current, entries))}
+              />
+            ) : null}
             <div className="wizard-choice-grid">
               {classes.map((entry) =>
                 renderChoiceButton(
@@ -197,6 +206,7 @@ export function CharacterWizard({ entries, onFinish, onCancel }: CharacterWizard
                   getStringArray(entry.system?.domainIds ?? entry.domains).join(" & "),
                 ),
               )}
+              {classes.length === 0 ? <p className="empty-state wizard-empty-state">No classes available.</p> : null}
             </div>
             <label>
               <span>Subclass</span>
@@ -218,12 +228,14 @@ export function CharacterWizard({ entries, onFinish, onCancel }: CharacterWizard
         return (
           <div className="wizard-choice-grid">
             {ancestries.map((entry) => renderChoiceButton(entry, draft.ancestryId === entry.id, () => patchDraft({ ancestryId: entry.id })))}
+            {ancestries.length === 0 ? <p className="empty-state wizard-empty-state">No ancestries available.</p> : null}
           </div>
         );
       case "community":
         return (
           <div className="wizard-choice-grid">
             {communities.map((entry) => renderChoiceButton(entry, draft.communityId === entry.id, () => patchDraft({ communityId: entry.id })))}
+            {communities.length === 0 ? <p className="empty-state wizard-empty-state">No communities available.</p> : null}
           </div>
         );
       case "traits":
@@ -260,6 +272,7 @@ export function CharacterWizard({ entries, onFinish, onCancel }: CharacterWizard
                   setDraft(setWizardEquipment(draft, entries, [...withoutPrimary, entry.id]));
                 }),
               )}
+              {primaryWeapons.length === 0 ? <p className="empty-state wizard-empty-state">No primary weapons available.</p> : null}
             </div>
             <h3 className="wizard-section-title">Secondary weapon</h3>
             <div className="wizard-choice-grid wizard-choice-grid--compact">
@@ -269,6 +282,7 @@ export function CharacterWizard({ entries, onFinish, onCancel }: CharacterWizard
                   setDraft(setWizardEquipment(draft, entries, draft.selectedEquipment.includes(entry.id) ? withoutSecondary : [...withoutSecondary, entry.id]));
                 }),
               )}
+              {secondaryWeapons.length === 0 ? <p className="empty-state wizard-empty-state">No secondary weapons available.</p> : null}
             </div>
           </>
         );
@@ -300,6 +314,7 @@ export function CharacterWizard({ entries, onFinish, onCancel }: CharacterWizard
                   setDraft(setWizardEquipment(draft, entries, [...withoutArmor, entry.id]));
                 }),
               )}
+              {armor.length === 0 ? <p className="empty-state wizard-empty-state">No armor available.</p> : null}
             </div>
           </>
         );
@@ -338,6 +353,7 @@ export function CharacterWizard({ entries, onFinish, onCancel }: CharacterWizard
                   setDraft((current) => toggleWizardEquipment(current, entries, entry.id)),
                 ),
               )}
+              {consumables.length === 0 ? <p className="empty-state wizard-empty-state">No consumables available.</p> : null}
             </div>
           </>
         );
@@ -407,6 +423,9 @@ export function CharacterWizard({ entries, onFinish, onCancel }: CharacterWizard
                   `${entry.domain ?? "Domain"} L${entry.level ?? 1}`,
                 ),
               )}
+              {availableCards.length === 0 ? (
+                <p className="empty-state wizard-empty-state">No starting domain cards available for this class.</p>
+              ) : null}
             </div>
           </>
         );

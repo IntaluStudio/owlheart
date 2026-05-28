@@ -164,4 +164,55 @@ describe("character build validation", () => {
     expect(build.backgroundAnswers?.[0].answer).toBe("An old mentor.");
     expect(build.connections?.[0].name).toBe("Mara");
   });
+
+  it("accepts optional beastform and companion trackers without requiring them on old builds", () => {
+    const build = validateCharacterBuild({
+      id: "character:forms",
+      name: "Forms Build",
+      level: 1,
+      selectedDomains: [],
+      selectedDomainCards: [],
+      selectedAbilities: [],
+      selectedEquipment: [],
+      notes: "",
+      manualOverrides: {},
+      beastform: {
+        name: "Bear",
+        attackDice: "2d8+2",
+        status: {
+          maxHp: 3,
+          markedHp: 1,
+          maxStress: 2,
+          markedStress: 0,
+          evasion: 12,
+          armorScore: 1,
+          armorSlots: 1,
+          markedArmor: 0,
+          hope: 0,
+          majorThreshold: 8,
+          severeThreshold: 14,
+        },
+      },
+      companion: {
+        name: "Rook",
+        status: {
+          maxHp: 2,
+          markedHp: 0,
+          maxStress: 3,
+          markedStress: 1,
+          evasion: 13,
+          armorScore: 0,
+          armorSlots: 0,
+          markedArmor: 0,
+          hope: 0,
+          majorThreshold: 6,
+          severeThreshold: 12,
+        },
+      },
+    });
+
+    expect(build.beastform?.name).toBe("Bear");
+    expect(build.beastform?.attackDice).toBe("2d8+2");
+    expect(build.companion?.status.markedStress).toBe(1);
+  });
 });

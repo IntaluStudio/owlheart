@@ -1,5 +1,5 @@
 import OBR from "@owlbear-rodeo/sdk";
-import type { DualityResult } from "./types";
+import type { CharacterBuild, DualityResult, SharedRollEntry } from "./types";
 import { METADATA_KEYS } from "./types";
 
 export const RUMBLE_CHAT_METADATA_KEY = "com.battle-system.friends/metadata_chatlog";
@@ -44,7 +44,7 @@ export async function showOwlbearNotification(message: string, variant: "DEFAULT
   }
 }
 
-export async function writeLastDualityResult(result: DualityResult) {
+export async function writeLastDualityResult(result: DualityResult, label = "Duality Roll") {
   if (!OBR.isAvailable) {
     return false;
   }
@@ -56,6 +56,112 @@ export async function writeLastDualityResult(result: DualityResult) {
         ...result,
         created: new Date().toISOString(),
       },
+    });
+    await broadcastSharedRoll({
+      label,
+      resultText: result.label,
+      total: result.total,
+      outcome: result.outcome,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function broadcastSharedRoll(roll: Pick<SharedRollEntry, "label" | "resultText" | "total" | "outcome">) {
+  if (!OBR.isAvailable) {
+    return false;
+  }
+
+  try {
+    await ensureReady();
+    const playerName = await OBR.player.getName();
+    const timestamp = Date.now();
+    const entry: SharedRollEntry = {
+      id: `${timestamp}:${Math.random().toString(36).slice(2, 8)}`,
+      playerName: playerName || "OwlHeart",
+      label: roll.label,
+      resultText: roll.resultText,
+      total: roll.total,
+      outcome: roll.outcome,
+      timestamp,
+    };
+    await OBR.room.setMetadata({ [METADATA_KEYS.sharedRoll]: entry });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function subscribeToSharedRolls(onRoll: (roll: SharedRollEntry) => void) {
+  if (!OBR.isAvailable) {
+    return () => undefined;
+  }
+
+  try {
+    await ensureReady();
+    let lastSeenTimestamp = 0;
+    return OBR.room.onMetadataChange((metadata) => {
+      const roll = metadata[METADATA_KEYS.sharedRoll] as SharedRollEntry | undefined;
+      if (roll && typeof roll.timestamp === "number" && roll.timestamp > lastSeenTimestamp) {
+        lastSeenTimestamp = roll.timestamp;
+        onRoll(roll);
+      }
+    });
+  } catch {
+    return () => undefined;
+  }
+}
+
+function tokenStats(build: CharacterBuild) {
+  return {
+    characterId: build.id,
+    characterName: build.name,
+    hp: { current: build.status.markedHp, max: build.status.maxHp },
+    stress: { current: build.status.markedStress, max: build.status.maxStress },
+    hope: build.status.hope,
+    updated: Date.now(),
+  };
+}
+
+export async function linkSelectedTokenToCharacter(build: CharacterBuild) {
+  if (!OBR.isAvailable) {
+    return undefined;
+  }
+
+  try {
+    await ensureReady();
+    const selection = await OBR.player.getSelection();
+    const tokenId = selection?.[0];
+    if (!tokenId) {
+      return undefined;
+    }
+    await updateLinkedTokenStats({ ...build, linkedTokenId: tokenId });
+    return tokenId;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function updateLinkedTokenStats(build: CharacterBuild) {
+  if (!OBR.isAvailable || !build.linkedTokenId) {
+    return false;
+  }
+
+  try {
+    await ensureReady();
+    const stats = tokenStats(build);
+    await OBR.scene.items.updateItems([build.linkedTokenId], (items) => {
+      const item = items[0];
+      if (!item) {
+        return;
+      }
+      item.metadata[METADATA_KEYS.tokenStats] = stats;
+      if ("text" in item && item.text && typeof item.text === "object") {
+        (item.text as { plainText?: string }).plainText =
+          `HP ${stats.hp.current}/${stats.hp.max} | Stress ${stats.stress.current}/${stats.stress.max} | Hope ${stats.hope}`;
+      }
     });
     return true;
   } catch {
