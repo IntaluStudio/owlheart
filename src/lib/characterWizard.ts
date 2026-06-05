@@ -116,6 +116,7 @@ export function createWizardDraft(): CharacterBuild {
     notes: "",
     pronouns: "",
     description: emptyDescription,
+    inventorySelections: {},
     backgroundAnswers: [],
     connections: [
       { id: "connection-1", prompt: "How did I save your life the first time we met?", name: "", answer: "" },
@@ -132,7 +133,7 @@ export function getWizardAvailableClasses(entries: ContentEntry[]) {
 export function getWizardSubclasses(entries: ContentEntry[], classId?: string) {
   return getContentByType(entries, "subclass").filter((entry) => {
     if (!classId) {
-      return true;
+      return false;
     }
 
     return getStringArray(entry.system?.classIds).includes(classId);
@@ -161,10 +162,23 @@ export function applyWizardClassSelection(build: CharacterBuild, entries: Conten
 }
 
 export function applyWizardSubclassSelection(build: CharacterBuild, entries: ContentEntry[], subclassId: string): CharacterBuild {
+  if (!build.classId || !subclassId) {
+    return {
+      ...build,
+      subclassId: undefined,
+      selectedAbilities: getAutoSelectedAbilityIds(entries, build.classId, undefined, build.level),
+    };
+  }
+
+  const subclass = entries.find((entry) => entry.id === subclassId && entry.type === "subclass");
+  if (!subclass || !getStringArray(subclass.system?.classIds).includes(build.classId)) {
+    return build;
+  }
+
   const next = resetBuildForSubclassChange(build, entries, subclassId);
   return {
     ...next,
-    selectedAbilities: getAutoSelectedAbilityIds(entries, next.classId, next.subclassId),
+    selectedAbilities: getAutoSelectedAbilityIds(entries, next.classId, next.subclassId, next.level),
   };
 }
 
@@ -188,6 +202,47 @@ export function toggleWizardEquipment(build: CharacterBuild, entries: ContentEnt
   }
 
   return setWizardEquipment(build, entries, Array.from(selected));
+}
+
+function stripWizardInventoryBlock(notes: string) {
+  const start = notes.indexOf("[Wizard Inventory Selections]");
+  const end = notes.indexOf("[/Wizard Inventory Selections]");
+
+  if (start === -1 || end === -1 || end < start) {
+    return notes.trim();
+  }
+
+  return `${notes.slice(0, start)}${notes.slice(end + "[/Wizard Inventory Selections]".length)}`.trim();
+}
+
+export function setWizardInventoryChoice(build: CharacterBuild, choiceId: string, label: string): CharacterBuild {
+  return {
+    ...build,
+    inventorySelections: {
+      ...build.inventorySelections,
+      [choiceId]: label,
+    },
+  };
+}
+
+export function finalizeWizardBuild(build: CharacterBuild) {
+  const selectedInventory = Object.entries(build.inventorySelections ?? {});
+  if (!selectedInventory.length) {
+    return build;
+  }
+
+  const existingNotes = stripWizardInventoryBlock(build.notes);
+  const inventoryNotes = [
+    "[Wizard Inventory Selections]",
+    "Selected wizard inventory:",
+    ...selectedInventory.map(([choiceId, label]) => `- ${choiceId}: ${label}`),
+    "[/Wizard Inventory Selections]",
+  ].join("\n");
+
+  return {
+    ...build,
+    notes: [existingNotes, inventoryNotes].filter(Boolean).join("\n\n"),
+  };
 }
 
 export function validateWizardBuild(build: CharacterBuild, entries: ContentEntry[]) {

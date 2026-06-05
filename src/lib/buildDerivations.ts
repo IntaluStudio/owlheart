@@ -170,6 +170,7 @@ export function buildDerivations(build: CharacterBuild, entries: ContentEntry[])
 }
 
 export function applyDerivedStatus(build: CharacterBuild, derivation: BuildDerivationPreview): CharacterBuild {
+  const derivedMaxHp = derivation.statusByField.maxHp?.derived;
   const patch = derivation.status.reduce<Partial<CharacterStatusReference>>((accumulator, preview) => {
     if (typeof preview.derived === "number") {
       accumulator[preview.field] = preview.derived;
@@ -185,6 +186,10 @@ export function applyDerivedStatus(build: CharacterBuild, derivation: BuildDeriv
     status: {
       ...build.status,
       ...patch,
+      markedHp:
+        typeof derivedMaxHp === "number" && (build.status.markedHp === 0 || build.status.markedHp === build.status.maxHp)
+          ? derivedMaxHp
+          : build.status.markedHp,
     },
   };
 }

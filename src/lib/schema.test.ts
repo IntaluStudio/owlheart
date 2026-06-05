@@ -157,12 +157,16 @@ describe("character build validation", () => {
       },
       backgroundAnswers: [{ id: "guardian-1", prompt: "Who did you fail to protect?", answer: "An old mentor." }],
       connections: [{ id: "connection-1", prompt: "How did I save your life?", name: "Mara", answer: "Pulled me from a ruin." }],
+      inventorySelections: {
+        "class-item": "a tiny, harmless elemental pet",
+      },
     });
 
     expect(build.pronouns).toBe("they/them");
     expect(build.description?.clothes).toBe("Weathered traveling leathers");
     expect(build.backgroundAnswers?.[0].answer).toBe("An old mentor.");
     expect(build.connections?.[0].name).toBe("Mara");
+    expect(build.inventorySelections?.["class-item"]).toBe("a tiny, harmless elemental pet");
   });
 
   it("accepts optional beastform and companion trackers without requiring them on old builds", () => {

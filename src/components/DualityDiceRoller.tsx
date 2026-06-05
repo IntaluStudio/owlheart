@@ -22,6 +22,7 @@ type DualityDiceRollerProps = {
   initialMode?: DaggerheartRollMode;
   initialDifficulty?: number;
   onClose: () => void;
+  onRolled?: (result: DaggerheartRollResult) => void;
 };
 
 function rollD12() {
@@ -142,6 +143,7 @@ export function DualityDiceRoller({
   initialMode = "normal",
   initialDifficulty,
   onClose,
+  onRolled,
 }: DualityDiceRollerProps) {
   const [hopeDie, setHopeDie] = useState(rollD12());
   const [fearDie, setFearDie] = useState(rollD12());
@@ -151,6 +153,7 @@ export function DualityDiceRoller({
   const [difficulty, setDifficulty] = useState<number | undefined>(initialDifficulty);
   const [rolling, setRolling] = useState(false);
   const [status, setStatus] = useState("");
+  const [toastResult, setToastResult] = useState<DaggerheartRollResult | null>(null);
 
   const result = useMemo(
     () =>
@@ -167,6 +170,15 @@ export function DualityDiceRoller({
     [advantageDie, difficulty, fearDie, hopeDie, label, mode, modifier, rollKind],
   );
   const dualityResult = useMemo(() => toDualityResult(result), [result]);
+
+  useEffect(() => {
+    if (!toastResult) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => setToastResult(null), 5200);
+    return () => window.clearTimeout(timeoutId);
+  }, [toastResult]);
 
   const roll = () => {
     setRolling(true);
@@ -189,6 +201,8 @@ export function DualityDiceRoller({
       setFearDie(nextFearDie);
       setAdvantageDie(nextAdvantageDie);
       setRolling(false);
+      setToastResult(rolled);
+      onRolled?.(rolled);
       void writeLastDualityResult(toDualityResult(rolled), label).then((sent) => {
         setStatus(sent ? "Broadcast to shared roll log." : "Rolled locally.");
       });
@@ -264,19 +278,6 @@ export function DualityDiceRoller({
           />
         </label>
 
-        <div className={`roll-result roll-result--${result.outcome.toLowerCase().replace(/\s+/g, "-")}`}>
-          <span>Total</span>
-          <strong>{result.total}</strong>
-          <em>
-            {result.success === undefined ? "" : result.success ? "Success " : "Failure "}
-            {result.outcome}
-          </em>
-          <code>
-            Hope {hopeDie} + Fear {fearDie} {modifier >= 0 ? "+" : "-"} {Math.abs(modifier)}
-            {mode !== "normal" ? ` ${result.adjustment >= 0 ? "+" : "-"} ${Math.abs(result.adjustment)}` : ""}
-          </code>
-        </div>
-
         <div className="toolbar toolbar--wrap">
           <button type="button" className="button button--primary" onClick={roll} disabled={rolling}>
             <Dices size={16} aria-hidden="true" />
@@ -298,6 +299,25 @@ export function DualityDiceRoller({
         <p className="status-line">{dualityResult.copyText.split("\n").slice(-1)[0]}</p>
         {status ? <p className="status-line">{status}</p> : null}
       </section>
+      {toastResult ? (
+        <aside
+          className={`roll-toast roll-result roll-result--${toastResult.outcome.toLowerCase().replace(/\s+/g, "-")}`}
+          role="status"
+          aria-live="polite"
+        >
+          <span>{label}</span>
+          <strong>{toastResult.total}</strong>
+          <em>
+            {toastResult.success === undefined ? "" : toastResult.success ? "Success " : "Failure "}
+            {toastResult.outcome}
+          </em>
+          <code>
+            Hope {toastResult.hopeDie} + Fear {toastResult.fearDie}{" "}
+            {toastResult.modifier + toastResult.adjustment >= 0 ? "+" : "-"}{" "}
+            {Math.abs(toastResult.modifier + toastResult.adjustment)}
+          </code>
+        </aside>
+      ) : null}
     </div>
   );
 }

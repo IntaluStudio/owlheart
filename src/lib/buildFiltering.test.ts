@@ -47,6 +47,33 @@ const entries: ContentEntry[] = [
     system: { classIds: ["srd:class:warrior"] },
   },
   {
+    id: "srd:ability:warrior:brave-foundation",
+    name: "Courage",
+    type: "ability",
+    source: "SRD Core",
+    tags: ["subclass-feature", "foundation"],
+    text: "Foundation subclass feature.",
+    system: { subclassIds: ["srd:subclass:warrior:call-of-the-brave"] },
+  },
+  {
+    id: "srd:ability:warrior:brave-specialization",
+    name: "Rise to the Challenge",
+    type: "ability",
+    source: "SRD Core",
+    tags: ["subclass-feature", "specialization"],
+    text: "Specialization subclass feature.",
+    system: { subclassIds: ["srd:subclass:warrior:call-of-the-brave"] },
+  },
+  {
+    id: "srd:ability:warrior:brave-mastery",
+    name: "Camaraderie",
+    type: "ability",
+    source: "SRD Core",
+    tags: ["subclass-feature", "mastery"],
+    text: "Mastery subclass feature.",
+    system: { subclassIds: ["srd:subclass:warrior:call-of-the-brave"] },
+  },
+  {
     id: "srd:item:spear",
     name: "Spear",
     type: "item",
@@ -115,11 +142,27 @@ describe("build filtering", () => {
     ]);
   });
 
-  it("shows class abilities that match the build class", () => {
+  it("shows class abilities and only unlocked subclass tier abilities", () => {
     const abilities = getAvailableAbilitiesForBuild(entries, warrior);
 
     expect(abilities.map((ability) => ability.id)).toEqual([
       "srd:ability:warrior:battle-strategist",
+      "srd:ability:warrior:brave-foundation",
+    ]);
+
+    const specializationAbilities = getAvailableAbilitiesForBuild(entries, { ...warrior, level: 5 });
+    expect(specializationAbilities.map((ability) => ability.id)).toEqual([
+      "srd:ability:warrior:battle-strategist",
+      "srd:ability:warrior:brave-foundation",
+      "srd:ability:warrior:brave-specialization",
+    ]);
+
+    const masteryAbilities = getAvailableAbilitiesForBuild(entries, { ...warrior, level: 8 });
+    expect(masteryAbilities.map((ability) => ability.id)).toEqual([
+      "srd:ability:warrior:battle-strategist",
+      "srd:ability:warrior:brave-foundation",
+      "srd:ability:warrior:brave-specialization",
+      "srd:ability:warrior:brave-mastery",
     ]);
   });
 

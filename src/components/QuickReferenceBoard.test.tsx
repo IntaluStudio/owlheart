@@ -67,6 +67,41 @@ describe("QuickReferenceBoard", () => {
     expect(html).toContain("Open card slot");
   });
 
+  test("shows a persistent last roll result below traits", () => {
+    const html = renderToStaticMarkup(
+      <QuickReferenceBoard
+        build={build}
+        domainCards={[]}
+        abilities={[]}
+        equipment={[]}
+        lastRoll={{
+          label: "Strength",
+          result: {
+            kind: "action",
+            label: "Strength",
+            hopeDie: 8,
+            fearDie: 5,
+            modifier: 2,
+            mode: "normal",
+            adjustment: 0,
+            total: 15,
+            outcome: "With Hope",
+            labelText: "Strength: 15 With Hope",
+            copyText: "Daggerheart action roll: Strength: 15 With Hope",
+          },
+        }}
+        onRoll={() => undefined}
+        onStatusChange={() => undefined}
+        onTokenChange={() => undefined}
+      />,
+    );
+
+    expect(html).toContain("Last roll - Strength");
+    expect(html).toContain(">15<");
+    expect(html).toContain("With Hope");
+    expect(html).toContain("Hope 8 + Fear 5 + 2");
+  });
+
   test("places selected abilities in the features zone without a duplicate section", () => {
     const classEntry: ContentEntry = {
       id: "class:warrior",

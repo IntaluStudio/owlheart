@@ -602,6 +602,11 @@ textarea {
   align-content: start;
 }
 
+.character-select {
+  display: grid;
+  gap: 6px;
+}
+
 .build-list__item {
   display: grid;
   gap: 4px;
@@ -1269,9 +1274,11 @@ textarea {
 .suggestion-preview-card {
   display: grid;
   gap: 9px;
-  border: 1px solid #d7ddd8;
+  border: 1px solid rgba(227, 179, 65, 0.58);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.84);
+  background:
+    linear-gradient(180deg, rgba(227, 179, 65, 0.1), rgba(227, 179, 65, 0.03)),
+    var(--surface-raised);
   padding: 12px;
 }
 
@@ -1284,21 +1291,21 @@ textarea {
 .suggestion-preview-row {
   display: grid;
   gap: 4px;
-  border: 1px solid #d7ddd8;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #ffffff;
+  background: rgba(18, 21, 29, 0.8);
   padding: 9px;
 }
 
 .suggestion-preview-row span {
-  color: #50575d;
+  color: var(--ink-muted);
   font-size: 0.74rem;
   font-weight: 820;
   text-transform: uppercase;
 }
 
 .suggestion-preview-row strong {
-  color: #161616;
+  color: var(--ink-bright);
   font-size: 0.9rem;
   line-height: 1.25;
 }
@@ -1721,6 +1728,37 @@ textarea {
 .roll-result--with-hope em,
 .roll-result--critical-success em {
   color: #1f6d6d;
+}
+
+.roll-toast {
+  position: fixed;
+  left: 14px;
+  bottom: 14px;
+  z-index: 32;
+  width: min(310px, calc(100vw - 28px));
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.46);
+  animation: roll-toast-in 180ms ease-out;
+}
+
+.roll-toast strong {
+  font-size: 2.35rem;
+}
+
+.roll-toast code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+@keyframes roll-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .roller-backdrop {

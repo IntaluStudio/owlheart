@@ -1,4 +1,5 @@
 import type { CharacterBuild, ContentEntry } from "./types";
+import { isSubclassTierAvailable } from "./abilityTiers";
 
 function normalized(value?: string) {
   return value?.trim().toLowerCase();
@@ -57,6 +58,10 @@ export function isAbilityAvailableToBuild(entry: ContentEntry, build: CharacterB
 
   if (isManualExtra(entry, build)) {
     return true;
+  }
+
+  if (!isSubclassTierAvailable(entry, build.level)) {
+    return false;
   }
 
   return (

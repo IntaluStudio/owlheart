@@ -214,7 +214,7 @@ describe("buildDerivations", () => {
     expect(derivation.statusByField.severeThreshold?.derived).toBeUndefined();
   });
 
-  test("applies derived reference fields without changing current tracker values", () => {
+  test("applies derived reference fields while preserving non-full current HP", () => {
     const derivation = buildDerivations(baseBuild, entries);
     const next = applyDerivedStatus(baseBuild, derivation);
 
@@ -231,6 +231,24 @@ describe("buildDerivations", () => {
       majorThreshold: 8,
       severeThreshold: 16,
     });
+  });
+
+  test("sets current HP to the derived maximum when HP starts empty", () => {
+    const freshBuild = { ...baseBuild, status: { ...baseBuild.status, maxHp: 0, markedHp: 0 } };
+    const derivation = buildDerivations(freshBuild, entries);
+    const next = applyDerivedStatus(freshBuild, derivation);
+
+    expect(next.status.maxHp).toBe(6);
+    expect(next.status.markedHp).toBe(6);
+  });
+
+  test("keeps current HP full when the derived maximum changes", () => {
+    const fullBuild = { ...baseBuild, status: { ...baseBuild.status, maxHp: 5, markedHp: 5 } };
+    const derivation = buildDerivations(fullBuild, entries);
+    const next = applyDerivedStatus(fullBuild, derivation);
+
+    expect(next.status.maxHp).toBe(6);
+    expect(next.status.markedHp).toBe(6);
   });
 
   test("applies derived stress slots while preserving current stress marks", () => {

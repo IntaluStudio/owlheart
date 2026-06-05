@@ -105,6 +105,8 @@ const characterConnectionSchema = z.object({
   answer: z.string().default(""),
 });
 
+const characterInventorySelectionsSchema = z.record(z.string());
+
 // Per Daggerheart SRD p.5: every PC starts with 6 Stress slots, universal constant.
 export const DEFAULT_MAX_STRESS = 6;
 
@@ -170,6 +172,7 @@ export const characterBuildSchema = z.object({
   description: characterDescriptionSchema.optional(),
   backgroundAnswers: z.array(characterPromptAnswerSchema).optional(),
   connections: z.array(characterConnectionSchema).optional(),
+  inventorySelections: characterInventorySelectionsSchema.optional(),
   beastform: characterAlternateTrackerSchema.optional(),
   companion: characterAlternateTrackerSchema.optional(),
   linkedTokenId: z.string().optional(),

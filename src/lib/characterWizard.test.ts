@@ -45,6 +45,7 @@ describe("character wizard helpers", () => {
     expect(next.selectedEquipment).toEqual(["core_weapon_battleaxe", "core_armor_chainmail_armor"]);
     expect(next.status).toMatchObject({
       maxHp: 7,
+      markedHp: 7,
       evasion: 8,
       armorScore: 4,
       majorThreshold: 8,
@@ -81,6 +82,7 @@ describe("character wizard helpers", () => {
     expect(next.selectedEquipment).toEqual(["core_weapon_longsword", "core_armor_leather_armor"]);
     expect(next.status).toMatchObject({
       maxHp: 6,
+      markedHp: 6,
       evasion: 9,
       armorScore: 3,
       majorThreshold: 7,

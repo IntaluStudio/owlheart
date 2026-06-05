@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { BuildManager } from "./components/BuildManager";
 import { DualityHelper } from "./components/DualityHelper";
 import { HomebrewManager } from "./components/HomebrewManager";
-import { QuickRollStrip } from "./components/QuickRollStrip";
 import { RollLog } from "./components/RollLog";
 import { SrdBrowser } from "./components/SrdBrowser";
 import { sampleCharacter } from "./data/sampleCharacter";
@@ -140,8 +139,6 @@ export function App() {
           );
         })}
       </nav>
-
-      <QuickRollStrip />
 
       {isSrdLoading ? <p className="status-line">Loading SRD data...</p> : null}
       {srdLoadError ? <p className="inline-error">{srdLoadError}</p> : null}

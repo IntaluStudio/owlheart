@@ -44,7 +44,25 @@ const entries: ContentEntry[] = [
     name: "Shadow Stepper",
     type: "ability",
     source: "SRD",
-    tags: [],
+    tags: ["subclass-feature", "foundation"],
+    text: "",
+    system: { ownerKind: "subclass", classIds: ["class:rogue"], subclassIds: ["subclass:rogue"] },
+  },
+  {
+    id: "ability:rogue-subclass-specialization",
+    name: "Contacts Everywhere",
+    type: "ability",
+    source: "SRD",
+    tags: ["subclass-feature", "specialization"],
+    text: "",
+    system: { ownerKind: "subclass", classIds: ["class:rogue"], subclassIds: ["subclass:rogue"] },
+  },
+  {
+    id: "ability:rogue-subclass-mastery",
+    name: "Reliable Backup",
+    type: "ability",
+    source: "SRD",
+    tags: ["subclass-feature", "mastery"],
     text: "",
     system: { ownerKind: "subclass", classIds: ["class:rogue"], subclassIds: ["subclass:rogue"] },
   },
@@ -132,10 +150,23 @@ describe("resetBuildForSubclassChange", () => {
     ]);
   });
 
-  test("returns all auto-selected class and subclass ability ids", () => {
+  test("returns auto-selected class and unlocked subclass ability ids", () => {
     expect(getAutoSelectedAbilityIds(entries, "class:rogue", "subclass:rogue")).toEqual([
       "ability:rogue-class",
       "ability:rogue-subclass",
+    ]);
+
+    expect(getAutoSelectedAbilityIds(entries, "class:rogue", "subclass:rogue", 5)).toEqual([
+      "ability:rogue-class",
+      "ability:rogue-subclass",
+      "ability:rogue-subclass-specialization",
+    ]);
+
+    expect(getAutoSelectedAbilityIds(entries, "class:rogue", "subclass:rogue", 8)).toEqual([
+      "ability:rogue-class",
+      "ability:rogue-subclass",
+      "ability:rogue-subclass-specialization",
+      "ability:rogue-subclass-mastery",
     ]);
   });
 });

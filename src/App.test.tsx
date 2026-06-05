@@ -30,7 +30,7 @@ describe("App navigation", () => {
     expect(nav).toContain('disabled=""');
     expect(nav).toContain("Packs disabled for now");
     expect(html).toContain("Void content");
-    expect(html).toContain("Quick roll");
+    expect(html).not.toContain("Quick roll");
     expect(html).toContain("Shared rolls");
   }, 10000);
 });

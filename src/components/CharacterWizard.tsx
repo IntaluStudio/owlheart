@@ -9,8 +9,10 @@ import {
   applyWizardClassSelection,
   applyWizardSubclassSelection,
   createWizardDraft,
+  finalizeWizardBuild,
   getWizardAvailableClasses,
   getWizardSubclasses,
+  setWizardInventoryChoice,
   setWizardEquipment,
   toggleWizardEquipment,
   validateWizardBuild,
@@ -25,6 +27,7 @@ type CharacterWizardProps = {
   onFinish: (build: CharacterBuild) => void;
   onCancel?: () => void;
   initialDraft?: CharacterBuild;
+  initialStepIndex?: number;
 };
 
 const TRAIT_LABELS: Record<TraitKey, string> = {
@@ -60,12 +63,23 @@ function isArmor(entry: ContentEntry) {
   return equipmentType(entry) === "armor" || entry.tags.includes("armor");
 }
 
-function isConsumable(entry: ContentEntry) {
-  return equipmentType(entry) === "consumable";
-}
-
 function selectedLabel(entries: ContentEntry[], id: string | undefined) {
   return entries.find((entry) => entry.id === id)?.name ?? "None selected";
+}
+
+function domainSortKey(entry: ContentEntry) {
+  return (entry.domain ?? entry.domains?.[0] ?? "").trim().toLowerCase();
+}
+
+function sortDomainCardsForWizard(cards: ContentEntry[]) {
+  return [...cards].sort((a, b) => {
+    const domainCompare = domainSortKey(a).localeCompare(domainSortKey(b));
+    if (domainCompare !== 0) {
+      return domainCompare;
+    }
+
+    return a.name.localeCompare(b.name);
+  });
 }
 
 function entrySummary(entry: ContentEntry) {
@@ -97,8 +111,8 @@ function emptyExperience(build: CharacterBuild): CharacterExperience {
   };
 }
 
-export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: CharacterWizardProps) {
-  const [activeStepIndex, setActiveStepIndex] = useState(0);
+export function CharacterWizard({ entries, onFinish, onCancel, initialDraft, initialStepIndex = 0 }: CharacterWizardProps) {
+  const [activeStepIndex, setActiveStepIndex] = useState(initialStepIndex);
   const [draft, setDraft] = useState<CharacterBuild>(() => initialDraft ?? createWizardDraft());
   const activeStep = WIZARD_STEPS[activeStepIndex];
   const suggestionPreview = useMemo(() => previewSuggestedClassReference(draft, entries), [draft, entries]);
@@ -116,9 +130,8 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
   const primaryWeapons = useMemo(() => tierOneEquipment.filter(isPrimaryWeapon), [tierOneEquipment]);
   const secondaryWeapons = useMemo(() => tierOneEquipment.filter(isSecondaryWeapon), [tierOneEquipment]);
   const armor = useMemo(() => tierOneEquipment.filter(isArmor), [tierOneEquipment]);
-  const consumables = useMemo(() => tierOneEquipment.filter(isConsumable), [tierOneEquipment]);
   const availableCards = useMemo(
-    () => getAvailableDomainCardsForBuild(entries, draft).filter((entry) => (entry.level ?? 1) <= 1),
+    () => sortDomainCardsForWizard(getAvailableDomainCardsForBuild(entries, draft).filter((entry) => (entry.level ?? 1) <= 1)),
     [draft, entries],
   );
 
@@ -132,6 +145,30 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
         [trait]: value,
       },
     }));
+  };
+
+  const updateBackgroundAnswer = (answerId: string, value: string) => {
+    patchDraft({
+      backgroundAnswers: draft.backgroundAnswers?.map((item) =>
+        item.id === answerId ? { ...item, answer: value } : item,
+      ),
+    });
+  };
+
+  const updateConnectionName = (connectionId: string, value: string) => {
+    patchDraft({
+      connections: draft.connections?.map((item) =>
+        item.id === connectionId ? { ...item, name: value } : item,
+      ),
+    });
+  };
+
+  const updateConnectionAnswer = (connectionId: string, value: string) => {
+    patchDraft({
+      connections: draft.connections?.map((item) =>
+        item.id === connectionId ? { ...item, answer: value } : item,
+      ),
+    });
   };
 
   const updateDescription = (field: keyof CharacterDescription, value: string) => {
@@ -161,8 +198,9 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
       return;
     }
 
+    const finished = finalizeWizardBuild(draft);
     onFinish({
-      ...draft,
+      ...finished,
       name: draft.name.trim(),
       pronouns: draft.pronouns?.trim(),
     });
@@ -212,9 +250,13 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
               <span>Subclass</span>
               <select
                 value={draft.subclassId ?? ""}
-                onChange={(event) => setDraft((current) => applyWizardSubclassSelection(current, entries, event.currentTarget.value))}
+                disabled={!draft.classId}
+                onChange={(event) => {
+                  const subclassId = event.target.value;
+                  setDraft((current) => applyWizardSubclassSelection(current, entries, subclassId));
+                }}
               >
-                <option value="">None selected</option>
+                <option value="">{draft.classId ? "None selected" : "Choose a class first"}</option>
                 {subclasses.map((entry) => (
                   <option key={entry.id} value={entry.id}>
                     {entry.name}
@@ -246,7 +288,13 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
                 <label key={trait} className="wizard-trait">
                   <span>{TRAIT_LABELS[trait]}</span>
                   <strong>{modifierLabel(draft.traits[trait])}</strong>
-                  <input type="number" min={-1} max={2} value={draft.traits[trait]} onChange={(event) => updateTrait(trait, Number(event.currentTarget.value))} />
+                  <input
+                    type="number"
+                    min={-1}
+                    max={2}
+                    value={draft.traits[trait]}
+                    onChange={(event) => updateTrait(trait, Number(event.target.value))}
+                  />
                 </label>
               ))}
             </div>
@@ -334,10 +382,17 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
                     <button
                       key={option.label}
                       type="button"
-                      className={option.contentId && draft.selectedEquipment.includes(option.contentId) ? "wizard-pill wizard-pill--selected" : "wizard-pill"}
+                      className={
+                        (option.contentId && draft.selectedEquipment.includes(option.contentId)) ||
+                        draft.inventorySelections?.[choice.id] === option.label
+                          ? "wizard-pill wizard-pill--selected"
+                          : "wizard-pill"
+                      }
                       onClick={() => {
                         if (option.contentId) {
                           setDraft((current) => toggleWizardEquipment(current, entries, option.contentId as string));
+                        } else {
+                          setDraft((current) => setWizardInventoryChoice(current, choice.id, option.label));
                         }
                       }}
                     >
@@ -347,14 +402,6 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
                 </div>
               </div>
             ))}
-            <div className="wizard-choice-grid wizard-choice-grid--compact">
-              {consumables.slice(0, 8).map((entry) =>
-                renderChoiceButton(entry, draft.selectedEquipment.includes(entry.id), () =>
-                  setDraft((current) => toggleWizardEquipment(current, entries, entry.id)),
-                ),
-              )}
-              {consumables.length === 0 ? <p className="empty-state wizard-empty-state">No consumables available.</p> : null}
-            </div>
           </>
         );
       case "description":
@@ -365,7 +412,7 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
                 <span>{prompt.label}</span>
                 <input
                   value={String(draft.description?.[prompt.id] ?? "")}
-                  onChange={(event) => updateDescription(prompt.id, event.currentTarget.value)}
+                  onChange={(event) => updateDescription(prompt.id, event.target.value)}
                   placeholder="Choose one or write your own"
                 />
                 <div className="wizard-pill-row">
@@ -379,7 +426,11 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
             ))}
             <label>
               <span>Additional description</span>
-              <textarea value={draft.description?.notes ?? ""} onChange={(event) => updateDescription("notes", event.currentTarget.value)} rows={3} />
+              <textarea
+                value={draft.description?.notes ?? ""}
+                onChange={(event) => updateDescription("notes", event.target.value)}
+                rows={3}
+              />
             </label>
           </>
         );
@@ -391,11 +442,15 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
                 <div key={experience.id} className="experience-editor__row">
                   <label>
                     <span>Name</span>
-                    <input value={experience.name} onChange={(event) => updateExperience(experience.id, { name: event.currentTarget.value })} />
+                    <input value={experience.name} onChange={(event) => updateExperience(experience.id, { name: event.target.value })} />
                   </label>
                   <label>
                     <span>Modifier</span>
-                    <input type="number" value={experience.modifier} onChange={(event) => updateExperience(experience.id, { modifier: Number(event.currentTarget.value) })} />
+                    <input
+                      type="number"
+                      value={experience.modifier}
+                      onChange={(event) => updateExperience(experience.id, { modifier: Number(event.target.value) })}
+                    />
                   </label>
                 </div>
               ))}
@@ -438,13 +493,7 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
                 <textarea
                   value={answer.answer}
                   rows={3}
-                  onChange={(event) =>
-                    patchDraft({
-                      backgroundAnswers: draft.backgroundAnswers?.map((item) =>
-                        item.id === answer.id ? { ...item, answer: event.currentTarget.value } : item,
-                      ),
-                    })
-                  }
+                  onChange={(event) => updateBackgroundAnswer(answer.id, event.target.value)}
                 />
               </label>
             ))}
@@ -454,26 +503,14 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
                   <span>{connection.prompt}</span>
                   <input
                     value={connection.name}
-                    onChange={(event) =>
-                      patchDraft({
-                        connections: draft.connections?.map((item) =>
-                          item.id === connection.id ? { ...item, name: event.currentTarget.value } : item,
-                        ),
-                      })
-                    }
+                    onChange={(event) => updateConnectionName(connection.id, event.target.value)}
                     placeholder="Name of connection"
                   />
                 </label>
                 <textarea
                   value={connection.answer}
                   rows={3}
-                  onChange={(event) =>
-                    patchDraft({
-                      connections: draft.connections?.map((item) =>
-                        item.id === connection.id ? { ...item, answer: event.currentTarget.value } : item,
-                      ),
-                    })
-                  }
+                  onChange={(event) => updateConnectionAnswer(connection.id, event.target.value)}
                   placeholder="Describe your answer"
                 />
               </div>
@@ -485,11 +522,11 @@ export function CharacterWizard({ entries, onFinish, onCancel, initialDraft }: C
           <div className="form-grid">
             <label>
               <span>Name</span>
-              <input value={draft.name} onChange={(event) => patchDraft({ name: event.currentTarget.value })} />
+              <input value={draft.name} onChange={(event) => patchDraft({ name: event.target.value })} />
             </label>
             <label>
               <span>Pronouns</span>
-              <input value={draft.pronouns ?? ""} onChange={(event) => patchDraft({ pronouns: event.currentTarget.value })} placeholder="Enter pronouns" />
+              <input value={draft.pronouns ?? ""} onChange={(event) => patchDraft({ pronouns: event.target.value })} placeholder="Enter pronouns" />
             </label>
           </div>
         );

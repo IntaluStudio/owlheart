@@ -29,13 +29,18 @@ describe("BuildManager", () => {
       selectedEquipment: ["core_weapon_spear"],
     };
 
-    const html = renderToStaticMarkup(<BuildManager builds={[guardianWithSpear]} entries={srdEntries} onChange={() => undefined} />);
+    const referenceHtml = renderToStaticMarkup(<BuildManager builds={[guardianWithSpear]} entries={srdEntries} onChange={() => undefined} />);
+    const editHtml = renderToStaticMarkup(
+      <BuildManager builds={[guardianWithSpear]} entries={srdEntries} onChange={() => undefined} initialQuickReference={false} />,
+    );
 
-    expect(html).toContain("Suggestion preview");
-    expect(html).toContain("Spear");
-    expect(html).toContain("Battleaxe");
-    expect(html).toContain("Chainmail Armor");
-    expect(html).toContain("Apply suggestions");
+    expect(referenceHtml).not.toContain("Suggestion preview");
+    expect(editHtml).toContain("Suggestion preview");
+    expect(editHtml.indexOf("Traits")).toBeLessThan(editHtml.indexOf("Suggestion preview"));
+    expect(editHtml).toContain("Spear");
+    expect(editHtml).toContain("Battleaxe");
+    expect(editHtml).toContain("Chainmail Armor");
+    expect(editHtml).toContain("Apply suggestions");
   });
 
   test("shows quick build and wizard builder mode choices", () => {
@@ -43,6 +48,16 @@ describe("BuildManager", () => {
 
     expect(html).toContain("Quick Build");
     expect(html).toContain("Wizard Builder");
+  });
+
+  test("uses a compact character selector instead of a growing card list", () => {
+    const secondBuild = { ...sampleCharacter, id: "character:second", name: "Second Build", level: 2 };
+    const html = renderToStaticMarkup(<BuildManager builds={[sampleCharacter, secondBuild]} entries={srdEntries} onChange={() => undefined} />);
+
+    expect(html).toContain("<select");
+    expect(html).toContain("Character");
+    expect(html).toContain("Second Build - Warrior / Call of the Brave - Level 2");
+    expect(html).not.toContain("build-list__item");
   });
 
   test("shows feature token trackers in reference view", () => {

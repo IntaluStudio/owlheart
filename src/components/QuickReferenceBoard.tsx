@@ -12,6 +12,7 @@ import {
   type CharacterAlternateTracker,
   type CharacterBuild,
   type ContentEntry,
+  type DaggerheartRollResult,
   type DaggerheartRollKind,
   type DaggerheartRollMode,
   type TraitKey,
@@ -29,6 +30,7 @@ type QuickReferenceBoardProps = {
   equipment: ContentEntry[];
   entries?: ContentEntry[];
   onRoll: (target: RollTarget) => void;
+  lastRoll?: { label: string; result: DaggerheartRollResult };
   onStatusChange: (patch: Partial<CharacterBuild["status"]>) => void;
   onTokenChange: (tokens: CharacterFeatureToken[]) => void;
   onLinkToken?: () => void;
@@ -151,6 +153,7 @@ export function QuickReferenceBoard({
   equipment,
   entries = [],
   onRoll,
+  lastRoll,
   onStatusChange,
   onTokenChange,
   onLinkToken,
@@ -211,6 +214,9 @@ export function QuickReferenceBoard({
     }),
     [rollDifficulty, rollKind, rollMode],
   );
+  const rollTrait = (trait: TraitKey) => onRoll(createTraitRollTarget(trait, build.traits[trait], rollOptions));
+  const rollExperience = (experience: CharacterBuild["experiences"][number]) =>
+    onRoll(createExperienceRollTarget(experience, rollOptions));
   const sheetTabs = [
     { kind: "character" as const, label: "Character", detail: build.name, attackDice: undefined },
     ...(showBeastform
@@ -402,7 +408,13 @@ export function QuickReferenceBoard({
               key={trait}
               type="button"
               className="trait-button"
-              onClick={() => onRoll(createTraitRollTarget(trait, build.traits[trait], rollOptions))}
+              onPointerUp={() => rollTrait(trait)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  rollTrait(trait);
+                }
+              }}
             >
               <span>{TRAIT_LABELS[trait]}</span>
               <strong>{modifierLabel(build.traits[trait])}</strong>
@@ -410,6 +422,21 @@ export function QuickReferenceBoard({
             </button>
           ))}
         </div>
+        {lastRoll ? (
+          <div className={`inline-roll-result roll-result roll-result--${lastRoll.result.outcome.toLowerCase().replace(/\s+/g, "-")}`}>
+            <span>Last roll - {lastRoll.label}</span>
+            <strong>{lastRoll.result.total}</strong>
+            <em>
+              {lastRoll.result.success === undefined ? "" : lastRoll.result.success ? "Success " : "Failure "}
+              {lastRoll.result.outcome}
+            </em>
+            <code>
+              Hope {lastRoll.result.hopeDie} + Fear {lastRoll.result.fearDie}{" "}
+              {lastRoll.result.modifier + lastRoll.result.adjustment >= 0 ? "+" : "-"}{" "}
+              {Math.abs(lastRoll.result.modifier + lastRoll.result.adjustment)}
+            </code>
+          </div>
+        ) : null}
       </section>
 
       <section className="quick-board__zone">
@@ -445,12 +472,18 @@ export function QuickReferenceBoard({
         {build.experiences.length ? (
           <div className="experience-grid">
             {build.experiences.map((experience) => (
-              <button
-                key={experience.id}
-                type="button"
-                className="experience-button"
-                onClick={() => onRoll(createExperienceRollTarget(experience, rollOptions))}
-              >
+            <button
+              key={experience.id}
+              type="button"
+              className="experience-button"
+              onPointerUp={() => rollExperience(experience)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  rollExperience(experience);
+                }
+              }}
+            >
                 <span>{experience.name}</span>
                 <strong>{modifierLabel(experience.modifier)}</strong>
               </button>

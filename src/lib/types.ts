@@ -91,6 +91,8 @@ export type CharacterConnection = {
   answer: string;
 };
 
+export type CharacterInventorySelections = Record<string, string>;
+
 export type CharacterStatusReference = {
   maxHp: number;
   markedHp: number;
@@ -156,6 +158,7 @@ export type CharacterBuild = {
   description?: CharacterDescription;
   backgroundAnswers?: CharacterPromptAnswer[];
   connections?: CharacterConnection[];
+  inventorySelections?: CharacterInventorySelections;
   beastform?: CharacterAlternateTracker;
   companion?: CharacterAlternateTracker;
   linkedTokenId?: string;

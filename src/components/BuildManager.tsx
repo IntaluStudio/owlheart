@@ -15,14 +15,16 @@ import {
   type CharacterExperience,
   type CharacterFeatureToken,
   type ContentEntry,
+  type DaggerheartRollResult,
   type TraitKey,
 } from "../lib/types";
 import { filterContentChoices, type RollTarget } from "../lib/quickReference";
 import { applySuggestedClassReference, previewSuggestedClassReference } from "../lib/suggestedBuilds";
-import { getAutoSelectedAbilityIds, resetBuildForClassChange, resetBuildForSubclassChange } from "../lib/classChange";
+import { getAutoSelectedAbilityIds, resetBuildForClassChange, resetBuildForSubclassChange, syncAutoSelectedAbilityIdsForBuild } from "../lib/classChange";
 import { applyDerivedStatus, buildDerivations } from "../lib/buildDerivations";
 import { applySuggestedFeatureTokens, getCalculationHintsForBuild, getSuggestedFeatureTokens } from "../lib/calculationHints";
-import { linkSelectedTokenToCharacter, updateLinkedTokenStats } from "../lib/owlbear";
+import { formatDaggerheartRoll } from "../lib/daggerheartRolls";
+import { linkSelectedTokenToCharacter, updateLinkedTokenStats, writeLastDualityResult } from "../lib/owlbear";
 
 const EQUIPMENT_PAGE_SIZE = 10;
 const CARD_PAGE_SIZE = 8;
@@ -48,6 +50,7 @@ type BuildManagerProps = {
   builds: CharacterBuild[];
   entries: ContentEntry[];
   onChange: (builds: CharacterBuild[]) => void;
+  initialQuickReference?: boolean;
 };
 
 function getStringArray(value: unknown) {
@@ -71,7 +74,7 @@ function createBlankBuild(entries: ContentEntry[]): CharacterBuild {
     level: 1,
     selectedDomains,
     selectedDomainCards: [],
-    selectedAbilities: getAutoSelectedAbilityIds(entries, firstClass?.id, firstSubclass?.id),
+    selectedAbilities: getAutoSelectedAbilityIds(entries, firstClass?.id, firstSubclass?.id, 1),
     selectedEquipment: [],
     traits: {
       agility: 0,
@@ -106,10 +109,44 @@ function toggleId(list: string[], id: string) {
   return list.includes(id) ? list.filter((value) => value !== id) : [...list, id];
 }
 
-export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
+function buildOptionLabel(build: CharacterBuild, entries: ContentEntry[]) {
+  const byId = new Map(entries.map((entry) => [entry.id, entry]));
+  const className = build.classId ? byId.get(build.classId)?.name : undefined;
+  const subclassName = build.subclassId ? byId.get(build.subclassId)?.name : undefined;
+  const buildType = [className, subclassName].filter(Boolean).join(" / ");
+
+  return [build.name, buildType || "No class", `Level ${build.level}`].join(" - ");
+}
+
+function rollD12() {
+  return Math.floor(Math.random() * 12) + 1;
+}
+
+function rollD6() {
+  return Math.floor(Math.random() * 6) + 1;
+}
+
+function toDualityBroadcast(result: DaggerheartRollResult) {
+  return {
+    hopeDie: result.hopeDie,
+    fearDie: result.fearDie,
+    modifier: result.modifier + result.adjustment,
+    total: result.total,
+    outcome: result.outcome,
+    label: result.labelText,
+    copyText: result.copyText,
+  };
+}
+
+type LastRollResult = {
+  label: string;
+  result: DaggerheartRollResult;
+};
+
+export function BuildManager({ builds, entries, onChange, initialQuickReference = true }: BuildManagerProps) {
   const [selectedBuildId, setSelectedBuildId] = useState(builds[0]?.id);
   const [builderMode, setBuilderMode] = useState<"quick" | "wizard">("quick");
-  const [quickReference, setQuickReference] = useState(true);
+  const [quickReference, setQuickReference] = useState(initialQuickReference);
   const [importError, setImportError] = useState("");
   const [equipmentQuery, setEquipmentQuery] = useState("");
   const [equipmentPage, setEquipmentPage] = useState(1);
@@ -119,6 +156,7 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
   const [abilityQuery, setAbilityQuery] = useState("");
   const [abilityPage, setAbilityPage] = useState(1);
   const [activeRollTarget, setActiveRollTarget] = useState<RollTarget | null>(null);
+  const [lastRollResult, setLastRollResult] = useState<LastRollResult | undefined>();
 
   const selectedBuild = builds.find((build) => build.id === selectedBuildId) ?? builds[0];
   const suggestionPreview = useMemo(
@@ -197,6 +235,20 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
       void updateLinkedTokenStats(selectedBuild);
     }
   }, [selectedBuild]);
+
+  useEffect(() => {
+    if (!selectedBuild) {
+      return;
+    }
+
+    const syncedAbilities = syncAutoSelectedAbilityIdsForBuild(selectedBuild, entries);
+    if (
+      syncedAbilities.length !== selectedBuild.selectedAbilities.length ||
+      syncedAbilities.some((id, index) => id !== selectedBuild.selectedAbilities[index])
+    ) {
+      updateBuild({ selectedAbilities: syncedAbilities });
+    }
+  }, [entries, selectedBuild?.id, selectedBuild?.level, selectedBuild?.classId, selectedBuild?.subclassId]);
 
   const updateTrait = (trait: TraitKey, value: number) => {
     if (!selectedBuild) {
@@ -399,6 +451,22 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
     setQuickReference(true);
   };
 
+  const rollFromReference = (target: RollTarget) => {
+    const result = formatDaggerheartRoll({
+      kind: target.kind,
+      label: target.label,
+      hopeDie: rollD12(),
+      fearDie: rollD12(),
+      modifier: target.modifier,
+      mode: target.mode,
+      advantageDie: rollD6(),
+      difficulty: target.difficulty,
+    });
+
+    setLastRollResult({ label: target.label, result });
+    void writeLastDualityResult(toDualityBroadcast(result), target.label);
+  };
+
   const deleteSelectedBuild = () => {
     if (!selectedBuild) {
       return;
@@ -479,17 +547,16 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
           </label>
         </div>
         {importError ? <p className="field-error">{importError}</p> : null}
-        {builds.map((build) => (
-          <button
-            key={build.id}
-            type="button"
-            className={`build-list__item ${build.id === selectedBuild.id ? "build-list__item--selected" : ""}`}
-            onClick={() => setSelectedBuildId(build.id)}
-          >
-            <strong>{build.name}</strong>
-            <span>Level {build.level}</span>
-          </button>
-        ))}
+        <label className="character-select">
+          <span>Character</span>
+          <select value={selectedBuild.id} onChange={(event) => setSelectedBuildId(event.target.value)}>
+            {builds.map((build) => (
+              <option key={build.id} value={build.id}>
+                {buildOptionLabel(build, entries)}
+              </option>
+            ))}
+          </select>
+        </label>
       </aside>
 
       <div className="build-editor">
@@ -529,10 +596,6 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
           </button>
         </div>
 
-        {suggestionPreview?.reference ? (
-          <SuggestionPreviewCard preview={suggestionPreview} onApply={applyClassSuggestions} />
-        ) : null}
-
         {quickReference && selectedReferences ? (
           <QuickReferenceBoard
             build={selectedBuild}
@@ -544,7 +607,8 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
             abilities={selectedReferences.abilities}
             equipment={selectedReferences.equipment}
             entries={entries}
-            onRoll={setActiveRollTarget}
+            onRoll={rollFromReference}
+            lastRoll={lastRollResult}
             onStatusChange={updateStatus}
             onTokenChange={(featureTokens) => updateBuild({ featureTokens })}
             onLinkToken={linkToken}
@@ -649,6 +713,10 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
                 ))}
               </div>
             </div>
+
+            {suggestionPreview?.reference ? (
+              <SuggestionPreviewCard preview={suggestionPreview} onApply={applyClassSuggestions} />
+            ) : null}
 
             {derivationPreview ? (
               <div className="selection-section">
@@ -1135,6 +1203,7 @@ export function BuildManager({ builds, entries, onChange }: BuildManagerProps) {
             kind={activeRollTarget.kind}
             initialMode={activeRollTarget.mode}
             initialDifficulty={activeRollTarget.difficulty}
+            onRolled={(result) => setLastRollResult({ label: activeRollTarget.label, result })}
             onClose={() => setActiveRollTarget(null)}
           />
         </Suspense>
